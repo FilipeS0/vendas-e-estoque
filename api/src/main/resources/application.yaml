@@ -1,3 +1,8 @@
 spring:
   application:
     name: api
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:your-local-dev-secret-key-1234567890}
