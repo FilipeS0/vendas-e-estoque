@@ -5,4 +5,4 @@ spring:
 api:
   security:
     token:
-      secret: ${JWT_SECRET:8j29d93nf028fj209d8n20f82jd92n0f8h20d8n20f82h0d28nf208dn208f2h0}
+      secret: ${JWT_SECRET:your-local-dev-secret-key-1234567890}
