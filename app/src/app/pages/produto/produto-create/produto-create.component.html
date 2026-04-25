@@ -104,7 +104,9 @@
             @if (isLoading()) {
               Salvando...
             } @else {
-              <mat-icon>save</mat-icon> {{ editMode() ? 'Salvar Alterações' : 'Salvar Produto' }}
+              <ng-container>
+                <mat-icon>save</mat-icon> {{ editMode() ? 'Salvar Alterações' : 'Salvar Produto' }}
+              </ng-container>
             }
           </button>
         </div>

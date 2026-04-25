@@ -94,6 +94,28 @@ public class CaixaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/{id}/suprimento")
+    public ResponseEntity<LancamentoCaixaResponse> suprimento(
+            @PathVariable UUID id,
+            @RequestBody @Valid LancamentoManualCaixaRequest request,
+            Authentication authentication
+    ) {
+        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(caixaService.registrarEntradaManual(id, request, usuario));
+    }
+
+    @PostMapping("/{id}/sangria")
+    public ResponseEntity<LancamentoCaixaResponse> sangria(
+            @PathVariable UUID id,
+            @RequestBody @Valid LancamentoManualCaixaRequest request,
+            Authentication authentication
+    ) {
+        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(caixaService.registrarSaidaManual(id, request, usuario));
+    }
+
     @PostMapping("/{id}/fechar")
     public ResponseEntity<CaixaResponse> fechar(
             @PathVariable UUID id,

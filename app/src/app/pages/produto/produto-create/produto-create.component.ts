@@ -6,12 +6,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Categoria, Fornecedor, ProdutoService } from '../../../services/produto.service';
 
 @Component({
   selector: 'app-produto-create',
-  imports: [ReactiveFormsModule, MatCardModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatSnackBarModule],
+  imports: [ReactiveFormsModule, MatCardModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatSnackBarModule, MatDividerModule],
   templateUrl: './produto-create.component.html',
   styleUrls: ['./produto-create.component.css']
 })

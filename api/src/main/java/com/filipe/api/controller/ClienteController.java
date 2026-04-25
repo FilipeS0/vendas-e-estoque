@@ -55,4 +55,10 @@ public class ClienteController {
         clienteService.inativarCliente(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/extrato")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
+    public ResponseEntity<java.util.List<com.filipe.api.dto.cliente.ExtratoClienteItem>> getExtrato(@PathVariable UUID id) {
+        return ResponseEntity.ok(clienteService.gerarExtrato(id));
+    }
 }

@@ -55,6 +55,18 @@ public class Produto {
     @Column(nullable = false, length = 4)
     private String cfop;
 
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private OrigemProduto origem;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 3)
+    private Csosn csosn;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cst_pis_cofins", length = 2)
+    private CstPisCofins cstPisCofins;
+
     @Column(name = "situacao_tributaria", length = 50)
     private String situacaoTributaria;
 

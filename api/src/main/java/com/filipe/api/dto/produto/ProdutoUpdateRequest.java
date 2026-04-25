@@ -1,5 +1,8 @@
 package com.filipe.api.dto.produto;
 
+import com.filipe.api.domain.produto.Csosn;
+import com.filipe.api.domain.produto.CstPisCofins;
+import com.filipe.api.domain.produto.OrigemProduto;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,6 +17,9 @@ public record ProdutoUpdateRequest(
         @NotBlank @Size(min = 8, max = 8) String ncm,
         @Size(max = 10) String cest,
         @NotBlank @Size(min = 4, max = 4) String cfop,
+        @NotNull OrigemProduto origem,
+        Csosn csosn,
+        CstPisCofins cstPisCofins,
         String situacaoTributaria,
         @PositiveOrZero BigDecimal aliquotaIcms,
         @PositiveOrZero BigDecimal aliquotaPis,

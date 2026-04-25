@@ -4,7 +4,9 @@
       <div mat-card-avatar class="avatar">
         <mat-icon>account_circle</mat-icon>
       </div>
-      <mat-card-title>Bem-vindo, {{ authService.currentUser()?.nome || 'Usuário' }}!</mat-card-title>
+      <mat-card-title
+        >Bem-vindo, {{ authService.currentUser()?.nome || 'Usuário' }}!</mat-card-title
+      >
       <mat-card-subtitle>{{ authService.currentUser()?.email }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
@@ -25,4 +27,26 @@
       <button mat-button color="warn" (click)="logout()">Sair</button>
     </mat-card-actions>
   </mat-card>
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-title>Faturamento Total</mat-card-title>
+      <mat-card-content>
+        <h2>{{ stats()?.faturamentoTotal || 0 | number: '1.2-2' }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-title>Vendas do Dia</mat-card-title>
+      <mat-card-content>
+        <h2>{{ stats()?.vendasDoDia || 0 }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-title>Variação (últimos dias)</mat-card-title>
+      <mat-card-content>
+        <app-line-chart [data]="stats()?.series || []"></app-line-chart>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

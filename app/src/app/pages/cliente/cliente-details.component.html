@@ -1,0 +1,23 @@
+<div class="cliente-container">
+  @if (cliente) {
+    <mat-card>
+      <mat-card-title>{{ cliente.nome }}</mat-card-title>
+      <mat-card-content>
+        <p><strong>Limite de Crédito:</strong> {{ cliente.creditLimit || 0 | number: '1.2-2' }}</p>
+        <p><strong>Saldo Atual:</strong> {{ cliente.currentDebt || 0 | number: '1.2-2' }}</p>
+
+        <h3>Parcelas em Aberto</h3>
+        <app-installment-list [installments]="openInstallments"></app-installment-list>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Editar Cliente</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  @if (!cliente) {
+    <mat-card>
+      <mat-card-content>Cliente não encontrado.</mat-card-content>
+    </mat-card>
+  }
+</div>

@@ -26,4 +26,6 @@ public interface VendaRepository extends JpaRepository<Venda, UUID> {
             @Param("numero") Long numero,
             @Param("caixaId") UUID caixaId,
             Pageable pageable);
+
+    List<Venda> findByClienteId(UUID clienteId);
 }
