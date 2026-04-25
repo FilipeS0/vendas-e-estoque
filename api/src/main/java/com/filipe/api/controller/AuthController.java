@@ -1,8 +1,8 @@
 package com.filipe.api.controller;
 
 import com.filipe.api.domain.usuario.Usuario;
-import com.filipe.api.domain.usuario.dto.LoginRequest;
-import com.filipe.api.domain.usuario.dto.LoginResponse;
+import com.filipe.api.dto.auth.LoginRequest;
+import com.filipe.api.dto.auth.LoginResponse;
 import com.filipe.api.security.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

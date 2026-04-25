@@ -23,7 +23,7 @@ public class TokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("pdv-api")
                 .issuedAt(now)
-                .expiresAt(now.plus(2, ChronoUnit.HOURS))
+                .expiresAt(now.plus(8, ChronoUnit.HOURS))
                 .subject(usuario.getEmail())
                 .claim("id", usuario.getId().toString())
                 .build();

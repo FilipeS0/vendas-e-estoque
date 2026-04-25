@@ -1,13 +1,10 @@
-package com.filipe.api.domain.produto.dto;
+package com.filipe.api.dto.produto;
 
 import jakarta.validation.constraints.*;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record ProdutoRequest(
-        @NotBlank String codigoInterno,
-        @NotBlank @Size(min = 8, max = 13) String codigoBarras,
+public record ProdutoUpdateRequest(
         @NotBlank @Size(max = 200) String nome,
         String descricao,
         @NotNull UUID categoriaId,
