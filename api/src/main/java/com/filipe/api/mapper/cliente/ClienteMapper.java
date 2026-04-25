@@ -35,6 +35,8 @@ public class ClienteMapper {
                 cliente.getEmail(),
                 cliente.getTelefone(),
                 cliente.getEndereco(),
+                cliente.getLimiteCredito(),
+                cliente.getSaldoDevedor(),
                 cliente.getAtivo(),
                 cliente.getCreatedAt()
         );

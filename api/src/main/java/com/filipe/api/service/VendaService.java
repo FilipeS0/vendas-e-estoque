@@ -16,6 +16,11 @@ import com.filipe.api.domain.venda.PagamentoRepository;
 import com.filipe.api.domain.venda.StatusVenda;
 import com.filipe.api.domain.venda.Venda;
 import com.filipe.api.domain.venda.VendaRepository;
+import com.filipe.api.domain.venda.Crediario;
+import com.filipe.api.domain.venda.CrediarioRepository;
+import com.filipe.api.domain.venda.ParcelaCrediario;
+import com.filipe.api.domain.venda.StatusCrediario;
+import com.filipe.api.domain.venda.StatusParcela;
 import com.filipe.api.dto.venda.CancelarVendaRequest;
 import com.filipe.api.dto.venda.FinalizarVendaRequest;
 import com.filipe.api.dto.venda.ItemVendaRequest;
@@ -45,6 +50,7 @@ public class VendaService {
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final CrediarioRepository crediarioRepository;
     private final VendaMapper vendaMapper;
     private final CaixaService caixaService;
     private final NotaFiscalService notaFiscalService;
@@ -227,6 +233,10 @@ public class VendaService {
 
             pagamentoRepository.save(pagamento);
             venda.getPagamentos().add(pagamento);
+
+            if (pagReq.formaPagamento() == FormaPagamento.CREDIARIO) {
+                processarCrediario(venda, pagReq.valor());
+            }
         }
 
         // 3. Deduct stock — Fix 2: lock acquired inside moverEstoque
@@ -310,5 +320,41 @@ public class VendaService {
         }
 
         return trocos;
+    }
+
+    private void processarCrediario(Venda venda, BigDecimal valor) {
+        Cliente cliente = venda.getCliente();
+        if (cliente == null) {
+            throw new BusinessException("Pagamento em CREDIARIO requer um cliente identificado.");
+        }
+
+        BigDecimal novoSaldoDevedor = cliente.getSaldoDevedor().add(valor);
+        if (cliente.getLimiteCredito().compareTo(BigDecimal.ZERO) > 0 
+            && novoSaldoDevedor.compareTo(cliente.getLimiteCredito()) > 0) {
+            throw new BusinessException("Limite de credito excedido para o cliente " + cliente.getNome());
+        }
+
+        cliente.setSaldoDevedor(novoSaldoDevedor);
+        clienteRepository.save(cliente);
+
+        Crediario crediario = Crediario.builder()
+                .cliente(cliente)
+                .venda(venda)
+                .valorTotal(valor)
+                .valorPago(BigDecimal.ZERO)
+                .status(StatusCrediario.ABERTO)
+                .build();
+
+        // Default: create a single installment for 30 days from now
+        ParcelaCrediario parcela = ParcelaCrediario.builder()
+                .crediario(crediario)
+                .numeroParcela(1)
+                .valor(valor)
+                .dataVencimento(java.time.LocalDate.now().plusDays(30))
+                .status(StatusParcela.PENDENTE)
+                .build();
+
+        crediario.getParcelas().add(parcela);
+        crediarioRepository.save(crediario);
     }
 }

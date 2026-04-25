@@ -34,9 +34,9 @@ public interface EstoqueAtualRepository extends JpaRepository<EstoqueAtual, UUID
 
     @Query("""
            SELECT e FROM EstoqueAtual e JOIN e.produto p LEFT JOIN p.categoria c
-           WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
-           AND   (:codigoBarras IS NULL OR p.codigoBarras = :codigoBarras)
-           AND   (:categoriaId  IS NULL OR c.id = :categoriaId)
+           WHERE (CASE WHEN :nome IS NULL THEN TRUE ELSE LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%')) END)
+           AND   p.codigoBarras = COALESCE(:codigoBarras, p.codigoBarras)
+           AND   (c.id IS NULL OR c.id = COALESCE(:categoriaId, c.id))
            """)
     org.springframework.data.domain.Page<EstoqueAtual> findComFiltros(
             @Param("nome")          String nome,

@@ -1,6 +1,7 @@
 package com.filipe.api.controller;
 
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
+import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.service.RelatorioService;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,11 @@ public class RelatorioController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> relatorioCaixa(@PathVariable UUID caixaId) {
         return ResponseEntity.ok(relatorioService.relatorioBalancoCaixa(caixaId));
+    }
+
+    @GetMapping("/dashboard/stats")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<DashboardStatsResponse> getDashboardStats() {
+        return ResponseEntity.ok(relatorioService.getDashboardStats());
     }
 }

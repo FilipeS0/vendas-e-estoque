@@ -14,11 +14,11 @@ public interface VendaRepository extends JpaRepository<Venda, UUID> {
     List<Venda> findByDataHoraBetween(LocalDateTime inicio, LocalDateTime fim);
 
     @Query("SELECT v FROM Venda v " +
-           "WHERE (:status IS NULL OR v.status = :status) " +
-           "AND (:dataInicio IS NULL OR v.dataHora >= :dataInicio) " +
-           "AND (:dataFim IS NULL OR v.dataHora <= :dataFim) " +
-           "AND (:numero IS NULL OR v.numero = :numero) " +
-           "AND (:caixaId IS NULL OR v.caixa.id = :caixaId)")
+           "WHERE v.status = COALESCE(:status, v.status) " +
+           "AND v.dataHora >= COALESCE(:dataInicio, v.dataHora) " +
+           "AND v.dataHora <= COALESCE(:dataFim, v.dataHora) " +
+           "AND v.numero = COALESCE(:numero, v.numero) " +
+           "AND v.caixa.id = COALESCE(:caixaId, v.caixa.id)")
     Page<Venda> findComFiltros(
             @Param("status") StatusVenda status,
             @Param("dataInicio") LocalDateTime dataInicio,

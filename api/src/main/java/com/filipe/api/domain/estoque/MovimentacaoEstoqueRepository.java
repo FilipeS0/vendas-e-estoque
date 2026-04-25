@@ -20,10 +20,10 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
      */
     @Query("""
            SELECT m FROM MovimentacaoEstoque m
-           WHERE (:produtoId  IS NULL OR m.produto.id = :produtoId)
-           AND   (:tipo       IS NULL OR m.tipo = :tipo)
-           AND   (:dataInicio IS NULL OR m.dataHora >= :dataInicio)
-           AND   (:dataFim    IS NULL OR m.dataHora <= :dataFim)
+           WHERE m.produto.id = COALESCE(:produtoId, m.produto.id)
+           AND   m.tipo       = COALESCE(:tipo,      m.tipo)
+           AND   m.dataHora  >= COALESCE(:dataInicio, m.dataHora)
+           AND   m.dataHora  <= COALESCE(:dataFim,    m.dataHora)
            ORDER BY m.dataHora DESC
            """)
     Page<MovimentacaoEstoque> findComFiltros(

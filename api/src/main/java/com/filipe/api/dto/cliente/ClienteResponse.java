@@ -10,6 +10,8 @@ public record ClienteResponse(
     String email,
     String telefone,
     String endereco,
+    java.math.BigDecimal limiteCredito,
+    java.math.BigDecimal saldoDevedor,
     Boolean ativo,
     LocalDateTime createdAt
 ) {}
