@@ -1,0 +1,11 @@
+.pos-container {
+  padding: 24px;
+}
+.full-width {
+  width: 100%;
+}
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}

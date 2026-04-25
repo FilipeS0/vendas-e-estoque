@@ -1,0 +1,28 @@
+<div class="pos-container">
+  <mat-card>
+    <mat-card-title>PDV / POS</mat-card-title>
+    <mat-card-content>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Cliente (opcional)</mat-label>
+        <mat-select [(value)]="selectedCustomerId">
+          <mat-option [value]="null">Nenhum</mat-option>
+          @for (c of clientes; track c.id) {
+            <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-stroked-button color="primary">Pagar</button>
+        <button
+          mat-flat-button
+          color="accent"
+          [disabled]="!selectedCustomerId"
+          (click)="openCrediario()"
+        >
+          Crediário
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

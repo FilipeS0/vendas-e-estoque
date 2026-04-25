@@ -161,7 +161,7 @@ public class CaixaService {
                 valorLancamento = valorLancamento.subtract(pagamento.getTroco());
             }
 
-            if (valorLancamento.compareTo(BigDecimal.ZERO) <= 0) {
+            if (valorLancamento.compareTo(BigDecimal.ZERO) <= 0 || pagamento.getFormaPagamento() == FormaPagamento.CREDIARIO) {
                 continue;
             }
 
@@ -198,7 +198,7 @@ public class CaixaService {
                     valorLancamento = valorLancamento.subtract(pagamento.getTroco());
                 }
 
-                if (valorLancamento.compareTo(BigDecimal.ZERO) <= 0) {
+                if (valorLancamento.compareTo(BigDecimal.ZERO) <= 0 || pagamento.getFormaPagamento() == FormaPagamento.CREDIARIO) {
                     continue;
                 }
 

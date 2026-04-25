@@ -27,6 +27,9 @@ public class ProdutoMapper {
                 .ncm(request.ncm())
                 .cest(request.cest())
                 .cfop(request.cfop())
+                .origem(request.origem())
+                .csosn(request.csosn())
+                .cstPisCofins(request.cstPisCofins())
                 .situacaoTributaria(request.situacaoTributaria())
                 .aliquotaIcms(request.aliquotaIcms())
                 .aliquotaPis(request.aliquotaPis())
@@ -45,6 +48,9 @@ public class ProdutoMapper {
         produto.setNcm(request.ncm());
         produto.setCest(request.cest());
         produto.setCfop(request.cfop());
+        produto.setOrigem(request.origem());
+        produto.setCsosn(request.csosn());
+        produto.setCstPisCofins(request.cstPisCofins());
         produto.setSituacaoTributaria(request.situacaoTributaria());
         produto.setAliquotaIcms(request.aliquotaIcms());
         produto.setAliquotaPis(request.aliquotaPis());
@@ -79,6 +85,9 @@ public class ProdutoMapper {
                 produto.getNcm(),
                 produto.getCest(),
                 produto.getCfop(),
+                produto.getOrigem(),
+                produto.getCsosn(),
+                produto.getCstPisCofins(),
                 produto.getSituacaoTributaria(),
                 produto.getAliquotaIcms(),
                 produto.getAliquotaPis(),

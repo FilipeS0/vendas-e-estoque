@@ -53,16 +53,15 @@ class VendaServiceTest {
     @Test
     void shouldIniciarVendaWithSuccess() {
         // Arrange
-        VendaStartRequest request = new VendaStartRequest(operatorId, caixaId, null);
+        VendaStartRequest request = new VendaStartRequest(caixaId, null);
         Usuario operator = Usuario.builder().id(operatorId).nome("Operator").build();
         Caixa caixa = Caixa.builder().id(caixaId).status(StatusCaixa.ABERTO).build();
         
-        when(usuarioRepository.findById(operatorId)).thenReturn(Optional.of(operator));
         when(caixaRepository.findByIdAndStatus(caixaId, StatusCaixa.ABERTO)).thenReturn(Optional.of(caixa));
         when(vendaRepository.save(any(Venda.class))).thenAnswer(invocation -> invocation.getArgument(0));
         
         // Act
-        vendaService.iniciarVenda(request);
+        vendaService.iniciarVenda(request, operator);
 
         // Assert
         verify(vendaRepository, times(1)).save(any(Venda.class));

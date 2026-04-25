@@ -10,6 +10,7 @@ import com.filipe.api.domain.venda.Venda;
 import com.filipe.api.domain.venda.VendaRepository;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
 import com.filipe.api.mapper.estoque.EstoqueMapper;
+import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.mapper.venda.VendaMapper;
 import com.filipe.api.dto.venda.VendaResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
@@ -71,5 +75,60 @@ public class RelatorioService {
         response.put("totaisPorFormaPagamento", totaisPorForma);
         
         return response;
+    }
+
+    public DashboardStatsResponse getDashboardStats() {
+        LocalDateTime trintaDiasAtras = LocalDateTime.now().minusDays(30);
+        List<Venda> vendasRecentes = vendaRepository.findByDataHoraBetween(trintaDiasAtras, LocalDateTime.now())
+                .stream()
+                .filter(v -> v.getStatus() == StatusVenda.CONFIRMADA)
+                .toList();
+
+        BigDecimal faturamentoTotal = vendasRecentes.stream()
+                .map(Venda::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        long totalVendas = vendasRecentes.size();
+        BigDecimal ticketMedio = totalVendas > 0 
+                ? faturamentoTotal.divide(BigDecimal.valueOf(totalVendas), 2, java.math.RoundingMode.HALF_UP) 
+                : BigDecimal.ZERO;
+
+        long produtosAbaixoMinimo = estoqueAtualRepository.findAbaixoMinimo().size();
+
+        // Vendas por dia (últimos 7 dias)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
+        Map<String, BigDecimal> vendasPorDiaMap = new TreeMap<>();
+        for (int i = 6; i >= 0; i--) {
+            vendasPorDiaMap.put(LocalDate.now().minusDays(i).format(formatter), BigDecimal.ZERO);
+        }
+
+        vendasRecentes.stream()
+                .filter(v -> v.getDataHora().isAfter(LocalDateTime.now().minusDays(7)))
+                .forEach(v -> {
+                    String dia = v.getDataHora().format(formatter);
+                    vendasPorDiaMap.merge(dia, v.getValorTotal(), BigDecimal::add);
+                });
+
+        List<DashboardStatsResponse.VendasPorDia> vendasRecentemente = vendasPorDiaMap.entrySet().stream()
+                .map(e -> new DashboardStatsResponse.VendasPorDia(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        // Faturamento por forma de pagamento
+        Map<String, BigDecimal> faturamentoPorForma = new HashMap<>();
+        vendasRecentes.forEach(v -> {
+            v.getPagamentos().forEach(p -> {
+                faturamentoPorForma.merge(p.getFormaPagamento().name(), p.getValor().subtract(p.getTroco()), BigDecimal::add);
+            });
+        });
+
+        return new DashboardStatsResponse(
+                faturamentoTotal,
+                totalVendas,
+                ticketMedio,
+                produtosAbaixoMinimo,
+                vendasRecentemente,
+                List.of(), // TODO: Implement Top Products if needed
+                faturamentoPorForma
+        );
     }
 }

@@ -20,12 +20,17 @@ public class TokenService {
 
     public String gerarToken(Usuario usuario) {
         Instant now = Instant.now();
+        String scope = usuario.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .collect(java.util.stream.Collectors.joining(" "));
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("pdv-api")
                 .issuedAt(now)
                 .expiresAt(now.plus(8, ChronoUnit.HOURS))
                 .subject(usuario.getEmail())
                 .claim("id", usuario.getId().toString())
+                .claim("scope", scope)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
