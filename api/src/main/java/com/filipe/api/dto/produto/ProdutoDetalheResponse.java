@@ -1,4 +1,4 @@
-package com.filipe.api.domain.produto.dto;
+package com.filipe.api.dto.produto;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,5 +20,6 @@ public record ProdutoDetalheResponse(
         BigDecimal aliquotaIcms,
         BigDecimal aliquotaPis,
         BigDecimal aliquotaCofins,
+        BigDecimal quantidadeEstoque,
         Boolean ativo
 ) {}

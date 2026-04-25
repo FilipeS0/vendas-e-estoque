@@ -1,3 +1,3 @@
-package com.filipe.api.domain.usuario.dto;
+package com.filipe.api.dto.auth;
 
 public record LoginResponse(String token) {}
