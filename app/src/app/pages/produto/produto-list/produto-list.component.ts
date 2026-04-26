@@ -34,7 +34,7 @@ import { Router } from '@angular/router';
 export class ProdutoListComponent {
   private produtoService = inject(ProdutoService);
   private snackBar = inject(MatSnackBar);
-  public router = inject(Router);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   displayedColumns: string[] = [
@@ -111,5 +111,13 @@ export class ProdutoListComponent {
         },
       });
     }
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  goToNovoProduto() {
+    this.router.navigate(['/produtos/novo']);
   }
 }
