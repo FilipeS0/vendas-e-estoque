@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -30,7 +30,7 @@ export class ClienteCreateDialogComponent {
     limiteCredito: [0, [Validators.required, Validators.min(0)]],
   });
 
-  isSaving = false;
+  isSaving = signal(false);
 
   submit() {
     if (this.form.invalid) {
@@ -38,7 +38,7 @@ export class ClienteCreateDialogComponent {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.dialogRef.close(this.form.getRawValue());
   }
 

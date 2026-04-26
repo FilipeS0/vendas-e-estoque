@@ -12,6 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ReportsService } from '../../services/reports.service';
 import { ProdutoRankingItem, VendaFormaPagItem, VendaPeriodoItem } from '../../models';
 import { CurrencyPipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-relatorios',
@@ -58,19 +59,18 @@ export class RelatoriosComponent {
     }
 
     this.isLoading.set(true);
-    this.reportsService.getVendasPorPeriodo(dataInicio, dataFim).subscribe({
-      next: (items) => this.vendasPeriodo.set(items),
-      error: () => this.vendasPeriodo.set([]),
-    });
 
-    this.reportsService.getVendasPorFormaPagamento(dataInicio, dataFim).subscribe({
-      next: (items) => this.vendasFormaPagamento.set(items),
-      error: () => this.vendasFormaPagamento.set([]),
-    });
-
-    this.reportsService.getRankingProdutos(dataInicio, dataFim, 10).subscribe({
-      next: (items) => this.rankingProdutos.set(items),
-      error: () => this.rankingProdutos.set([]),
+    forkJoin({
+      periodo: this.reportsService.getVendasPorPeriodo(dataInicio, dataFim),
+      formaPag: this.reportsService.getVendasPorFormaPagamento(dataInicio, dataFim),
+      ranking: this.reportsService.getRankingProdutos(dataInicio, dataFim, 10),
+    }).subscribe({
+      next: ({ periodo, formaPag, ranking }) => {
+        this.vendasPeriodo.set(periodo);
+        this.vendasFormaPagamento.set(formaPag);
+        this.rankingProdutos.set(ranking);
+      },
+      error: () => {},
       complete: () => this.isLoading.set(false),
     });
   }
