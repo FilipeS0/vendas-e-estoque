@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { EstoqueService, EstoqueAtual, MovimentacaoRequest } from '../../services/estoque.service';
 
 @Component({
@@ -79,13 +80,15 @@ export class EstoqueListComponent {
   ngOnInit() {
     this.loadEstoque();
 
-    this.searchControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.currentPage.set(0);
-      if (this.paginator) {
-        this.paginator.pageIndex = 0;
-      }
-      this.loadEstoque();
-    });
+    this.searchControl.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage.set(0);
+        if (this.paginator) {
+          this.paginator.pageIndex = 0;
+        }
+        this.loadEstoque();
+      });
   }
 
   ngAfterViewInit() {

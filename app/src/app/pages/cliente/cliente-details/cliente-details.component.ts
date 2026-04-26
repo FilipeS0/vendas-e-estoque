@@ -2,10 +2,10 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { ClienteService } from '../../services/cliente.service';
-import { ClienteDetalhe } from '../../models';
-import { Installment } from '../../components/installments/installment-list.component';
-import { InstallmentListComponent } from '../../components/installments/installment-list.component';
+import { ClienteService } from '../../../services/cliente.service';
+import { ClienteDetalhe } from '../../../models';
+import { Installment } from '../../../components/installments/installment-list.component';
+import { InstallmentListComponent } from '../../../components/installments/installment-list.component';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
