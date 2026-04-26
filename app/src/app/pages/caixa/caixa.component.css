@@ -1,0 +1,63 @@
+.caixa-page {
+  max-width: 980px;
+  margin: 24px auto;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.status-row {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.actions-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.full-width {
+  flex: 1 1 320px;
+}
+
+.table-section {
+  margin-top: 24px;
+}
+
+.lancamentos-table {
+  width: 100%;
+}
+
+.close-message {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(76, 175, 80, 0.08);
+  color: #2e7d32;
+}
+
+.empty-state {
+  display: grid;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+mat-progress-spinner {
+  margin-left: auto;
+}

@@ -11,5 +11,7 @@
     </section>
   </div>
 
-  <app-loading-overlay @if="loading()"></app-loading-overlay>
+  @if (loading()) {
+    <app-loading-overlay></app-loading-overlay>
+  }
 </div>

@@ -1,4 +1,5 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, signal, ViewChild } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -25,6 +26,7 @@ import { Router } from '@angular/router';
     MatCardModule,
     MatSnackBarModule,
     ReactiveFormsModule,
+    CurrencyPipe,
   ],
   templateUrl: './produto-list.component.html',
   styleUrls: ['./produto-list.component.css'],
@@ -33,6 +35,7 @@ export class ProdutoListComponent {
   private produtoService = inject(ProdutoService);
   private snackBar = inject(MatSnackBar);
   public router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   displayedColumns: string[] = [
     'codigoInterno',
@@ -55,7 +58,7 @@ export class ProdutoListComponent {
     this.loadProdutos();
 
     this.searchControl.valueChanges
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this))
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentPage.set(0); // Reset page on new search
         if (this.paginator) {
@@ -67,11 +70,13 @@ export class ProdutoListComponent {
 
   ngAfterViewInit() {
     if (this.paginator) {
-      this.paginator.page.pipe(takeUntilDestroyed(this)).subscribe((event: PageEvent) => {
-        this.currentPage.set(event.pageIndex);
-        this.pageSize.set(event.pageSize);
-        this.loadProdutos();
-      });
+      this.paginator.page
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((event: PageEvent) => {
+          this.currentPage.set(event.pageIndex);
+          this.pageSize.set(event.pageSize);
+          this.loadProdutos();
+        });
     }
   }
 
