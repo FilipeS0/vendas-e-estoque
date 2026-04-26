@@ -1,0 +1,28 @@
+<mat-toolbar class="navbar" color="primary">
+  <button mat-icon-button aria-label="Alternar navegação" (click)="toggleSidebar()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="brand">
+    <span class="brand-name">Vendas ERP</span>
+    <small>Gestão premium</small>
+  </div>
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button aria-label="Notificações">
+    <mat-icon>notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button aria-label="Sair" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+
+  <div class="user-chip">
+    <mat-icon>account_circle</mat-icon>
+    <div class="user-text">
+      <span>{{ currentUser()?.nome || 'Administrador' }}</span>
+      <small>Online</small>
+    </div>
+  </div>
+</mat-toolbar>
