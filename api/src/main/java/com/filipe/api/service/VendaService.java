@@ -29,6 +29,7 @@ import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.dto.venda.VendaStartRequest;
 import com.filipe.api.exception.BusinessException;
 import com.filipe.api.mapper.venda.VendaMapper;
+import com.filipe.api.shared.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,7 @@ public class VendaService {
     private final VendaMapper vendaMapper;
     private final CaixaService caixaService;
     private final NotaFiscalService notaFiscalService;
+    private final AuditService auditService;
     // Fix 2 & 3 — delegate stock mutations to EstoqueService which owns the
     // pessimistic lock and the canonical TipoMovimentacaoEstoque enum.
     private final EstoqueService estoqueService;
@@ -133,10 +135,15 @@ public class VendaService {
 
         BigDecimal quantidade    = request.quantidade();
         BigDecimal precoUnitario = produto.getPrecoVenda();
-        BigDecimal desconto      = BigDecimal.ZERO;
+        BigDecimal desconto      = request.desconto() != null ? request.desconto() : BigDecimal.ZERO;
+
+        if (desconto.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("O desconto do item nao pode ser negativo.");
+        }
+
         BigDecimal valorTotalItem = precoUnitario.multiply(quantidade).subtract(desconto);
         if (valorTotalItem.compareTo(BigDecimal.ZERO) < 0) {
-            valorTotalItem = BigDecimal.ZERO;
+            throw new BusinessException("O desconto do item nao pode ser maior que o valor do item.");
         }
 
         ItemVenda itemVenda = ItemVenda.builder()
@@ -149,6 +156,31 @@ public class VendaService {
                 .build();
 
         venda.adicionarItem(itemVenda);
+        venda.recalcularTotais();
+        vendaRepository.save(venda);
+        return vendaMapper.toResponse(venda);
+    }
+
+    @Transactional
+    public VendaResponse aplicarDescontoVenda(UUID vendaId, BigDecimal desconto) {
+        Venda venda = vendaRepository.findById(vendaId)
+                .orElseThrow(() -> new BusinessException("Venda nao encontrada."));
+
+        if (venda.getStatus() != StatusVenda.EM_ANDAMENTO) {
+            throw new BusinessException("Nao e possivel aplicar desconto a uma venda que nao esta em andamento.");
+        }
+
+        if (desconto == null) {
+            throw new BusinessException("O desconto da venda e obrigatório.");
+        }
+        if (desconto.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("O desconto da venda nao pode ser negativo.");
+        }
+        if (desconto.compareTo(venda.getValorBruto()) > 0) {
+            throw new BusinessException("O desconto da venda nao pode ser maior que o valor bruto da venda.");
+        }
+
+        venda.setValorDescontoVenda(desconto);
         venda.recalcularTotais();
         vendaRepository.save(venda);
         return vendaMapper.toResponse(venda);
@@ -279,6 +311,14 @@ public class VendaService {
             caixaService.registrarEstornoVenda(venda, venda.getPagamentos(), venda.getOperador(), motivo);
             notaFiscalService.cancelarNotaFiscalMock(venda.getId(), motivo);
         }
+
+        auditService.log(
+                "CANCELAMENTO_VENDA",
+                "Venda",
+                venda.getId(),
+                venda.getOperador(),
+                "motivo=" + motivo
+        );
 
         venda.setStatus(StatusVenda.CANCELADA);
         return vendaMapper.toResponse(vendaRepository.save(venda));

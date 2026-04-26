@@ -3,6 +3,7 @@ package com.filipe.api.controller;
 import com.filipe.api.domain.usuario.Usuario;
 import com.filipe.api.domain.venda.StatusVenda;
 import com.filipe.api.dto.fiscal.NotaFiscalResponse;
+import com.filipe.api.dto.venda.AplicarDescontoVendaRequest;
 import com.filipe.api.dto.venda.CancelarVendaRequest;
 import com.filipe.api.dto.venda.FinalizarVendaRequest;
 import com.filipe.api.dto.venda.ItemVendaRequest;
@@ -86,6 +87,14 @@ public class VendaController {
             @PathVariable UUID id,
             @RequestBody @Valid FinalizarVendaRequest request) {
         return ResponseEntity.ok(vendaService.finalizarVenda(id, request));
+    }
+
+    @PatchMapping("/{id}/desconto")
+    @PreAuthorize("hasAnyRole('GERENTE','ADMIN')")
+    public ResponseEntity<VendaResponse> aplicarDesconto(
+            @PathVariable UUID id,
+            @RequestBody @Valid AplicarDescontoVendaRequest request) {
+        return ResponseEntity.ok(vendaService.aplicarDescontoVenda(id, request.desconto()));
     }
 
     // Fix 5: only GERENTE and ADMIN can cancel a confirmed sale

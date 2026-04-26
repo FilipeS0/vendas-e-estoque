@@ -4,7 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { ReportsService, DashboardStats } from '../../services/reports.service';
+import { ReportsService } from '../../services/reports.service';
+import { DashboardStats } from '../../models';
 import { DecimalPipe } from '@angular/common';
 import { LineChartComponent } from '../../components/line-chart/line-chart.component';
 
@@ -29,10 +30,10 @@ export class DashboardPageComponent {
   }
 
   loadStats() {
-    this.reportsService.getDashboardStats().subscribe({
-      next: (s) => this.stats.set(s),
-      error: () => this.stats.set(null),
-    });
+    this.reportsService
+      .getDashboardStats()
+      .then((s) => this.stats.set(s))
+      .catch(() => this.stats.set(null));
   }
 
   trackByRole(_index: number, role: { authority: string } | null) {

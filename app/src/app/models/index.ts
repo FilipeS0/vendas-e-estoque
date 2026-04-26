@@ -16,6 +16,23 @@ export interface Cliente {
   criadoEm?: string;
 }
 
+export interface ClienteRequest {
+  nome: string;
+  cpf?: string;
+  telefone?: string;
+  limiteCredito: number;
+}
+
+export interface ClienteSummary {
+  id: string;
+  nome: string;
+}
+
+export interface ClienteDetalhe extends Cliente {
+  creditLimit?: number;
+  currentDebt?: number;
+}
+
 export interface Produto {
   id: string;
   codigoInterno?: string;

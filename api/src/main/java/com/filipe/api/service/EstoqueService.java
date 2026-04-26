@@ -14,6 +14,7 @@ import com.filipe.api.dto.estoque.SaidaManualEstoqueRequest;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
 import com.filipe.api.exception.BusinessException;
 import com.filipe.api.mapper.estoque.EstoqueMapper;
+import com.filipe.api.shared.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class EstoqueService {
     private final EstoqueAtualRepository estoqueAtualRepository;
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final EstoqueMapper estoqueMapper;
+    private final AuditService auditService;
 
     // ── public API ────────────────────────────────────────────────────────────
 
@@ -146,6 +148,18 @@ public class EstoqueService {
         MovimentacaoEstoque mov = estoqueMapper.toEntity(
                 produto, tipo, quantidade, anterior, resultante, motivo, referencia, usuario);
         movimentacaoEstoqueRepository.save(mov);
+
+        if (tipo == TipoMovimentacaoEstoque.AJUSTE_POSITIVO
+                || tipo == TipoMovimentacaoEstoque.AJUSTE_NEGATIVO
+                || tipo == TipoMovimentacaoEstoque.SAIDA_PERDA) {
+            auditService.log(
+                    "AJUSTE_ESTOQUE",
+                    "Estoque",
+                    produto.getId(),
+                    usuario,
+                    "tipo=" + tipo + " quantidade=" + quantidade + " motivo=" + motivo
+            );
+        }
     }
 
     // ── private helpers ───────────────────────────────────────────────────────

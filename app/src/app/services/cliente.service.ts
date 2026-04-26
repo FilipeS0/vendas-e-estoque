@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import { Cliente, ClienteExtrato } from '../models';
+import { firstValueFrom, Observable } from 'rxjs';
+import { Cliente, ClienteExtrato, ClienteRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
@@ -25,8 +25,8 @@ export class ClienteService {
   /**
    * Create a new client
    */
-  async createCliente(cliente: Omit<Cliente, 'id'>): Promise<Cliente> {
-    return firstValueFrom(this.http.post<Cliente>(this.apiUrl, cliente));
+  createCliente(req: ClienteRequest): Observable<Cliente> {
+    return this.http.post<Cliente>(this.apiUrl, req);
   }
 
   /**
