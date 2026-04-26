@@ -15,15 +15,11 @@
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Buscar por nome</mat-label>
         <input matInput [formControl]="searchControl" placeholder="Digite um nome" />
-        <button
-          mat-icon-button
-          matSuffix
-          *ngIf="searchControl.value"
-          aria-label="Limpar busca"
-          (click)="clearSearch()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+        @if (searchControl.value) {
+          <button mat-icon-button matSuffix aria-label="Limpar busca" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
       </mat-form-field>
     </div>
 
@@ -72,9 +68,9 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
 
-      <div class="empty-state" *ngIf="!isLoading() && dataSource().length === 0">
-        Nenhum cliente encontrado.
-      </div>
+      @if (!isLoading() && dataSource().length === 0) {
+        <div class="empty-state">Nenhum cliente encontrado.</div>
+      }
     </div>
 
     <mat-paginator
@@ -85,8 +81,10 @@
     >
     </mat-paginator>
 
-    <div class="loading-overlay" *ngIf="isLoading()">
-      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
-    </div>
+    @if (isLoading()) {
+      <div class="loading-overlay">
+        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      </div>
+    }
   </mat-card>
 </div>

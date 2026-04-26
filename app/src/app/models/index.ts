@@ -102,6 +102,25 @@ export interface SeriesPoint {
   value: number;
 }
 
+export interface VendaPeriodoItem {
+  data: string;
+  quantidade: number;
+  total: number;
+}
+
+export interface VendaFormaPagItem {
+  formaPagamento: string;
+  vendas: number;
+  total: number;
+}
+
+export interface ProdutoRankingItem {
+  posicao: number;
+  produto: string;
+  quantidade: number;
+  total: number;
+}
+
 export interface Venda {
   id: string;
   numero: number;
