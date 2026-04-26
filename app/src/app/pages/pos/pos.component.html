@@ -4,9 +4,9 @@
     <mat-card-content>
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Cliente (opcional)</mat-label>
-        <mat-select [(value)]="selectedCustomerId">
+        <mat-select [value]="selectedCustomerId()" (valueChange)="selectedCustomerId.set($event)">
           <mat-option [value]="null">Nenhum</mat-option>
-          @for (c of clientes; track c.id) {
+          @for (c of clientes(); track c.id) {
             <mat-option [value]="c.id">{{ c.nome }}</mat-option>
           }
         </mat-select>
@@ -17,7 +17,7 @@
         <button
           mat-flat-button
           color="accent"
-          [disabled]="!selectedCustomerId"
+          [disabled]="!selectedCustomerId()"
           (click)="openCrediario()"
         >
           Crediário

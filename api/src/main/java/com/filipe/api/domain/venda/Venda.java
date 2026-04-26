@@ -52,6 +52,10 @@ public class Venda {
     @Column(name = "valor_desconto", precision = 15, scale = 2)
     private BigDecimal valorDesconto;
 
+    @Column(name = "valor_desconto_venda", precision = 15, scale = 2)
+    @Builder.Default
+    private BigDecimal valorDescontoVenda = BigDecimal.ZERO;
+
     @Column(name = "valor_total", nullable = false, precision = 15, scale = 2)
     private BigDecimal valorTotal;
 
@@ -97,16 +101,19 @@ public class Venda {
      */
     public void recalcularTotais() {
         BigDecimal bruto = BigDecimal.ZERO;
-        BigDecimal desconto = BigDecimal.ZERO;
+        BigDecimal descontoItens = BigDecimal.ZERO;
+        BigDecimal descontoVenda = this.valorDescontoVenda != null ? this.valorDescontoVenda : BigDecimal.ZERO;
 
         for (ItemVenda item : itens) {
-            // bruto = sum of (quantidade * precoUnitario) for every item
             bruto = bruto.add(item.getPrecoUnitario().multiply(item.getQuantidade()));
-            desconto = desconto.add(item.getDesconto());
+            descontoItens = descontoItens.add(item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO);
         }
 
         this.valorBruto = bruto;
-        this.valorDesconto = desconto;
-        this.valorTotal = bruto.subtract(desconto);
+        this.valorDesconto = descontoItens.add(descontoVenda);
+        this.valorTotal = bruto.subtract(this.valorDesconto);
+        if (this.valorTotal.compareTo(BigDecimal.ZERO) < 0) {
+            this.valorTotal = BigDecimal.ZERO;
+        }
     }
 }

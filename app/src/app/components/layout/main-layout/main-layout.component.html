@@ -1,0 +1,15 @@
+<div class="main-layout">
+  <app-navbar></app-navbar>
+
+  <div class="layout-grid">
+    <aside class="layout-sidebar" [class.closed]="!sidebarOpen()">
+      <app-sidebar></app-sidebar>
+    </aside>
+
+    <section class="layout-content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+
+  <app-loading-overlay @if="loading()"></app-loading-overlay>
+</div>

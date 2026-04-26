@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -12,11 +12,20 @@ import { Categoria, Fornecedor, ProdutoService } from '../../../services/produto
 
 @Component({
   selector: 'app-produto-create',
-  imports: [ReactiveFormsModule, MatCardModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatSnackBarModule, MatDividerModule],
+  imports: [
+    ReactiveFormsModule,
+    MatCardModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatDividerModule,
+  ],
   templateUrl: './produto-create.component.html',
-  styleUrls: ['./produto-create.component.css']
+  styleUrls: ['./produto-create.component.css'],
 })
-export class ProdutoCreateComponent implements OnInit {
+export class ProdutoCreateComponent {
   private fb = inject(FormBuilder);
   private produtoService = inject(ProdutoService);
   private snackBar = inject(MatSnackBar);
@@ -38,7 +47,7 @@ export class ProdutoCreateComponent implements OnInit {
     situacaoTributaria: [''],
     aliquotaIcms: [0],
     aliquotaPis: [0],
-    aliquotaCofins: [0]
+    aliquotaCofins: [0],
   });
 
   categorias = signal<Categoria[]>([]);
@@ -48,15 +57,15 @@ export class ProdutoCreateComponent implements OnInit {
   produtoId = signal<string | null>(null);
 
   ngOnInit() {
-    this.produtoService.getCategorias().subscribe(res => this.categorias.set(res));
-    this.produtoService.getFornecedores().subscribe(res => this.fornecedores.set(res));
+    this.produtoService.getCategorias().subscribe((res) => this.categorias.set(res));
+    this.produtoService.getFornecedores().subscribe((res) => this.fornecedores.set(res));
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode.set(true);
       this.produtoId.set(id);
       this.loadProduto(id);
-      
+
       this.produtoForm.get('codigoInterno')?.disable();
       this.produtoForm.get('codigoBarras')?.disable();
     }
@@ -73,24 +82,26 @@ export class ProdutoCreateComponent implements OnInit {
         this.isLoading.set(false);
         this.snackBar.open('Erro ao carregar produto.', 'OK', { duration: 3000 });
         this.router.navigate(['/produtos']);
-      }
+      },
     });
   }
 
   onSubmit() {
     if (this.produtoForm.valid) {
       this.isLoading.set(true);
-      
+
       const formValue = this.produtoForm.getRawValue();
-      
-      const request$ = this.editMode() 
+
+      const request$ = this.editMode()
         ? this.produtoService.update(this.produtoId()!, formValue)
         : this.produtoService.create(formValue);
 
       request$.subscribe({
         next: () => {
           this.isLoading.set(false);
-          const msg = this.editMode() ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!';
+          const msg = this.editMode()
+            ? 'Produto atualizado com sucesso!'
+            : 'Produto cadastrado com sucesso!';
           this.snackBar.open(msg, 'OK', { duration: 3000 });
           this.router.navigate(['/produtos']);
         },
@@ -98,7 +109,7 @@ export class ProdutoCreateComponent implements OnInit {
           this.isLoading.set(false);
           const errorMsg = err.error?.message || 'Erro ao salvar produto.';
           this.snackBar.open(errorMsg, 'OK', { duration: 5000, panelClass: ['error-snackbar'] });
-        }
+        },
       });
     } else {
       this.produtoForm.markAllAsTouched();

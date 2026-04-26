@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -11,7 +11,6 @@ import { ClienteService, ClienteSummary } from '../../services/cliente.service';
 @Component({
   selector: 'app-pos',
   imports: [
-    CommonModule,
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -24,18 +23,19 @@ import { ClienteService, ClienteSummary } from '../../services/cliente.service';
 })
 export class PosPageComponent {
   private clienteService = inject(ClienteService);
-  public clientes: ClienteSummary[] = [];
-  public selectedCustomerId: string | null = null;
+  clientes = signal<ClienteSummary[]>([]);
+  selectedCustomerId = signal<string | null>(null);
 
   ngOnInit() {
     this.clienteService
       .getClientes()
-      .subscribe({ next: (c) => (this.clientes = c), error: () => (this.clientes = []) });
+      .pipe(takeUntilDestroyed(this))
+      .subscribe({ next: (c) => this.clientes.set(c), error: () => this.clientes.set([]) });
   }
 
   openCrediario() {
-    if (!this.selectedCustomerId) return;
+    if (!this.selectedCustomerId()) return;
     // Placeholder action: navigate to customer credit/payment flow later
-    alert(`Abrindo Crediário para cliente ${this.selectedCustomerId}`);
+    alert(`Abrindo Crediário para cliente ${this.selectedCustomerId()}`);
   }
 }

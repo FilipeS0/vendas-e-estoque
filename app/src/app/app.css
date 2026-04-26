@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: transparent;
+}
+
+body,
+app-root {
+  min-height: 100vh;
+}
+
+* {
+  font-family: var(--font-family);
+}
+
+.mat-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+mat-toolbar {
+  padding: 0.75rem 0;
+}
+
+button.mat-icon-button {
+  color: var(--text-inverse);
+}
+
+button.mat-button {
+  border-radius: var(--radius-md);
+}

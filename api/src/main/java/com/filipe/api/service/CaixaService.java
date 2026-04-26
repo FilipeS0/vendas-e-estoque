@@ -17,7 +17,10 @@ import com.filipe.api.dto.caixa.LancamentoManualCaixaRequest;
 import com.filipe.api.dto.caixa.LancamentoCaixaResponse;
 import com.filipe.api.exception.BusinessException;
 import com.filipe.api.mapper.caixa.CaixaMapper;
+import com.filipe.api.shared.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ public class CaixaService {
     private final CaixaRepository caixaRepository;
     private final LancamentoCaixaRepository lancamentoCaixaRepository;
     private final CaixaMapper caixaMapper;
+    private final AuditService auditService;
 
     @Transactional
     public CaixaResponse abrirCaixa(AbrirCaixaRequest request, Usuario usuario) {
@@ -97,24 +101,20 @@ public class CaixaService {
     }
 
     @Transactional(readOnly = true)
-    public List<LancamentoCaixaResponse> listarLancamentos(
+    public Page<LancamentoCaixaResponse> listarLancamentos(
             UUID caixaId,
             Usuario usuario,
             TipoLancamentoCaixa tipo,
             LocalDateTime dataInicio,
-            LocalDateTime dataFim
+            LocalDateTime dataFim,
+            Pageable pageable
     ) {
         Caixa caixa = caixaRepository.findById(caixaId)
                 .orElseThrow(() -> new BusinessException("Caixa nao encontrado."));
         validarOperadorResponsavel(caixa, usuario);
 
-        return lancamentoCaixaRepository.findByCaixaId(caixaId).stream()
-                .filter(lancamento -> tipo == null || lancamento.getTipo() == tipo)
-                .filter(lancamento -> dataInicio == null || !lancamento.getDataHora().isBefore(dataInicio))
-                .filter(lancamento -> dataFim == null || !lancamento.getDataHora().isAfter(dataFim))
-                .sorted((a, b) -> b.getDataHora().compareTo(a.getDataHora()))
-                .map(caixaMapper::toLancamentoResponse)
-                .toList();
+        return lancamentoCaixaRepository.findComFiltros(caixaId, tipo, dataInicio, dataFim, pageable)
+                .map(caixaMapper::toLancamentoResponse);
     }
 
     @Transactional
@@ -142,6 +142,14 @@ public class CaixaService {
         caixa.setDataFechamento(LocalDateTime.now());
         caixa.setStatus(StatusCaixa.FECHADO);
 
+        auditService.log(
+                "FECHAMENTO_CAIXA",
+                "Caixa",
+                caixa.getId(),
+                usuario,
+                "diferenca=" + diferenca
+        );
+
         Caixa savedCaixa = caixaRepository.save(caixa);
         return caixaMapper.toResponse(savedCaixa);
     }
@@ -152,8 +160,16 @@ public class CaixaService {
             throw new BusinessException("Venda sem caixa vinculado. Nao e possivel registrar entrada automatica.");
         }
 
-        Caixa caixa = caixaRepository.findByIdAndStatus(venda.getCaixa().getId(), StatusCaixa.ABERTO)
+        Caixa caixa = caixaRepository.findByIdWithLock(venda.getCaixa().getId())
                 .orElseThrow(() -> new BusinessException("Caixa aberto nao encontrado para a venda."));
+
+        if (caixa.getStatus() != StatusCaixa.ABERTO) {
+            throw new BusinessException("Caixa aberto nao encontrado para a venda.");
+        }
+
+        BigDecimal saldoAtual = caixa.getValorFechamentoSistema() != null
+                ? caixa.getValorFechamentoSistema()
+                : caixa.getValorAbertura();
 
         for (Pagamento pagamento : pagamentos) {
             BigDecimal valorLancamento = pagamento.getValor();
@@ -176,9 +192,12 @@ public class CaixaService {
                     .build();
 
             lancamentoCaixaRepository.save(lancamento);
+            if (impactaSaldoFisico(pagamento.getFormaPagamento())) {
+                saldoAtual = saldoAtual.add(valorLancamento);
+            }
         }
 
-        caixa.setValorFechamentoSistema(calcularSaldoEsperado(caixa.getId(), caixa.getValorAbertura()));
+        caixa.setValorFechamentoSistema(saldoAtual);
         caixaRepository.save(caixa);
     }
 
@@ -188,10 +207,18 @@ public class CaixaService {
             throw new BusinessException("Venda sem caixa vinculado. Nao e possivel registrar estorno no caixa.");
         }
 
-        Caixa caixa = caixaRepository.findByIdAndStatus(venda.getCaixa().getId(), StatusCaixa.ABERTO)
+        Caixa caixa = caixaRepository.findByIdWithLock(venda.getCaixa().getId())
                 .orElseThrow(() -> new BusinessException("Caixa aberto nao encontrado para estornar a venda."));
 
+        if (caixa.getStatus() != StatusCaixa.ABERTO) {
+            throw new BusinessException("Caixa aberto nao encontrado para estornar a venda.");
+        }
+
         if (!lancamentoCaixaRepository.findByCaixaIdAndReferenciaId(caixa.getId(), venda.getId()).isEmpty()) {
+            BigDecimal saldoAtual = caixa.getValorFechamentoSistema() != null
+                    ? caixa.getValorFechamentoSistema()
+                    : caixa.getValorAbertura();
+
             for (Pagamento pagamento : pagamentos) {
                 BigDecimal valorLancamento = pagamento.getValor();
                 if (pagamento.getFormaPagamento() == FormaPagamento.DINHEIRO && pagamento.getTroco() != null) {
@@ -213,9 +240,12 @@ public class CaixaService {
                         .build();
 
                 lancamentoCaixaRepository.save(lancamento);
+                if (impactaSaldoFisico(pagamento.getFormaPagamento())) {
+                    saldoAtual = saldoAtual.subtract(valorLancamento);
+                }
             }
 
-            caixa.setValorFechamentoSistema(calcularSaldoEsperado(caixa.getId(), caixa.getValorAbertura()));
+            caixa.setValorFechamentoSistema(saldoAtual);
             caixaRepository.save(caixa);
         }
     }
@@ -256,19 +286,30 @@ public class CaixaService {
         return saldo;
     }
 
+    private boolean impactaSaldoFisico(FormaPagamento formaPagamento) {
+        return formaPagamento == null || formaPagamento == FormaPagamento.DINHEIRO;
+    }
+
     private LancamentoCaixaResponse registrarLancamentoManual(
             UUID caixaId,
             LancamentoManualCaixaRequest request,
             Usuario usuario,
             TipoLancamentoCaixa tipo
     ) {
-        Caixa caixa = caixaRepository.findByIdAndStatus(caixaId, StatusCaixa.ABERTO)
+        Caixa caixa = caixaRepository.findByIdWithLock(caixaId)
                 .orElseThrow(() -> new BusinessException("Caixa aberto nao encontrado."));
+
+        if (caixa.getStatus() != StatusCaixa.ABERTO) {
+            throw new BusinessException("Caixa aberto nao encontrado.");
+        }
         validarOperadorResponsavel(caixa, usuario);
 
+        BigDecimal saldoAtual = caixa.getValorFechamentoSistema() != null
+                ? caixa.getValorFechamentoSistema()
+                : caixa.getValorAbertura();
+
         if (tipo == TipoLancamentoCaixa.SAIDA) {
-            BigDecimal saldoEsperadoAtual = calcularSaldoEsperado(caixa.getId(), caixa.getValorAbertura());
-            if (request.valor().compareTo(saldoEsperadoAtual) > 0) {
+            if (request.valor().compareTo(saldoAtual) > 0) {
                 throw new BusinessException("Saldo insuficiente para registrar a saida manual no caixa.");
             }
         }
@@ -283,7 +324,22 @@ public class CaixaService {
                 .build();
 
         LancamentoCaixa savedLancamento = lancamentoCaixaRepository.save(lancamento);
-        caixa.setValorFechamentoSistema(calcularSaldoEsperado(caixa.getId(), caixa.getValorAbertura()));
+
+        if (tipo == TipoLancamentoCaixa.ENTRADA) {
+            saldoAtual = saldoAtual.add(request.valor());
+        } else {
+            saldoAtual = saldoAtual.subtract(request.valor());
+
+            auditService.log(
+                    "SANGRIA_CAIXA",
+                    "Caixa",
+                    caixa.getId(),
+                    usuario,
+                    "valor=" + request.valor() + " descricao=" + request.descricao().trim()
+            );
+        }
+
+        caixa.setValorFechamentoSistema(saldoAtual);
         caixaRepository.save(caixa);
 
         return caixaMapper.toLancamentoResponse(savedLancamento);

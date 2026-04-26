@@ -11,6 +11,9 @@ import com.filipe.api.domain.caixa.TipoLancamentoCaixa;
 import com.filipe.api.service.CaixaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -61,15 +64,16 @@ public class CaixaController {
     }
 
     @GetMapping("/{id}/lancamentos")
-    public ResponseEntity<List<LancamentoCaixaResponse>> listarLancamentos(
+    public ResponseEntity<Page<LancamentoCaixaResponse>> listarLancamentos(
             @PathVariable UUID id,
             @RequestParam(required = false) TipoLancamentoCaixa tipo,
             @RequestParam(required = false) LocalDateTime dataInicio,
             @RequestParam(required = false) LocalDateTime dataFim,
+            @PageableDefault(size = 30, sort = "dataHora") Pageable pageable,
             Authentication authentication
     ) {
         Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
-        return ResponseEntity.ok(caixaService.listarLancamentos(id, usuario, tipo, dataInicio, dataFim));
+        return ResponseEntity.ok(caixaService.listarLancamentos(id, usuario, tipo, dataInicio, dataFim, pageable));
     }
 
     @PostMapping("/{id}/lancamentos/entrada")
