@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -6,7 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { CurrencyPipe } from '@angular/common';
@@ -41,7 +41,8 @@ export class ClienteListComponent {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  allClientes = signal<Cliente[]>([]);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   dataSource = signal<Cliente[]>([]);
   totalElements = signal(0);
   pageSize = signal(10);
@@ -49,15 +50,8 @@ export class ClienteListComponent {
   isLoading = signal(false);
 
   searchControl = new FormControl('', { nonNullable: true });
-  displayedColumns = [
-    'nome',
-    'cpf',
-    'telefone',
-    'limiteCredito',
-    'saldoDevedor',
-    'ativo',
-    'actions',
-  ];
+
+  displayedColumns = ['nome', 'cpf', 'telefone', 'limiteCredito', 'saldoDevedor', 'ativo', 'actions'];
 
   ngOnInit() {
     this.loadClientes();
@@ -66,40 +60,33 @@ export class ClienteListComponent {
       .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentPage.set(0);
-        this.applyFilters();
+        if (this.paginator) this.paginator.pageIndex = 0;
+        this.loadClientes();
       });
   }
 
-  private async loadClientes() {
+  loadClientes() {
     this.isLoading.set(true);
-    try {
-      const clientes = await this.clienteService.getClientes();
-      this.allClientes.set(clientes);
-      this.applyFilters();
-    } catch {
-      this.allClientes.set([]);
-      this.dataSource.set([]);
-      this.totalElements.set(0);
-    } finally {
-      this.isLoading.set(false);
-    }
-  }
+    const nome = this.searchControl.value || undefined;
 
-  private applyFilters() {
-    const term = this.searchControl.value.trim().toLowerCase();
-    const filtered = this.allClientes().filter((cliente) =>
-      cliente.nome.toLowerCase().includes(term),
-    );
-
-    this.totalElements.set(filtered.length);
-    const start = this.currentPage() * this.pageSize();
-    this.dataSource.set(filtered.slice(start, start + this.pageSize()));
+    this.clienteService.getClientes(nome, this.currentPage(), this.pageSize()).subscribe({
+      next: (res) => {
+        this.dataSource.set(res.content);
+        this.totalElements.set(res.totalElements);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.dataSource.set([]);
+        this.totalElements.set(0);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   onPageChange(event: PageEvent) {
     this.pageSize.set(event.pageSize);
     this.currentPage.set(event.pageIndex);
-    this.applyFilters();
+    this.loadClientes();
   }
 
   clearSearch() {
@@ -111,14 +98,9 @@ export class ClienteListComponent {
   }
 
   openNewCustomerDialog() {
-    const dialogRef = this.dialog.open(ClienteCreateDialogComponent, {
-      width: '480px',
-    });
-
+    const dialogRef = this.dialog.open(ClienteCreateDialogComponent, { width: '480px' });
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'created') {
-        this.loadClientes();
-      }
+      if (result === 'created') this.loadClientes();
     });
   }
 }

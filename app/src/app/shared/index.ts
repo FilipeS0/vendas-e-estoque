@@ -91,11 +91,30 @@ export interface Crediario {
   parcelas?: Installment[];
 }
 
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+export interface VendasPorDia {
+  data: string;
+  total: number;
+}
+
+export interface TopProduto {
+  nome: string;
+  quantidade: number;
+  total: number;
+}
+
 export interface DashboardStats {
   faturamentoTotal: number;
-  vendasDoDia: number;
-  series: SeriesPoint[];
+  totalVendas: number;
+  ticketMedio: number;
+  produtosAbaixoMinimo: number;
+  vendasRecentemente: VendasPorDia[];
+  topProdutos: TopProduto[];
+  faturamentoPorFormaPagamento: Record<string, number>;
 }
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
 
 export interface SeriesPoint {
   date: string;
@@ -120,6 +139,8 @@ export interface ProdutoRankingItem {
   quantidade: number;
   total: number;
 }
+
+// ─── Vendas / Caixa ───────────────────────────────────────────────────────────
 
 export interface Venda {
   id: string;
@@ -154,4 +175,14 @@ export interface ClienteExtrato {
   saldoDisponivel: number;
   ultimasCompras: Venda[];
   parcelas: Installment[];
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
