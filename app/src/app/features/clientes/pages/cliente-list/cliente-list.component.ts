@@ -69,7 +69,7 @@ export class ClienteListComponent {
     this.isLoading.set(true);
     const nome = this.searchControl.value || undefined;
 
-    this.clienteService.getClientes(nome, this.currentPage(), this.pageSize()).subscribe({
+    this.clienteService.getClientesPage(nome, this.currentPage(), this.pageSize()).subscribe({
       next: (res) => {
         this.dataSource.set(res.content);
         this.totalElements.set(res.totalElements);

@@ -1,0 +1,61 @@
+<div class="page-wrap">
+  <div class="profile-grid">
+    <!-- Card: dados do usuário -->
+    <mat-card class="info-card">
+      <div class="avatar-row">
+        <div class="avatar-circle">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div>
+          <h2 class="user-name">{{ user()?.nome }}</h2>
+          <p class="user-email">{{ user()?.email }}</p>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="roles-section">
+        <p class="section-label">Permissões</p>
+        <div class="roles-wrap">
+          @for (role of roles; track role) {
+            <mat-chip highlighted color="primary">{{ roleLabel(role) }}</mat-chip>
+          }
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Card: trocar senha -->
+    <mat-card class="senha-card">
+      <mat-card-header>
+        <mat-card-title>Alterar Senha</mat-card-title>
+      </mat-card-header>
+      <mat-card-content [formGroup]="form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Senha atual</mat-label>
+          <input matInput type="password" formControlName="senhaAtual" />
+          <mat-icon matSuffix>lock</mat-icon>
+          <mat-error>Campo obrigatório.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nova senha</mat-label>
+          <input matInput type="password" formControlName="novaSenha" />
+          <mat-icon matSuffix>lock_open</mat-icon>
+          <mat-error>Mínimo 6 caracteres.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirmar nova senha</mat-label>
+          <input matInput type="password" formControlName="confirmacao" />
+          <mat-icon matSuffix>lock_open</mat-icon>
+          <mat-error>Campo obrigatório.</mat-error>
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary" [disabled]="isSaving()" (click)="submitSenha()">
+          <mat-icon>save</mat-icon> Salvar senha
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

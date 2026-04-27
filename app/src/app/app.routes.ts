@@ -7,7 +7,8 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {
     path: 'login',
-    loadComponent: () => import('./features/auth/pages/login.component').then((m) => m.LoginPageComponent),
+    loadComponent: () =>
+      import('./features/auth/pages/login.component').then((m) => m.LoginPageComponent),
   },
   {
     path: '',
@@ -16,59 +17,120 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/pages/dashboard.component').then((m) => m.DashboardPageComponent),
+        loadComponent: () =>
+          import('./features/dashboard/pages/dashboard.component').then(
+            (m) => m.DashboardPageComponent,
+          ),
       },
       {
         path: '403',
-        loadComponent: () => import('./features/forbidden/pages/forbidden.component').then((m) => m.ForbiddenComponent),
+        loadComponent: () =>
+          import('./features/forbidden/pages/forbidden.component').then(
+            (m) => m.ForbiddenComponent,
+          ),
       },
       {
         path: 'pos',
-        loadComponent: () => import('./features/pdv/pages/pos.component').then((m) => m.PosPageComponent),
+        loadComponent: () =>
+          import('./features/pdv/pages/pos.component').then((m) => m.PosPageComponent),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
       },
       {
         path: 'caixa',
-        loadComponent: () => import('./features/caixa/pages/caixa.component').then((m) => m.CaixaComponent),
+        loadComponent: () =>
+          import('./features/caixa/pages/caixa.component').then((m) => m.CaixaComponent),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
       },
       {
         path: 'estoque',
-        loadComponent: () => import('./features/estoque/pages/estoque-list.component').then((m) => m.EstoqueListComponent),
+        loadComponent: () =>
+          import('./features/estoque/pages/estoque-list.component').then(
+            (m) => m.EstoqueListComponent,
+          ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'clientes',
-        loadComponent: () => import('./features/clientes/pages/cliente-list/cliente-list.component').then((m) => m.ClienteListComponent),
+        loadComponent: () =>
+          import('./features/clientes/pages/cliente-list/cliente-list.component').then(
+            (m) => m.ClienteListComponent,
+          ),
       },
       {
         path: 'clientes/:id',
-        loadComponent: () => import('./features/clientes/pages/cliente-details/cliente-details.component').then((m) => m.ClienteDetailsPageComponent),
+        loadComponent: () =>
+          import('./features/clientes/pages/cliente-details/cliente-details.component').then(
+            (m) => m.ClienteDetailsPageComponent,
+          ),
       },
       {
         path: 'produtos',
-        loadComponent: () => import('./features/produtos/pages/produto-list/produto-list.component').then((m) => m.ProdutoListComponent),
+        loadComponent: () =>
+          import('./features/produtos/pages/produto-list/produto-list.component').then(
+            (m) => m.ProdutoListComponent,
+          ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'produtos/novo',
-        loadComponent: () => import('./features/produtos/pages/produto-create/produto-create.component').then((m) => m.ProdutoCreateComponent),
+        loadComponent: () =>
+          import('./features/produtos/pages/produto-create/produto-create.component').then(
+            (m) => m.ProdutoCreateComponent,
+          ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'produtos/editar/:id',
-        loadComponent: () => import('./features/produtos/pages/produto-create/produto-create.component').then((m) => m.ProdutoCreateComponent),
+        loadComponent: () =>
+          import('./features/produtos/pages/produto-create/produto-create.component').then(
+            (m) => m.ProdutoCreateComponent,
+          ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'relatorios',
-        loadComponent: () => import('./features/relatorios/pages/relatorios.component').then((m) => m.RelatoriosComponent),
+        loadComponent: () =>
+          import('./features/relatorios/pages/relatorios.component').then(
+            (m) => m.RelatoriosComponent,
+          ),
+      },
+      {
+        path: 'crediario',
+        loadComponent: () =>
+          import('./features/crediario/pages/crediario-list.component').then(
+            (m) => m.CrediarioListComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
+      },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/perfil/pages/perfil.component').then((m) => m.PerfilComponent),
+      },
+      {
+        path: 'categorias',
+        loadComponent: () =>
+          import('./features/categorias/pages/categoria-list.component').then(
+            (m) => m.CategoriaListComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
+      },
+      {
+        path: 'fornecedores',
+        loadComponent: () =>
+          import('./features/fornecedores/pages/fornecedor-list.component').then(
+            (m) => m.FornecedorListComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
     ],
   },
