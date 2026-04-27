@@ -9,12 +9,12 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const requiredRoles = (route.data?.['roles'] as string[]) ?? [];
   const user = authService.currentUser();
 
-  if (!requiredRoles.length || !user) {
-    if (!requiredRoles.length) {
-      return true;
-    }
+  if (!requiredRoles.length) {
+    return true;
+  }
 
-    router.navigate(['/dashboard']);
+  if (!user) {
+    router.navigate(['/403']);
     return false;
   }
 
@@ -26,6 +26,6 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/dashboard']);
+  router.navigate(['/403']);
   return false;
 };
