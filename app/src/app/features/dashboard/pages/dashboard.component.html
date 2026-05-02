@@ -38,14 +38,14 @@
     <mat-card class="stat-card">
       <mat-card-title>Vendas do Dia</mat-card-title>
       <mat-card-content>
-        <h2>{{ stats()?.vendasDoDia || 0 }}</h2>
+        <h2>{{ stats()?.totalVendas || 0 }}</h2>
       </mat-card-content>
     </mat-card>
 
     <mat-card class="stat-card">
       <mat-card-title>Variação (últimos dias)</mat-card-title>
       <mat-card-content>
-        <app-line-chart [data]="stats()?.series || []"></app-line-chart>
+        <app-line-chart [data]="stats()?.vendasRecentemente || []"></app-line-chart>
       </mat-card-content>
     </mat-card>
   </div>

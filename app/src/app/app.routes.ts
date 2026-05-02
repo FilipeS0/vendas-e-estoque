@@ -70,6 +70,18 @@ export const routes: Routes = [
         path: 'relatorios',
         loadComponent: () => import('./features/relatorios/pages/relatorios.component').then((m) => m.RelatoriosComponent),
       },
+      {
+        path: 'configuracoes',
+        loadComponent: () => import('./features/configuracoes/pages/configuracoes-page.component').then((m) => m.ConfiguracoesPageComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN'] },
+      },
+      {
+        path: 'crediario',
+        loadComponent: () => import('./features/crediario/pages/crediario-page.component').then((m) => m.CrediarioPageComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
+      },
     ],
   },
 ];

@@ -74,9 +74,10 @@ export class PosPageComponent {
   }
 
   private loadClientes() {
-    this.clienteService.getClientes()
-      .then((cs) => this.clientes.set(cs.map((c) => ({ id: c.id, nome: c.nome }))))
-      .catch(() => this.clientes.set([]));
+    this.clienteService.getClientes().subscribe({
+      next: (res) => this.clientes.set(res.content.map((c) => ({ id: c.id, nome: c.nome }))),
+      error: () => this.clientes.set([])
+    });
   }
 
   private async loadCaixa() {

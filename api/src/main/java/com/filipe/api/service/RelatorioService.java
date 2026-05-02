@@ -121,13 +121,33 @@ public class RelatorioService {
             });
         });
 
+        // Top Products
+        Map<String, DashboardStatsResponse.TopProduto> topProdutosMap = new HashMap<>();
+        vendasRecentes.forEach(v -> {
+            v.getItens().forEach(item -> {
+                String nome = item.getProduto().getNome();
+                topProdutosMap.merge(nome,
+                        new DashboardStatsResponse.TopProduto(nome, item.getQuantidade().longValue(), item.getValorTotal()),
+                        (p1, p2) -> new DashboardStatsResponse.TopProduto(
+                                nome,
+                                p1.quantidade() + p2.quantidade(),
+                                p1.total().add(p2.total())
+                        ));
+            });
+        });
+
+        List<DashboardStatsResponse.TopProduto> topProdutos = topProdutosMap.values().stream()
+                .sorted((p1, p2) -> p2.total().compareTo(p1.total()))
+                .limit(5)
+                .collect(Collectors.toList());
+
         return new DashboardStatsResponse(
                 faturamentoTotal,
                 totalVendas,
                 ticketMedio,
                 produtosAbaixoMinimo,
                 vendasRecentemente,
-                List.of(), // TODO: Implement Top Products if needed
+                topProdutos,
                 faturamentoPorForma
         );
     }
