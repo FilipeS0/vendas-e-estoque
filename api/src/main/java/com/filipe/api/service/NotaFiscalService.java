@@ -13,6 +13,7 @@ import com.filipe.api.mapper.fiscal.NotaFiscalMapper;
 import com.filipe.api.shared.fiscal.NfcePayload;
 import com.filipe.api.shared.fiscal.NfceResponse;
 import com.filipe.api.shared.fiscal.SefazClient;
+import com.filipe.api.shared.report.PdfReportGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,11 +35,20 @@ public class NotaFiscalService {
     private final NotaFiscalMapper notaFiscalMapper;
     private final ConfiguracaoRepository configuracaoRepository;
     private final SefazClient sefazClient;
+    private final PdfReportGenerator pdfReportGenerator;
 
     public NotaFiscalResponse buscarPorVenda(UUID vendaId) {
         return notaFiscalRepository.findByVendaId(vendaId)
                 .map(notaFiscalMapper::toResponse)
                 .orElseThrow(() -> new BusinessException("Nota fiscal nao encontrada para esta venda."));
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] gerarDanfe(UUID vendaId) {
+        NotaFiscal notaFiscal = notaFiscalRepository.findByVendaId(vendaId)
+                .orElseThrow(() -> new BusinessException("Nota fiscal nao encontrada para esta venda."));
+        
+        return pdfReportGenerator.gerarDanfeNfce(notaFiscal);
     }
 
     @Transactional

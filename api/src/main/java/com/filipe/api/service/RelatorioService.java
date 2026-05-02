@@ -206,4 +206,36 @@ public class RelatorioService {
                 row[2] != null ? (BigDecimal) row[2] : BigDecimal.ZERO
         );
     }
+
+    public FluxoCaixaResponse obterFluxoCaixa(LocalDate inicio, LocalDate fim) {
+        LocalDateTime dataHoraInicio = inicio.atStartOfDay();
+        LocalDateTime dataHoraFim = fim.atTime(23, 59, 59);
+
+        List<LancamentoCaixa> lancamentos = lancamentoCaixaRepository.findByDataHoraBetween(dataHoraInicio, dataHoraFim);
+
+        Map<LocalDate, List<LancamentoCaixa>> porDia = lancamentos.stream()
+                .collect(Collectors.groupingBy(l -> l.getDataHora().toLocalDate(), TreeMap::new, Collectors.toList()));
+
+        List<FluxoCaixaResponse.FluxoDiario> dias = porDia.entrySet().stream().map(entry -> {
+            LocalDate data = entry.getKey();
+            List<LancamentoCaixa> lancs = entry.getValue();
+
+            BigDecimal entradas = lancs.stream()
+                    .filter(l -> l.getTipo() == TipoLancamentoCaixa.ENTRADA)
+                    .map(LancamentoCaixa::getValor)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal saidas = lancs.stream()
+                    .filter(l -> l.getTipo() == TipoLancamentoCaixa.SAIDA)
+                    .map(LancamentoCaixa::getValor)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            return new FluxoCaixaResponse.FluxoDiario(data, entradas, saidas, entradas.subtract(saidas));
+        }).toList();
+
+        BigDecimal totalEntradas = dias.stream().map(FluxoCaixaResponse.FluxoDiario::entradas).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalSaidas = dias.stream().map(FluxoCaixaResponse.FluxoDiario::saidas).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new FluxoCaixaResponse(dias, totalEntradas, totalSaidas, totalEntradas.subtract(totalSaidas));
+    }
 }

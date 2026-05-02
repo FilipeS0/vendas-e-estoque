@@ -41,18 +41,18 @@ public class FocusNfeClient implements SefazClient {
                 "cnpj_emitente", "FIXME", // Deveria vir da config
                 "nome_destinatario", payload.getNomeDestinatario() != null ? payload.getNomeDestinatario() : "",
                 "cpf_destinatario", payload.getCpfDestinatario() != null ? payload.getCpfDestinatario() : "",
-                "items", payload.getItems().stream().map(item -> Map.of(
-                    "numero_item", payload.getItems().indexOf(item) + 1,
-                    "codigo_produto", item.getCodigo(),
-                    "descricao", item.getDescricao(),
-                    "ncm", item.getNcm(),
-                    "cfop", item.getCfop(),
-                    "unidade_comercial", "UN",
-                    "quantidade_comercial", item.getQuantidade(),
-                    "valor_unitario_comercial", item.getValorUnitario(),
-                    "valor_bruto", item.getValorTotal(),
-                    "icms_situacao_tributaria", "102", // Simples Nacional
-                    "icms_origem", 0
+                "items", payload.getItems().stream().map(item -> Map.<String, Object>ofEntries(
+                    Map.entry("numero_item", payload.getItems().indexOf(item) + 1),
+                    Map.entry("codigo_produto", item.getCodigo()),
+                    Map.entry("descricao", item.getDescricao()),
+                    Map.entry("ncm", item.getNcm()),
+                    Map.entry("cfop", item.getCfop()),
+                    Map.entry("unidade_comercial", "UN"),
+                    Map.entry("quantidade_comercial", item.getQuantidade()),
+                    Map.entry("valor_unitario_comercial", item.getValorUnitario()),
+                    Map.entry("valor_bruto", item.getValorTotal()),
+                    Map.entry("icms_situacao_tributaria", "102"), // Simples Nacional
+                    Map.entry("icms_origem", 0)
                 )).toList(),
                 "formas_pagamento", payload.getPagamentos().stream().map(p -> Map.of(
                     "forma_pagamento", "99", // Outros (ou mapear correto)

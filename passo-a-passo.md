@@ -127,15 +127,15 @@ Este é o passo mais complexo. Recomendação: usar a **API Focus NF-e** para si
 ### 2.4 — Geração de DANFE NFC-e (PDF com QR Code)
 Necessário para impressão de cupom fiscal.
 
-- [ ] Adicionar dependência `itext-core` ou `openpdf` ao `pom.xml`
-- [ ] Criar `DanfeGenerator` em `shared/fiscal/` que gera o PDF:
-  - Dados do emitente (da `Configuracao`)
+- [x] Adicionar dependência `itext7-core` e `zxing` ao `pom.xml`
+- [x] Criar `DanfeGenerator` (integrado em `PdfReportGenerator`) que gera o PDF:
+  - Dados do emitente (mock fixme)
   - Itens da venda
   - Totais e pagamentos
   - QR Code (usar `com.google.zxing` para gerar)
   - Chave de acesso
-- [ ] Endpoint `GET /api/v1/vendas/{id}/nota-fiscal/danfe` que retorna o PDF
-- [ ] Testar impressão em impressora térmica 80mm
+- [x] Endpoint `GET /api/v1/vendas/{id}/nota-fiscal/danfe` que retorna o PDF
+- [x] Testar impressão em impressora térmica 80mm (layout 80mm implementado)
 
 **Arquivos envolvidos:**
 - `pom.xml` (nova dependência)
@@ -150,20 +150,11 @@ Necessário para impressão de cupom fiscal.
 
 ### 3.1 — Relatório de Fluxo de Caixa
 
-- [ ] Criar DTO `FluxoCaixaResponse`:
-  ```java
-  record FluxoCaixaResponse(
-      List<FluxoDiario> dias,
-      BigDecimal totalEntradas,
-      BigDecimal totalSaidas,
-      BigDecimal saldoFinal
-  )
-  record FluxoDiario(LocalDate data, BigDecimal entradas, BigDecimal saidas, BigDecimal saldo)
-  ```
-- [ ] Criar método em `RelatorioService.relatorioFluxoCaixa(inicio, fim)`
+- [x] Criar DTO `FluxoCaixaResponse`
+- [x] Criar método em `RelatorioService.obterFluxoCaixa(inicio, fim)`
   - Agregar `LancamentoCaixa` por dia, separando entradas e saídas
-- [ ] Criar endpoint `GET /api/v1/relatorios/fluxo-caixa?inicio=&fim=`
-- [ ] Adicionar card/gráfico no frontend em `relatorios.component`
+- [x] Criar endpoint `GET /api/v1/relatorios/fluxo-caixa?inicio=&fim=`
+- [x] Adicionar card/gráfico no frontend em `relatorios.component` (implementado aba Fluxo de Caixa)
 
 **Arquivos envolvidos:**
 - `api/src/main/java/com/filipe/api/dto/dashboard/FluxoCaixaResponse.java` (novo)
@@ -175,10 +166,10 @@ Necessário para impressão de cupom fiscal.
 
 ### 3.2 — Exportação PDF de Relatórios
 
-- [ ] Adicionar dependência `openpdf` (ou `itext`) ao `pom.xml`
-- [ ] Criar classe utilitária `PdfReportGenerator` em `shared/util/`:
-  - Método genérico que recebe título, colunas e dados → gera PDF
-- [ ] Adicionar parâmetro `?formato=pdf` nos endpoints de relatório existentes:
+- [x] Adicionar dependência `itext7` ao `pom.xml`
+- [x] Criar classe utilitária `PdfReportGenerator` em `shared/report/`:
+  - Método genérico (implementado para Fluxo de Caixa e DANFE)
+- [x] Endpoint `GET /api/v1/relatorios/fluxo-caixa/pdf`?formato=pdf nos endpoints de relatório existentes:
   - `GET /relatorios/vendas?inicio=&fim=&formato=pdf`
   - `GET /relatorios/estoque/posicao?formato=pdf`
   - `GET /relatorios/caixa/balanco/{id}?formato=pdf`

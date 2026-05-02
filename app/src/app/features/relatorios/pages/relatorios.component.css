@@ -27,3 +27,37 @@
 mat-card.tabs-card {
   padding: 16px;
 }
+
+.summary-cards {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  flex: 1;
+  min-width: 200px;
+  padding: 16px;
+  border-left: 5px solid #cbd5e1;
+}
+
+.summary-card.success {
+  border-left-color: #10b981;
+  background: #ecfdf5;
+}
+
+.summary-card.danger {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+.success-text {
+  color: #059669;
+  font-weight: 500;
+}
+
+.danger-text {
+  color: #dc2626;
+  font-weight: 500;
+}

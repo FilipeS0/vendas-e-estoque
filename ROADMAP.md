@@ -189,13 +189,15 @@
 | Movimentação de estoque | ✅ | `GET /estoque/movimentacoes` |
 | Balanço de caixa | ✅ | `GET /relatorios/caixa/balanco/{caixaId}` |
 | Contas a receber (crediário) | ✅ | `GET /relatorios/contas-a-receber/resumo` |
-| Fluxo de caixa | ❌ | Não implementado |
+| Fluxo de caixa | ✅ | `GET /relatorios/fluxo-caixa` |
 | Dashboard gerencial | ✅ | `GET /relatorios/dashboard/stats` |
-| Exportação em PDF | ❌ | JasperReports/iText não integrado |
+| Exportação em PDF | ✅ | Integrado iText 7 |
 
 ### Itens pendentes de Relatórios:
-- [ ] **Fluxo de caixa**: Entradas e saídas consolidadas por período
-- [ ] **Exportação PDF**: Integrar JasperReports ou iText para gerar PDF dos relatórios
+- [x] **Relatório de Fluxo de Caixa**: Visão consolidada de entradas e saídas por período. ✅
+- [x] **Exportação PDF**: Implementado motor iText 7 para exportação de relatórios e documentos. ✅
+- [x] **DANFE**: Geração de PDF com QR Code em layout térmico (80mm) para NFC-e. ✅
+- [ ] **Dashboard com Gráficos**: Adicionar gráficos dinâmicos (Chart.js ou Ngx-Charts) no dashboard.
 
 ---
 
