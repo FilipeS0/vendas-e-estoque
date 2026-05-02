@@ -10,6 +10,7 @@ public record ConfiguracaoRequest(
     String endereco,
     @NotBlank String regimeTributario,
     @NotBlank String ambienteSefaz,
+    String apiTokenFiscal,
     @NotNull Integer serieNfce,
     @NotNull Long numeroSequencialNfce,
     String impressoraTermicaIp,

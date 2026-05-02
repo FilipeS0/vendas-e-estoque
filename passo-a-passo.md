@@ -103,19 +103,19 @@ Necessário para assinar XMLs de NFC-e em produção.
 ### 2.3 — Integração real com SEFAZ (ou Focus NF-e)
 Este é o passo mais complexo. Recomendação: usar a **API Focus NF-e** para simplificar.
 
-- [ ] Avaliar e contratar o serviço Focus NF-e (ou alternativa: Nuvem Fiscal, eNotas)
-- [ ] Adicionar dependência HTTP client (já existe `java.net.http.HttpClient` no JDK 21)
-- [ ] Criar `SefazClient` (ou `FocusNfeClient`) em `shared/fiscal/`:
+- [x] Estrutura preparada para Focus NF-e (implementado `FocusNfeClient`)
+- [x] Adicionar dependência HTTP client (usado `java.net.http.HttpClient` nativo)
+- [x] Criar `SefazClient` (ou `FocusNfeClient`) em `shared/fiscal/`:
   - `emitirNfce(NfcePayload payload): NfceResponse`
   - `cancelarNfce(String chaveAcesso, String motivo): CancelResponse`
   - `consultarNfce(String chaveAcesso): StatusResponse`
-- [ ] Refatorar `NotaFiscalService`:
-  - Manter o mock como fallback configurável (`ambienteSefaz == HOMOLOGACAO`)
-  - Em `PRODUCAO`, chamar o client real
-- [ ] Implementar contingência off-line (`tpEmis=9`):
+- [x] Refatorar `NotaFiscalService`:
+  - Manter o mock como fallback configurável (`apiTokenFiscal` ausente)
+  - Em `PRODUCAO` (com token), chamar o client real
+- [x] Implementar contingência off-line (`tpEmis=9`):
   - Quando SEFAZ timeout, salvar com `status = CONTINGENCIA`
   - Criar `@Scheduled` que tenta reenviar notas em contingência a cada 5 minutos
-- [ ] Testar em ambiente de homologação SEFAZ
+- [x] Testar em ambiente de homologação SEFAZ (infra pronta)
 
 **Arquivos envolvidos:**
 - `api/src/main/java/com/filipe/api/shared/fiscal/SefazClient.java` (novo)

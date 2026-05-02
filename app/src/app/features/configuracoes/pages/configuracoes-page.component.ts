@@ -42,6 +42,7 @@ export class ConfiguracoesPageComponent {
     endereco: [''],
     regimeTributario: ['SIMPLES_NACIONAL', Validators.required],
     ambienteSefaz: ['HOMOLOGACAO', Validators.required],
+    apiTokenFiscal: [''],
     serieNfce: [1, [Validators.required, Validators.min(1)]],
     numeroSequencialNfce: [1, [Validators.required, Validators.min(1)]],
     impressoraTermicaIp: [''],

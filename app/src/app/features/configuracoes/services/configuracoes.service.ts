@@ -9,6 +9,7 @@ export interface ConfiguracaoRequest {
   endereco?: string;
   regimeTributario: string;
   ambienteSefaz: string;
+  apiTokenFiscal?: string;
   serieNfce: number;
   numeroSequencialNfce: number;
   impressoraTermicaIp?: string;

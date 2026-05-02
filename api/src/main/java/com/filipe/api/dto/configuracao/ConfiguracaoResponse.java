@@ -10,6 +10,7 @@ public record ConfiguracaoResponse(
     String endereco,
     String regimeTributario,
     String ambienteSefaz,
+    String apiTokenFiscal,
     Integer serieNfce,
     Long numeroSequencialNfce,
     String impressoraTermicaIp,

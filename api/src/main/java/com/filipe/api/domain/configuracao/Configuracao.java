@@ -31,6 +31,7 @@ public class Configuracao {
     // Configuração Fiscal
     private String regimeTributario;
     private String ambienteSefaz;
+    private String apiTokenFiscal;
     
     // NFC-e
     private Integer serieNfce;

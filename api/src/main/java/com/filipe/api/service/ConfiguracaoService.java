@@ -60,6 +60,7 @@ public class ConfiguracaoService {
             configuracao.setEndereco(request.endereco());
             configuracao.setRegimeTributario(request.regimeTributario());
             configuracao.setAmbienteSefaz(request.ambienteSefaz());
+            configuracao.setApiTokenFiscal(request.apiTokenFiscal());
             configuracao.setSerieNfce(request.serieNfce());
             configuracao.setNumeroSequencialNfce(request.numeroSequencialNfce());
             configuracao.setImpressoraTermicaIp(request.impressoraTermicaIp());

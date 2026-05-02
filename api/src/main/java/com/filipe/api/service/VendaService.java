@@ -289,9 +289,9 @@ public class VendaService {
         vendaRepository.save(venda);
         caixaService.registrarEntradaAutomaticaVenda(venda, venda.getPagamentos(), venda.getOperador());
         
-        // Automate NFC-e emission (Mock)
+        // Automate NFC-e emission
         try {
-            notaFiscalService.gerarNotaFiscalMock(venda.getId());
+            notaFiscalService.emitirNotaFiscal(venda.getId());
         } catch (Exception e) {
             // Log but don't fail the sale finalization
             System.err.println("Erro ao gerar nota fiscal automatica: " + e.getMessage());
@@ -317,7 +317,7 @@ public class VendaService {
         if (venda.getStatus() == StatusVenda.CONFIRMADA) {
             reverterEstoque(venda, motivo);
             caixaService.registrarEstornoVenda(venda, venda.getPagamentos(), venda.getOperador(), motivo);
-            notaFiscalService.cancelarNotaFiscalMock(venda.getId(), motivo);
+            notaFiscalService.cancelarNotaFiscal(venda.getId(), motivo);
         }
 
         auditService.log(
