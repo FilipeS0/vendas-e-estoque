@@ -41,6 +41,16 @@ public class Configuracao {
     private Integer impressoraTermicaPorta;
     private Integer alertaEstoqueMinimoGlobal;
     
+    // Certificado Digital A1
+    @Column(name = "certificado_path")
+    private String certificadoPath;
+    
+    @Column(name = "certificado_validade")
+    private LocalDateTime certificadoValidade;
+    
+    @Column(name = "certificado_senha")
+    private String certificadoSenha; // Criptografada
+    
     @CreationTimestamp
     private LocalDateTime createdAt;
     

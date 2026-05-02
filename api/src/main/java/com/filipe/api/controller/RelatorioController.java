@@ -3,6 +3,7 @@ package com.filipe.api.controller;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
 import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.dto.venda.VendaResponse;
+import com.filipe.api.dto.relatorio.*;
 import com.filipe.api.service.RelatorioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,6 +31,22 @@ public class RelatorioController {
         return ResponseEntity.ok(relatorioService.relatorioVendasPeriodo(inicio, fim));
     }
 
+    @GetMapping("/vendas/por-forma-pagamento")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<VendaFormaPagamentoResponse>> relatorioVendasPorFormaPagamento(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return ResponseEntity.ok(relatorioService.relatorioVendasPorFormaPagamento(inicio, fim));
+    }
+
+    @GetMapping("/vendas/por-produto")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<VendaProdutoResponse>> relatorioVendasPorProduto(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return ResponseEntity.ok(relatorioService.relatorioVendasPorProduto(inicio, fim));
+    }
+
     @GetMapping("/estoque/posicao")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EstoqueAtualResponse>> relatorioEstoque() {
@@ -40,6 +57,12 @@ public class RelatorioController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> relatorioCaixa(@PathVariable UUID caixaId) {
         return ResponseEntity.ok(relatorioService.relatorioBalancoCaixa(caixaId));
+    }
+
+    @GetMapping("/contas-a-receber/resumo")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ContasAReceberResumoResponse> relatorioResumoContasAReceber() {
+        return ResponseEntity.ok(relatorioService.relatorioResumoContasAReceber());
     }
 
     @GetMapping("/dashboard/stats")

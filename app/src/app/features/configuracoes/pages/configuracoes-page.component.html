@@ -81,4 +81,46 @@
           </form>
         </mat-card-content>
       </mat-card>
-    </div>
+    <mat-card class="glass-card mt-20">
+      <mat-card-header>
+        <div mat-card-avatar><mat-icon color="warn" style="transform: scale(1.5);">verified_user</mat-icon></div>
+        <mat-card-title class="title">Certificado Digital A1</mat-card-title>
+        <mat-card-subtitle>Necessário para emissão de NFC-e em produção</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (statusCertificado()) {
+          <div class="status-container" [class.alert]="statusCertificado()?.alerta">
+            @if (statusCertificado()?.status === 'NOT_FOUND') {
+              <p class="status-msg danger">⚠️ Nenhum certificado configurado.</p>
+            } @else {
+              <p class="status-msg success">✅ Certificado válido até: {{ statusCertificado()?.validade | date: 'dd/MM/yyyy HH:mm' }}</p>
+              <p class="status-msg" [class.danger]="statusCertificado()?.alerta">
+                Dias restantes: {{ statusCertificado()?.diasRestantes }}
+              </p>
+            }
+          </div>
+        }
+
+        <form [formGroup]="certificadoForm" class="upload-form">
+          <div class="file-input-row">
+            <input type="file" (change)="onFileSelected($event)" accept=".pfx" #fileInput hidden>
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+              <mat-icon>upload_file</mat-icon>
+              {{ selectedFile ? selectedFile.name : 'Selecionar arquivo .pfx' }}
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Senha do Certificado</mat-label>
+            <input matInput type="password" formControlName="senha" placeholder="Sua senha secreta">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-flat-button color="accent" (click)="uploadCertificado()" [disabled]="!selectedFile || certificadoForm.invalid || isLoading()">
+              <mat-icon>cloud_upload</mat-icon> Enviar Certificado
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>

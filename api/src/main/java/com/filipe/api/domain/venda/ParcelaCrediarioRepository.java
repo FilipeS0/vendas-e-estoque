@@ -30,4 +30,14 @@ public interface ParcelaCrediarioRepository extends JpaRepository<ParcelaCrediar
            AND p.dataVencimento < CURRENT_DATE
            """)
     int marcarParcelasVencidas();
+
+    @Query("""
+           SELECT 
+             SUM(CASE WHEN p.status = com.filipe.api.domain.venda.StatusParcela.VENCIDA THEN p.valor - p.valorPago ELSE 0 END),
+             SUM(CASE WHEN p.status = com.filipe.api.domain.venda.StatusParcela.PENDENTE THEN p.valor - p.valorPago ELSE 0 END),
+             SUM(p.valor - p.valorPago)
+           FROM ParcelaCrediario p
+           WHERE p.status IN (com.filipe.api.domain.venda.StatusParcela.PENDENTE, com.filipe.api.domain.venda.StatusParcela.VENCIDA, com.filipe.api.domain.venda.StatusParcela.PAGO_PARCIAL)
+           """)
+    Object[] getResumoContasAReceber();
 }

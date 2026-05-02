@@ -37,4 +37,15 @@ export class ConfiguracoesService {
   salvarConfiguracao(req: ConfiguracaoRequest): Observable<ConfiguracaoResponse> {
     return this.http.post<ConfiguracaoResponse>(this.apiUrl, req);
   }
+
+  uploadCertificado(file: File, senha: String): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('senha', senha as string);
+    return this.http.post<void>(`${this.apiUrl}/certificado`, formData);
+  }
+
+  getStatusCertificado(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/certificado/status`);
+  }
 }

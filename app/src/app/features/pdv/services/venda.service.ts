@@ -11,6 +11,7 @@ export interface ItemVendaRequest {
 export interface PagamentoRequest {
   formaPagamento: 'DINHEIRO' | 'CARTAO_DEBITO' | 'CARTAO_CREDITO' | 'PIX' | 'CREDIARIO';
   valor: number;
+  numeroParcelas?: number;
 }
 
 export interface VendaRequest {

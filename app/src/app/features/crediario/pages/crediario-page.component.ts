@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe, CurrencyPipe, LowerCasePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -12,7 +12,6 @@ import { CrediarioService, ParcelaResponse } from '../services/crediario.service
 
 @Component({
   selector: 'app-crediario-page',
-  standalone: true,
   imports: [
     ReactiveFormsModule, MatCardModule, MatTableModule, MatButtonModule, 
     MatIconModule, MatFormFieldModule, MatSelectModule, MatSnackBarModule,
@@ -21,7 +20,7 @@ import { CrediarioService, ParcelaResponse } from '../services/crediario.service
   templateUrl: './crediario-page.component.html',
   styleUrls: ['./crediario-page.component.css']
 })
-export class CrediarioPageComponent implements OnInit {
+export class CrediarioPageComponent {
   private crediarioService = inject(CrediarioService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);

@@ -42,6 +42,12 @@
       <mat-icon>bar_chart</mat-icon>
       <span class="nav-text">Relatórios</span>
     </a>
+    @if (authService.hasRole('ROLE_ADMIN')) {
+      <a mat-list-item routerLink="/usuarios" routerLinkActive="active-link">
+        <mat-icon>manage_accounts</mat-icon>
+        <span class="nav-text">Usuários</span>
+      </a>
+    }
     <a mat-list-item routerLink="/configuracoes" routerLinkActive="active-link">
       <mat-icon>settings</mat-icon>
       <span class="nav-text">Configurações</span>

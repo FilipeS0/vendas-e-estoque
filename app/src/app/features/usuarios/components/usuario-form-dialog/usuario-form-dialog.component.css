@@ -1,0 +1,17 @@
+.usuario-form {
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.checkbox-container {
+  margin: 10px 0;
+}
+
+mat-dialog-content {
+  min-width: 400px;
+}

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,10 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfiguracoesService } from '../services/configuracoes.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-configuracoes-page',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatCardModule,
@@ -21,16 +21,19 @@ import { ConfiguracoesService } from '../services/configuracoes.service';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    DatePipe,
   ],
   templateUrl: './configuracoes-page.component.html',
   styleUrls: ['./configuracoes-page.component.css']
 })
-export class ConfiguracoesPageComponent implements OnInit {
+export class ConfiguracoesPageComponent {
   private fb = inject(FormBuilder);
   private configService = inject(ConfiguracoesService);
   private snackBar = inject(MatSnackBar);
 
   isLoading = signal(false);
+  statusCertificado = signal<any>(null);
+  selectedFile: File | null = null;
 
   form = this.fb.group({
     razaoSocial: ['', Validators.required],
@@ -46,8 +49,13 @@ export class ConfiguracoesPageComponent implements OnInit {
     alertaEstoqueMinimoGlobal: [5, [Validators.required, Validators.min(0)]]
   });
 
+  certificadoForm = this.fb.group({
+    senha: ['', Validators.required]
+  });
+
   ngOnInit() {
     this.carregar();
+    this.carregarStatusCertificado();
   }
 
   async carregar() {
@@ -57,6 +65,38 @@ export class ConfiguracoesPageComponent implements OnInit {
       this.form.patchValue(config);
     }
     this.isLoading.set(false);
+  }
+
+  carregarStatusCertificado() {
+    this.configService.getStatusCertificado().subscribe({
+      next: (status) => this.statusCertificado.set(status),
+      error: () => this.statusCertificado.set(null)
+    });
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  uploadCertificado() {
+    if (!this.selectedFile || this.certificadoForm.invalid) return;
+
+    this.isLoading.set(true);
+    const senha = this.certificadoForm.value.senha!;
+
+    this.configService.uploadCertificado(this.selectedFile, senha).subscribe({
+      next: () => {
+        this.snackBar.open('Certificado enviado com sucesso!', 'OK', { duration: 3000 });
+        this.isLoading.set(false);
+        this.selectedFile = null;
+        this.certificadoForm.reset();
+        this.carregarStatusCertificado();
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.message || 'Erro ao enviar certificado.', 'OK', { duration: 3000 });
+        this.isLoading.set(false);
+      }
+    });
   }
 
   salvar() {

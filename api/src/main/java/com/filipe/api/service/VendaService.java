@@ -267,7 +267,7 @@ public class VendaService {
             venda.getPagamentos().add(pagamento);
 
             if (pagReq.formaPagamento() == FormaPagamento.CREDIARIO) {
-                processarCrediario(venda, pagReq.valor());
+                processarCrediario(venda, pagReq.valor(), pagReq.numeroParcelas());
             }
         }
 
@@ -288,6 +288,14 @@ public class VendaService {
         venda.setStatus(StatusVenda.CONFIRMADA);
         vendaRepository.save(venda);
         caixaService.registrarEntradaAutomaticaVenda(venda, venda.getPagamentos(), venda.getOperador());
+        
+        // Automate NFC-e emission (Mock)
+        try {
+            notaFiscalService.gerarNotaFiscalMock(venda.getId());
+        } catch (Exception e) {
+            // Log but don't fail the sale finalization
+            System.err.println("Erro ao gerar nota fiscal automatica: " + e.getMessage());
+        }
 
         return vendaMapper.toResponse(venda);
     }
@@ -362,7 +370,7 @@ public class VendaService {
         return trocos;
     }
 
-    private void processarCrediario(Venda venda, BigDecimal valor) {
+    private void processarCrediario(Venda venda, BigDecimal valor, Integer numeroParcelas) {
         Cliente cliente = venda.getCliente();
         if (cliente == null) {
             throw new BusinessException("Pagamento em CREDIARIO requer um cliente identificado.");
@@ -383,18 +391,27 @@ public class VendaService {
                 .valorTotal(valor)
                 .valorPago(BigDecimal.ZERO)
                 .status(StatusCrediario.ABERTO)
+                .parcelas(new ArrayList<>())
                 .build();
 
-        // Default: create a single installment for 30 days from now
-        ParcelaCrediario parcela = ParcelaCrediario.builder()
-                .crediario(crediario)
-                .numeroParcela(1)
-                .valor(valor)
-                .dataVencimento(java.time.LocalDate.now().plusDays(30))
-                .status(StatusParcela.PENDENTE)
-                .build();
+        int numParcelas = (numeroParcelas != null && numeroParcelas > 0) ? numeroParcelas : 1;
+        BigDecimal valorParcela = valor.divide(BigDecimal.valueOf(numParcelas), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal resto = valor.subtract(valorParcela.multiply(BigDecimal.valueOf(numParcelas)));
 
-        crediario.getParcelas().add(parcela);
+        for (int i = 1; i <= numParcelas; i++) {
+            BigDecimal valorFinalParcela = (i == numParcelas) ? valorParcela.add(resto) : valorParcela;
+            
+            ParcelaCrediario parcela = ParcelaCrediario.builder()
+                    .crediario(crediario)
+                    .numeroParcela(i)
+                    .valor(valorFinalParcela)
+                    .dataVencimento(java.time.LocalDate.now().plusMonths(i))
+                    .status(StatusParcela.PENDENTE)
+                    .build();
+
+            crediario.getParcelas().add(parcela);
+        }
+        
         crediarioRepository.save(crediario);
     }
 }

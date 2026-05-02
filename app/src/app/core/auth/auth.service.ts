@@ -70,4 +70,10 @@ export class AuthService {
       this.loadProfile().subscribe({ error: () => this.logout() });
     }
   }
+
+  hasRole(role: string): boolean {
+    const user = this.currentUser();
+    if (!user || !user.authorities) return false;
+    return user.authorities.some((a) => a.authority === role);
+  }
 }

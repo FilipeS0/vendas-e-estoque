@@ -2,6 +2,7 @@ package com.filipe.api.service;
 
 import com.filipe.api.domain.fiscal.NotaFiscal;
 import com.filipe.api.domain.fiscal.NotaFiscalRepository;
+import com.filipe.api.domain.fiscal.StatusNfe;
 import com.filipe.api.domain.venda.Venda;
 import com.filipe.api.domain.venda.VendaRepository;
 import com.filipe.api.dto.fiscal.NotaFiscalResponse;
@@ -20,7 +21,6 @@ import java.util.UUID;
 public class NotaFiscalService {
 
     private static final int SERIE_PADRAO = 1;
-    private static final String STATUS_MOCK = "AUTORIZADA";
     private static final String AMBIENTE_MOCK = "HOMOLOGACAO";
 
     private final VendaRepository vendaRepository;
@@ -59,7 +59,7 @@ public class NotaFiscalService {
                 .dataEmissao(dataEmissao)
                 .xmlAutorizado(xmlAutorizado)
                 .urlDanfe("/mock/nfce/" + venda.getId())
-                .status(STATUS_MOCK)
+                .status(StatusNfe.AUTORIZADA)
                 .mensagemRetorno("NFC-e mock gerada com sucesso.")
                 .protocolo("MOCK-" + chaveAcesso.substring(chaveAcesso.length() - 8))
                 .ambiente(AMBIENTE_MOCK)
@@ -72,7 +72,7 @@ public class NotaFiscalService {
     @Transactional
     public void cancelarNotaFiscalMock(UUID vendaId, String motivo) {
         notaFiscalRepository.findByVendaId(vendaId).ifPresent(notaFiscal -> {
-            notaFiscal.setStatus("CANCELADA");
+            notaFiscal.setStatus(StatusNfe.CANCELADA);
             notaFiscal.setMensagemRetorno("NFC-e mock cancelada. Motivo: " + motivo);
             notaFiscal.setXmlAutorizado(notaFiscal.getXmlAutorizado() + "\n<!-- CANCELADA: " + motivo + " -->");
             notaFiscalRepository.save(notaFiscal);
@@ -102,7 +102,7 @@ public class NotaFiscalService {
                 chaveAcesso,
                 dataEmissao,
                 venda.getValorTotal(),
-                STATUS_MOCK
+                StatusNfe.AUTORIZADA
         ).trim();
     }
 }

@@ -186,3 +186,26 @@ export interface PageResponse<T> {
   size: number;
   number: number;
 }
+// ─── Usuários ─────────────────────────────────────────────────────────────────
+
+export interface Perfil {
+  id: string;
+  nome: string;
+}
+
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  perfilNome: string;
+  perfilId: string;
+  ativo: boolean;
+}
+
+export interface UsuarioRequest {
+  nome: string;
+  email: string;
+  senha?: string;
+  perfilId: string;
+  ativo: boolean;
+}
