@@ -1,51 +1,75 @@
 <div class="dashboard-container">
-  <mat-card class="dashboard-card">
-    <mat-card-header>
-      <div mat-card-avatar class="avatar">
-        <mat-icon>account_circle</mat-icon>
-      </div>
-      <mat-card-title
-        >Bem-vindo, {{ authService.currentUser()?.nome || 'Usuário' }}!</mat-card-title
-      >
-      <mat-card-subtitle>{{ authService.currentUser()?.email }}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>Você está acessando uma rota protegida pelo AuthGuard!</p>
-      @if (authService.currentUser()?.authorities) {
-        <p>
-          <strong>Permissões:</strong>
-          @for (role of authService.currentUser()?.authorities; track role.authority) {
-            <span class="role-badge">{{ role.authority }}</span>
+  <div class="summary-row">
+    <mat-card class="stat-card primary">
+      <mat-card-subtitle>Faturamento (30 dias)</mat-card-subtitle>
+      <mat-card-title>{{ stats()?.faturamentoTotal || 0 | currency: 'BRL' }}</mat-card-title>
+      <mat-icon class="stat-icon">payments</mat-icon>
+    </mat-card>
+
+    <mat-card class="stat-card accent">
+      <mat-card-subtitle>Total de Vendas</mat-card-subtitle>
+      <mat-card-title>{{ stats()?.totalVendas || 0 }}</mat-card-title>
+      <mat-icon class="stat-icon">shopping_cart</mat-icon>
+    </mat-card>
+
+    <mat-card class="stat-card warning">
+      <mat-card-subtitle>Ticket Médio</mat-card-subtitle>
+      <mat-card-title>{{ stats()?.ticketMedio || 0 | currency: 'BRL' }}</mat-card-title>
+      <mat-icon class="stat-icon">trending_up</mat-icon>
+    </mat-card>
+
+    <mat-card class="stat-card danger">
+      <mat-card-subtitle>Estoque Baixo</mat-card-subtitle>
+      <mat-card-title>{{ stats()?.produtosAbaixoMinimo || 0 }}</mat-card-title>
+      <mat-icon class="stat-icon">inventory_2</mat-icon>
+    </mat-card>
+  </div>
+
+  <div class="charts-grid">
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Vendas por Dia</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (salesChartData()) {
+          <div class="chart-container">
+            <app-chart type="line" [data]="salesChartData()"></app-chart>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Formas de Pagamento</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (paymentsChartData()) {
+          <div class="chart-container">
+            <app-chart type="doughnut" [data]="paymentsChartData()"></app-chart>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="bottom-row">
+    <mat-card class="top-products-card">
+      <mat-card-header>
+        <mat-card-title>Produtos Mais Vendidos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="product-list">
+          @for (p of stats()?.topProdutos; track p.nome) {
+            <div class="product-item">
+              <div class="product-info">
+                <span class="product-name">{{ p.nome }}</span>
+                <span class="product-qty">{{ p.quantidade }} unidades</span>
+              </div>
+              <span class="product-total">{{ p.total | currency: 'BRL' }}</span>
+            </div>
           }
-        </p>
-      }
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button color="primary" (click)="router.navigate(['/produtos'])">
-        <mat-icon>inventory_2</mat-icon> Produtos
-      </button>
-      <button mat-button color="warn" (click)="logout()">Sair</button>
-    </mat-card-actions>
-  </mat-card>
-  <div class="stats-grid">
-    <mat-card class="stat-card">
-      <mat-card-title>Faturamento Total</mat-card-title>
-      <mat-card-content>
-        <h2>{{ stats()?.faturamentoTotal || 0 | number: '1.2-2' }}</h2>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-title>Vendas do Dia</mat-card-title>
-      <mat-card-content>
-        <h2>{{ stats()?.totalVendas || 0 }}</h2>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-title>Variação (últimos dias)</mat-card-title>
-      <mat-card-content>
-        <app-line-chart [data]="stats()?.vendasRecentemente || []"></app-line-chart>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
