@@ -1,6 +1,6 @@
 # Roadmap — Sistema PDV: Especificação × Estado Atual
 
-> **Gerado em:** 02 de Maio de 2026
+> **Gerado em:** 02 de Maio de 2026 · **Atualizado em:** 03 de Maio de 2026
 > **Referência:** [especificacao_tecnica.md](./especificacao_tecnica.md)
 
 ---
@@ -22,7 +22,7 @@
 | Spring Boot 4.0.6 + Java 21 | `pom.xml` | — | ✅ |
 | Angular 21 + Angular Material | — | `package.json` | ✅ |
 | PostgreSQL + Docker Compose | `Dockerfile` | `Dockerfile` | ✅ |
-| Flyway migrations (6 scripts) | `V1` → `V6` | — | ✅ |
+| Flyway migrations (12 scripts) | `V1` → `V12` | — | ✅ |
 | SpringDoc / Swagger UI | `springdoc-openapi` | — | ✅ |
 | MapStruct + Lombok | `pom.xml` | — | ✅ |
 | CI/CD (GitHub Actions) | — | — | ❌ Previsto para futuro |
@@ -42,8 +42,8 @@
 | Rate limiting no login | Bucket4j | `RateLimiterConfig` | ✅ (fix aplicado) |
 | Senhas com BCrypt | Fator 12 | `SecurityConfig` | ✅ |
 | HTTPS em produção | Obrigatório | Configuração de deploy | ❌ Pendente de deploy |
-| Log de auditoria | Operações críticas | `AuditService` (apenas log simples) | ⚠️ |
-| Certificado A1 criptografado | AES-256 | — | ❌ |
+| Log de auditoria | Operações críticas | `AuditService` + tabela `audit_log` + `AuditController` | ✅ |
+| Certificado A1 criptografado | AES-256 | Upload criptografado AES-256 + gestão de validade | ✅ |
 
 ### Itens pendentes de Segurança:
 - [x] **Refresh automático no frontend**: Implementado via `jwt.interceptor.ts` com captura de `401` e retry automático. ✅
@@ -62,13 +62,13 @@
 | Alíquotas (ICMS, PIS, COFINS) | ✅ | Campos na entidade |
 | Vínculo com Categoria | ✅ | `@ManyToOne` |
 | Vínculo com Fornecedor | ✅ | `@ManyToOne` |
-| Upload de imagem do produto | ❌ | Não implementado |
-| Histórico de preços | ❌ | Não há tabela/entidade para isso |
+| Upload de imagem do produto | ✅ | Endpoint multipart + armazenamento (filesystem or S3) |
+| Histórico de preços | ✅ | Criar entidade `HistoricoPreco` e listener JPA para registrar mudanças |
 | Busca por código de barras (endpoint dedicado) | ✅ | `GET /api/v1/produtos/codigo-barras/{codigo}` |
 
 ### Itens pendentes de Produtos:
-- [ ] **Upload de imagem**: Endpoint multipart + armazenamento (filesystem or S3)
-- [ ] **Histórico de preços**: Criar entidade `HistoricoPreco` e listener JPA para registrar mudanças
+- [X] **Upload de imagem**: Endpoint multipart + armazenamento (filesystem or S3)
+- [X] **Histórico de preços**: Criar entidade `HistoricoPreco` e listener JPA para registrar mudanças
 
 ---
 
@@ -161,18 +161,18 @@
 | Cancelamento de NFC-e | ✅ | `cancelarNotaFiscalMock()` |
 | Consulta de NFC-e por venda | ✅ | `GET /vendas/{id}/nota-fiscal` |
 | XML mock com dados básicos | ✅ | `montarXmlMock()` |
-| **Integração real com SEFAZ** | ❌ | Apenas mock |
-| Assinatura digital (certificado A1/A3) | ❌ | Não implementado |
-| Contingência off-line (tpEmis=9) | ❌ | Não implementado |
-| DANFE NFC-e com QR Code | ❌ | Não implementado |
-| Upload de certificado digital | ❌ | Não implementado |
-| Status enum (PENDENTE→AUTORIZADA→CANCELADA) | ⚠️ | `status` é String, não enum |
+| **Integração real com SEFAZ** | ✅ | FocusNfeClient |
+| Assinatura digital (certificado A1/A3) | ✅ | Upload AES-256 implementado |
+| Contingência off-line (tpEmis=9) | ✅ | Implementado via FiscalScheduler |
+| DANFE NFC-e com QR Code | ✅ | Implementado no PdfReportGenerator |
+| Upload de certificado digital | ✅ | Implementado |
+| Status enum (PENDENTE→AUTORIZADA→CANCELADA) | ✅ | `@Enumerated StatusNfe` na entity `NotaFiscal` |
 
 ### Itens pendentes de Fiscal:
 - [x] **Integração real SEFAZ**: Implementado `FocusNfeClient` com suporte a emissão, cancelamento e contingência automática. ✅
 - [x] **Assinatura digital**: Implementado upload de certificado A1 (.pfx) com armazenamento seguro (AES-256) e extração automática de validade. ✅
 - [x] **Status como Enum**: Trocado `String status` na `NotaFiscal` para `@Enumerated StatusNfe`. ✅
-- [ ] **DANFE**: Geração de PDF com QR Code (JasperReports ou iText)
+- [x] **DANFE**: Geração de PDF com QR Code em layout térmico (80mm) via `PdfReportGenerator` + iText 7 + ZXing. ✅
 
 ---
 
@@ -197,7 +197,7 @@
 - [x] **Relatório de Fluxo de Caixa**: Visão consolidada de entradas e saídas por período. ✅
 - [x] **Exportação PDF**: Implementado motor iText 7 para exportação de relatórios e documentos. ✅
 - [x] **DANFE**: Geração de PDF com QR Code em layout térmico (80mm) para NFC-e. ✅
-- [ ] **Dashboard com Gráficos**: Adicionar gráficos dinâmicos (Chart.js ou Ngx-Charts) no dashboard.
+- [x] **Dashboard com Gráficos**: Adicionar gráficos dinâmicos (Chart.js ou Ngx-Charts) no dashboard. ✅
 
 ---
 
@@ -236,20 +236,30 @@
 
 ## 13. Priorização Sugerida (Estado Atual)
 
+### ✅ Concluídos
+1. ~~**Integração real SEFAZ**~~ — `FocusNfeClient` + contingência automática ✅
+2. ~~**Exportação PDF de relatórios**~~ — Motor iText 7 + DANFE ✅
+3. ~~**Auditoria persistida em banco**~~ — Tabela `audit_log` + `AuditController` ✅
+4. ~~**Upload de imagem de produto**~~ — Endpoint multipart + filesystem ✅
+5. ~~**Histórico de preços**~~ — `HistoricoPreco` entity + migration V12 ✅
+6. ~~**Fluxo de caixa consolidado**~~ — `GET /relatorios/fluxo-caixa` ✅
+
 ### 🔴 Prioridade Alta (Próximos Passos)
-1. **Integração real SEFAZ** — Transição do Mock para produção.
-2. **Exportação PDF de relatórios** — Requisito comum para contabilidade.
-3. **Auditoria persistida em banco** — Atualmente é apenas log de texto.
+7. **Testes de Controller (Slice Tests)** — `@WebMvcTest` para `Produto`, `Venda`, `Caixa`
+8. **Testes de Integração (Testcontainers)** — Fluxo E2E de venda + crediário
+9. **TestDataBuilder completo** — Builders para todas as entidades
 
 ### 🟡 Prioridade Média
-4. **Upload de imagem de produto**
-5. **Histórico de preços**
-6. **Fluxo de caixa consolidado**
+10. **CI/CD com GitHub Actions** — Pipeline de build + testes + Docker
+11. **HTTPS e Deploy** — nginx + Let's Encrypt + `docker-compose.prod.yml`
+12. **Manual do usuário / Documentação de API**
 
-### 🟢 Prioridade Baixa
-7. **Testes de integração (Testcontainers)**
-8. **CI/CD com GitHub Actions**
-9. **Manual do usuário / Documentação de API**
+### 🟢 Backlog (Gaps da Especificação)
+13. **Enum `UnidadeMedida`** — Spec define no `Produto` mas não existe na entity
+14. **Busca de produtos por múltiplos critérios** — Atualmente apenas por nome
+15. **Tabela NCM (auto-complete)** — Importar tabela NCM para cadastro de produtos
+16. **Consulta CPF/CNPJ (BrasilAPI)** — Validação e preenchimento automático
+17. **PIX com QR Code** — Exibição de QR Code para pagamento (previsto v1.5)
 
 ---
 

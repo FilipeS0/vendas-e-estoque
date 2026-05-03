@@ -20,6 +20,7 @@ public class ProdutoMapper {
                 .codigoBarras(request.codigoBarras())
                 .nome(request.nome())
                 .descricao(request.descricao())
+                .unidadeMedida(request.unidadeMedida())
                 .categoria(categoria)
                 .fornecedor(fornecedor)
                 .precoCusto(request.precoCusto())
@@ -41,6 +42,7 @@ public class ProdutoMapper {
     public void updateEntity(Produto produto, ProdutoUpdateRequest request, Categoria categoria, Fornecedor fornecedor) {
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
+        produto.setUnidadeMedida(request.unidadeMedida());
         produto.setCategoria(categoria);
         produto.setFornecedor(fornecedor);
         produto.setPrecoCusto(request.precoCusto());
@@ -67,6 +69,8 @@ public class ProdutoMapper {
                 produto.getFornecedor() != null ? produto.getFornecedor().getNome() : null,
                 produto.getPrecoVenda(),
                 quantidadeEstoque,
+                produto.getUnidadeMedida() != null ? produto.getUnidadeMedida().name() : null,
+                produto.getImagemUrl(),
                 produto.getAtivo()
         );
     }
@@ -93,6 +97,8 @@ public class ProdutoMapper {
                 produto.getAliquotaPis(),
                 produto.getAliquotaCofins(),
                 quantidadeEstoque,
+                produto.getUnidadeMedida() != null ? produto.getUnidadeMedida().name() : null,
+                produto.getImagemUrl(),
                 produto.getAtivo()
         );
     }

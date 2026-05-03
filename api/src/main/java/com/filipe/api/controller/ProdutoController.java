@@ -15,7 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.filipe.api.domain.produto.HistoricoPreco;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -71,5 +75,26 @@ public class ProdutoController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         produtoService.inativarProduto(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/imagem")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> uploadImagem(@PathVariable UUID id, @RequestParam("imagem") MultipartFile file) {
+        produtoService.salvarImagem(id, file);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/imagem")
+    public ResponseEntity<byte[]> getImagem(@PathVariable UUID id) {
+        byte[] imagem = produtoService.buscarImagem(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG) // Standardizing to JPEG or detection
+                .body(imagem);
+    }
+
+    @GetMapping("/{id}/historico-precos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<HistoricoPreco>> getHistoricoPrecos(@PathVariable UUID id) {
+        return ResponseEntity.ok(produtoService.buscarHistoricoPrecos(id));
     }
 }

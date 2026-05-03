@@ -7,6 +7,7 @@ export interface ProdutoRequest {
   codigoBarras: string;
   nome: string;
   descricao?: string;
+  unidadeMedida: string;
   categoriaId: string;
   fornecedorId: string;
   precoCusto: number;
@@ -28,6 +29,8 @@ export interface ProdutoResponse {
   categoriaNome: string;
   fornecedorNome: string;
   precoVenda: number;
+  unidadeMedida?: string;
+  imagemUrl?: string;
   ativo: boolean;
 }
 
@@ -42,6 +45,7 @@ export interface PageResponse<T> {
 export interface ProdutoUpdateRequest {
   nome: string;
   descricao?: string;
+  unidadeMedida: string;
   categoriaId: string;
   fornecedorId: string;
   precoCusto: number;
@@ -61,6 +65,7 @@ export interface ProdutoDetalheResponse {
   codigoBarras: string;
   nome: string;
   descricao?: string;
+  unidadeMedida: string;
   categoriaId: string;
   fornecedorId: string;
   precoCusto: number;
@@ -72,6 +77,7 @@ export interface ProdutoDetalheResponse {
   aliquotaIcms?: number;
   aliquotaPis?: number;
   aliquotaCofins?: number;
+  imagemUrl?: string;
   ativo: boolean;
 }
 
@@ -85,12 +91,24 @@ export interface Fornecedor {
   nome: string;
 }
 
+export interface HistoricoPreco {
+  id: string;
+  precoCusto: number;
+  precoVenda: number;
+  dataAlteracao: string;
+  motivo: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProdutoService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1';
+
+  get baseUrl(): string {
+    return ''; // Relative to the same host
+  }
 
   getProdutos(nome?: string, page: number = 0, size: number = 10): Observable<PageResponse<ProdutoResponse>> {
     let params = new HttpParams()
@@ -126,5 +144,15 @@ export class ProdutoService {
 
   getFornecedores(): Observable<Fornecedor[]> {
     return this.http.get<Fornecedor[]>(`${this.apiUrl}/fornecedores`);
+  }
+
+  uploadImagem(id: string, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('imagem', file);
+    return this.http.post<void>(`${this.apiUrl}/produtos/${id}/imagem`, formData);
+  }
+
+  getHistoricoPrecos(id: string): Observable<HistoricoPreco[]> {
+    return this.http.get<HistoricoPreco[]>(`${this.apiUrl}/produtos/${id}/historico-precos`);
   }
 }

@@ -17,6 +17,11 @@
           </button>
         }
       </mat-form-field>
+
+      <button mat-flat-button color="primary" (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Exportar PDF
+      </button>
     </div>
 
     @if (dataSource().length === 0) {

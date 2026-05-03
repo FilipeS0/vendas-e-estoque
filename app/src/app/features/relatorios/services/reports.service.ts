@@ -29,25 +29,25 @@ export class ReportsService {
     return firstValueFrom(this.http.get<DashboardStats>(`${this.apiUrl}/dashboard/stats`));
   }
 
-  getVendasPorPeriodo(dataInicio: string, dataFim: string): Observable<VendaPeriodoItem[]> {
+  getVendasPorPeriodo(inicio: string, fim: string): Observable<VendaPeriodoItem[]> {
     return this.http.get<VendaPeriodoItem[]>(`${this.apiUrl}/vendas`, {
-      params: { dataInicio, dataFim },
+      params: { inicio: `${inicio}T00:00:00`, fim: `${fim}T23:59:59` },
     });
   }
 
-  getVendasPorFormaPagamento(dataInicio: string, dataFim: string): Observable<VendaFormaPagItem[]> {
+  getVendasPorFormaPagamento(inicio: string, fim: string): Observable<VendaFormaPagItem[]> {
     return this.http.get<VendaFormaPagItem[]>(`${this.apiUrl}/vendas/forma-pagamento`, {
-      params: { dataInicio, dataFim },
+      params: { inicio: `${inicio}T00:00:00`, fim: `${fim}T23:59:59` },
     });
   }
 
   getRankingProdutos(
-    dataInicio: string,
-    dataFim: string,
+    inicio: string,
+    fim: string,
     top: number,
   ): Observable<ProdutoRankingItem[]> {
     return this.http.get<ProdutoRankingItem[]>(`${this.apiUrl}/produtos/ranking`, {
-      params: { dataInicio, dataFim, top: top.toString() },
+      params: { inicio: `${inicio}T00:00:00`, fim: `${fim}T23:59:59`, top: top.toString() },
     });
   }
 
@@ -57,11 +57,15 @@ export class ReportsService {
     });
   }
 
-  exportarPdf(tipo: 'vendas' | 'forma-pagamento' | 'ranking' | 'fluxo-caixa', params: object): Observable<Blob> {
-    // In backend, getFluxoCaixaPdf expects 'inicio' and 'fim', but other reports might expect 'dataInicio' and 'dataFim'.
-    // I should normalize this.
+  exportarPdf(tipo: string, params: any): Observable<Blob> {
+    const standardizedParams: any = {};
+    if (params.dataInicio) standardizedParams.inicio = `${params.dataInicio}T00:00:00`;
+    if (params.dataFim) standardizedParams.fim = `${params.dataFim}T23:59:59`;
+    if (params.inicio && !standardizedParams.inicio) standardizedParams.inicio = params.inicio;
+    if (params.fim && !standardizedParams.fim) standardizedParams.fim = params.fim;
+
     return this.http.get(`${this.apiUrl}/${tipo}/pdf`, {
-      params: params as Record<string, string>,
+      params: standardizedParams,
       responseType: 'blob',
     });
   }

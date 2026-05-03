@@ -38,6 +38,7 @@ export class ProdutoListComponent {
   private destroyRef = inject(DestroyRef);
 
   displayedColumns: string[] = [
+    'imagem',
     'codigoInterno',
     'codigoBarras',
     'nome',
@@ -51,6 +52,10 @@ export class ProdutoListComponent {
   currentPage = signal<number>(0);
 
   searchControl = new FormControl('');
+
+  get baseUrl(): string {
+    return this.produtoService.baseUrl;
+  }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 

@@ -28,5 +28,7 @@ public record ProdutoDetalheResponse(
         BigDecimal aliquotaPis,
         BigDecimal aliquotaCofins,
         BigDecimal quantidadeEstoque,
+        String unidadeMedida,
+        String imagemUrl,
         Boolean ativo
 ) {}

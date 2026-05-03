@@ -32,6 +32,10 @@ public class Produto {
 
     private String descricao;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unidade_medida", nullable = false, length = 2)
+    private UnidadeMedida unidadeMedida = UnidadeMedida.UN;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
@@ -78,6 +82,9 @@ public class Produto {
 
     @Column(name = "aliquota_cofins", precision = 5, scale = 2)
     private BigDecimal aliquotaCofins;
+
+    @Column(name = "imagem_url")
+    private String imagemUrl;
 
     @Builder.Default
     private Boolean ativo = true;

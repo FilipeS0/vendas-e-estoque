@@ -1,7 +1,7 @@
 # Passo a Passo — Completando o Roadmap do PDV
 
 > **Referência:** [ROADMAP.md](./ROADMAP.md) · [especificacao_tecnica.md](./especificacao_tecnica.md)
-> **Atualizado em:** 02 de Maio de 2026
+> **Atualizado em:** 03 de Maio de 2026
 
 Cada **Passo** é independente e pode ser feito em 1–3 sessões de trabalho.
 Marque `[x]` conforme for concluindo.
@@ -174,8 +174,8 @@ Necessário para impressão de cupom fiscal.
   - `GET /relatorios/estoque/posicao?formato=pdf`
   - `GET /relatorios/caixa/balanco/{id}?formato=pdf`
   - `GET /relatorios/contas-a-receber/resumo?formato=pdf`
-- [ ] Quando `formato=pdf`, retornar `Content-Type: application/pdf` com o arquivo
-- [ ] Adicionar botão "Exportar PDF" nos relatórios do frontend
+- [x] Quando `formato=pdf`, retornar `Content-Type: application/pdf` com o arquivo
+- [x] Adicionar botão "Exportar PDF" nos relatórios do frontend
 
 **Arquivos envolvidos:**
 - `pom.xml` (dependência)
@@ -191,15 +191,15 @@ Necessário para impressão de cupom fiscal.
 
 ### 4.1 — Upload de imagem de produto
 
-- [ ] Criar pasta de uploads (ex: `uploads/produtos/`) — configurável via `application.properties`
-- [ ] Criar endpoint `POST /api/v1/produtos/{id}/imagem` (multipart/form-data)
+- [x] Criar pasta de uploads (ex: `uploads/produtos/`) — configurável via `application.properties`
+- [x] Criar endpoint `POST /api/v1/produtos/{id}/imagem` (multipart/form-data)
   - Aceitar `.jpg`, `.png`, `.webp`
   - Limitar tamanho (ex: 2MB)
   - Salvar no filesystem com nome `{produtoId}.{ext}`
-- [ ] Criar endpoint `GET /api/v1/produtos/{id}/imagem` que serve o arquivo
-- [ ] Adicionar campo `imagemUrl` no `ProdutoResponse`
-- [ ] Adicionar componente de upload no formulário de produto no frontend
-- [ ] Exibir thumbnail na listagem de produtos
+- [x] Criar endpoint `GET /api/v1/produtos/{id}/imagem` que serve o arquivo
+- [x] Adicionar campo `imagemUrl` no `ProdutoResponse`
+- [x] Adicionar componente de upload no formulário de produto no frontend
+- [x] Exibir thumbnail na listagem de produtos
 
 **Arquivos envolvidos:**
 - `api/src/main/java/com/filipe/api/controller/ProdutoController.java` (novos endpoints)
@@ -211,7 +211,7 @@ Necessário para impressão de cupom fiscal.
 
 ### 4.2 — Histórico de preços
 
-- [ ] Criar migration `V9__create_historico_precos_table.sql`:
+- [x] Criar migration `V12__create_historico_precos_table.sql`:
   ```sql
   CREATE TABLE historico_precos (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -225,14 +225,14 @@ Necessário para impressão de cupom fiscal.
   );
   CREATE INDEX idx_historico_precos_produto ON historico_precos(produto_id);
   ```
-- [ ] Criar entity `HistoricoPreco` em `domain/produto/`
-- [ ] Criar `HistoricoPrecoRepository`
-- [ ] No `ProdutoService.atualizar()`, antes de salvar, comparar os preços antigos com os novos e registrar se mudaram
-- [ ] Criar endpoint `GET /api/v1/produtos/{id}/historico-precos`
-- [ ] Adicionar aba/seção "Histórico de Preços" no detalhe do produto no frontend
+- [x] Criar entity `HistoricoPreco` em `domain/produto/`
+- [x] Criar `HistoricoPrecoRepository`
+- [x] No `ProdutoService.atualizar()`, antes de salvar, comparar os preços antigos com os novos e registrar se mudaram
+- [x] Criar endpoint `GET /api/v1/produtos/{id}/historico-precos`
+- [x] Adicionar aba/seção "Histórico de Preços" no detalhe do produto no frontend
 
 **Arquivos envolvidos:**
-- `api/src/main/resources/db/migration/V9__create_historico_precos_table.sql` (novo)
+- `api/src/main/resources/db/migration/V12__create_historico_precos_table.sql` (novo)
 - `api/src/main/java/com/filipe/api/domain/produto/HistoricoPreco.java` (novo)
 - `api/src/main/java/com/filipe/api/domain/produto/HistoricoPrecoRepository.java` (novo)
 - `api/src/main/java/com/filipe/api/service/ProdutoService.java` (modificar)
@@ -246,8 +246,10 @@ Necessário para impressão de cupom fiscal.
 
 ### 5.1 — Testes de Controller (Slice Tests)
 
-- [ ] Criar `ProdutoControllerTest.java` com `@WebMvcTest`
-  - Testar listagem, criação, validação de campos obrigatórios
+- [/] Criar `ProdutoControllerTest.java` com `@WebMvcTest`
+  - [x] Testar listagem
+  - [ ] Testar criação e validação de campos obrigatórios
+  - [x] Testar inativação e permissões
 - [ ] Criar `VendaControllerTest.java` com `@WebMvcTest`
   - Testar fluxo: iniciar → adicionar itens → finalizar
   - Testar permissões (OPERADOR não pode cancelar)
@@ -255,7 +257,7 @@ Necessário para impressão de cupom fiscal.
   - Testar abrir, fechar, sangria
 
 **Arquivos envolvidos:**
-- `api/src/test/java/com/filipe/api/controller/ProdutoControllerTest.java` (novo)
+- `api/src/test/java/com/filipe/api/controller/ProdutoControllerTest.java` (existente — expandir)
 - `api/src/test/java/com/filipe/api/controller/VendaControllerTest.java` (novo)
 - `api/src/test/java/com/filipe/api/controller/CaixaControllerTest.java` (novo)
 
@@ -263,16 +265,16 @@ Necessário para impressão de cupom fiscal.
 
 ### 5.2 — Testes de Integração com Testcontainers
 
-- [ ] Adicionar dependência `spring-boot-testcontainers` + `testcontainers-postgresql` ao `pom.xml`
-- [ ] Criar `AbstractIntegrationTest.java` com `@SpringBootTest` + `@Testcontainers`
+- [x] Adicionar dependência `spring-boot-testcontainers` + `testcontainers-postgresql` ao `pom.xml` ✅
+- [x] Criar `AbstractIntegrationTest.java` com `@SpringBootTest` + `@Testcontainers` ✅
 - [ ] Criar `VendaFluxoIntegrationTest.java`:
   - Criar usuário → abrir caixa → cadastrar produto → iniciar venda → adicionar item → finalizar → verificar estoque baixado → verificar nota fiscal gerada
 - [ ] Criar `CrediarioIntegrationTest.java`:
   - Venda com crediário → verificar parcelas criadas → liquidar parcela → verificar saldo atualizado
 
 **Arquivos envolvidos:**
-- `pom.xml` (dependências teste)
-- `api/src/test/java/com/filipe/api/AbstractIntegrationTest.java` (novo)
+- `pom.xml` (verificar dependências teste)
+- `api/src/test/java/com/filipe/api/AbstractIntegrationTest.java` (existente ✅)
 - `api/src/test/java/com/filipe/api/integration/VendaFluxoIntegrationTest.java` (novo)
 - `api/src/test/java/com/filipe/api/integration/CrediarioIntegrationTest.java` (novo)
 
@@ -280,20 +282,18 @@ Necessário para impressão de cupom fiscal.
 
 ### 5.3 — TestDataBuilder
 
-- [ ] Criar `TestDataBuilder.java` em `src/test/java/com/filipe/api/shared/`:
-  ```java
-  public class TestDataBuilder {
-      public static Produto.ProdutoBuilder umProduto() { ... }
-      public static Venda.VendaBuilder umaVenda() { ... }
-      public static Caixa.CaixaBuilder umCaixa() { ... }
-      public static Usuario.UsuarioBuilder umUsuario() { ... }
-      public static Cliente.ClienteBuilder umCliente() { ... }
-  }
-  ```
+- [/] Criar `TestDataBuilder.java` em `src/test/java/com/filipe/api/shared/`:
+  - [x] `createCategoria()` ✅
+  - [x] `createFornecedor()` ✅
+  - [x] `createProduto(Categoria, Fornecedor)` ✅
+  - [ ] `createVenda()` / `umaVenda()`
+  - [ ] `createCaixa()` / `umCaixa()`
+  - [ ] `createUsuario()` / `umUsuario()`
+  - [ ] `createCliente()` / `umCliente()`
 - [ ] Atualizar os testes existentes para usar o builder
 
 **Arquivos envolvidos:**
-- `api/src/test/java/com/filipe/api/shared/TestDataBuilder.java` (novo)
+- `api/src/test/java/com/filipe/api/shared/TestDataBuilder.java` (existente — expandir)
 
 ---
 
@@ -334,14 +334,14 @@ Necessário para impressão de cupom fiscal.
 
 | Passo | Descrição | Estimativa | Status |
 |-------|-----------|------------|--------|
-| **1** | Hardening de Segurança | 1–2 dias | `[ ]` |
-| **2** | NFC-e: Do Mock ao Real | 5–8 dias | `[ ]` |
-| **3** | Relatórios Avançados | 2–3 dias | `[ ]` |
-| **4** | Melhorias em Produtos | 2–3 dias | `[ ]` |
-| **5** | Testes | 3–4 dias | `[ ]` |
+| **1** | Hardening de Segurança | 1–2 dias | `[x]` |
+| **2** | NFC-e: Do Mock ao Real | 5–8 dias | `[x]` |
+| **3** | Relatórios Avançados | 2–3 dias | `[x]` |
+| **4** | Melhorias em Produtos | 2–3 dias | `[x]` |
+| **5** | Testes | 3–4 dias | `[/]` Em progresso |
 | **6** | CI/CD e Deploy | 1–2 dias | `[ ]` |
 
-> **Total estimado:** 14–22 dias de trabalho
+> **Total estimado:** 14–22 dias de trabalho · **Restante:** ~4–6 dias (Passos 5 e 6)
 
 ---
 

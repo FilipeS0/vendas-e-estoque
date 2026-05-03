@@ -24,6 +24,7 @@ import {
 } from '../services/crediario.service';
 import { ClienteService } from '../../clientes/services/cliente.service';
 import { CaixaService } from '../../caixa/services/caixa.service';
+import { ReportsService } from '../../relatorios/services/reports.service';
 import { Caixa } from '../../../shared/index';
 
 @Component({
@@ -52,6 +53,7 @@ export class CrediarioListComponent {
   private clienteService = inject(ClienteService);
   private caixaService = inject(CaixaService);
   private snackBar = inject(MatSnackBar);
+  private reportsService = inject(ReportsService);
   private dialog = inject(MatDialog);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
@@ -201,5 +203,12 @@ export class CrediarioListComponent {
 
   isPendente(status: StatusParcela) {
     return status === 'PENDENTE' || status === 'ATRASADO' || status === 'PAGO_PARCIAL';
+  }
+
+  exportPdf() {
+    this.reportsService.exportarPdf('contas-a-receber/resumo', {}).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
   }
 }

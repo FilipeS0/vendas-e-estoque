@@ -1,8 +1,8 @@
 # Especificação Técnica — Sistema de PDV para Varejo (Loja Física)
 
-> **Versão:** 1.0.0  
-> **Data:** Abril de 2026  
-> **Status:** Rascunho Inicial  
+> **Versão:** 1.1.0  
+> **Data:** Abril de 2026 · **Atualizado:** Maio de 2026  
+> **Status:** Em desenvolvimento (Fase 2 concluída)  
 > **Escopo:** Sistema interno de caixa, estoque, cadastros e relatórios com emissão de NFC-e
 
 ---
@@ -1095,15 +1095,15 @@ Uma venda pode ser quitada com mais de uma forma de pagamento (ex: parte no cart
 - [x] Abertura e fechamento de caixa
 - [x] Relatório de vendas do dia
 
-### Fase 2 — Consolidação (2–3 meses)
+### Fase 2 — Consolidação (2–3 meses) ✅
 
-- [ ] PIX manual + QR Code exibido
-- [ ] Crediário / Fiado com controle de parcelas
-- [ ] Inventário de estoque
-- [ ] Todos os relatórios planejados
-- [ ] NFC-e em produção (ambiente real)
-- [ ] Contingência off-line NFC-e
-- [ ] Dashboard gerencial completo
+- [x] PIX manual ✅ (QR Code automático previsto para v1.5)
+- [x] Crediário / Fiado com controle de parcelas
+- [x] Inventário de estoque
+- [x] Todos os relatórios planejados (incl. exportação PDF e DANFE)
+- [x] NFC-e em produção (ambiente real) — via Focus NF-e
+- [x] Contingência off-line NFC-e — `FiscalScheduler` com reenvio automático
+- [x] Dashboard gerencial completo (com gráficos dinâmicos)
 
 ### Fase 3 — Expansão (2–3 meses)
 
