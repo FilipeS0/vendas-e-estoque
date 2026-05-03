@@ -1,0 +1,51 @@
+.page-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.glass-card {
+  width: 100%;
+  max-width: 1000px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+.filter-bar {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-badge.pendente { background: #fef08a; color: #854d0e; }
+.status-badge.paga { background: #bbf7d0; color: #166534; }
+.status-badge.vencida { background: #fecaca; color: #991b1b; }
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-style: italic;
+}

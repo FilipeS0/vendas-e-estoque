@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="usuario-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nome Completo</mat-label>
+      <input matInput formControlName="nome" placeholder="Ex: João Silva">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>E-mail</mat-label>
+      <input matInput formControlName="email" type="email" placeholder="email@exemplo.com">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ isEdit ? 'Senha (deixe em branco para não alterar)' : 'Senha' }}</mat-label>
+      <input matInput formControlName="senha" type="password">
+      @if (!isEdit) {
+        <mat-hint>Mínimo 6 caracteres</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Perfil</mat-label>
+      <mat-select formControlName="perfilId">
+        @for (p of perfis(); track p.id) {
+          <mat-option [value]="p.id">
+            {{p.nome}}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="checkbox-container">
+      <label>
+        <input type="checkbox" formControlName="ativo"> Usuário Ativo
+      </label>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="salvar()" [disabled]="form.invalid">
+    {{ isEdit ? 'Atualizar' : 'Criar' }}
+  </button>
+</mat-dialog-actions>

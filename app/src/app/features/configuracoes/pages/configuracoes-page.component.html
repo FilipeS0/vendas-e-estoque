@@ -1,0 +1,131 @@
+    <div class="page-container">
+      <mat-card class="glass-card">
+        <mat-card-header>
+          <div mat-card-avatar><mat-icon color="primary" style="transform: scale(1.5);">settings</mat-icon></div>
+          <mat-card-title class="title">Configurações do Sistema</mat-card-title>
+          <mat-card-subtitle>Ajuste os parâmetros fiscais e operacionais da loja</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+            
+            <div class="section-title">Dados da Empresa</div>
+            <mat-form-field appearance="outline">
+              <mat-label>Razão Social</mat-label>
+              <input matInput formControlName="razaoSocial" placeholder="Ex: Minha Loja LTDA">
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>CNPJ</mat-label>
+              <input matInput formControlName="cnpj" placeholder="00.000.000/0000-00">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Inscrição Estadual</mat-label>
+              <input matInput formControlName="inscricaoEstadual">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Endereço Completo</mat-label>
+              <input matInput formControlName="endereco">
+            </mat-form-field>
+
+            <div class="section-title">Fiscal (NFC-e)</div>
+            <mat-form-field appearance="outline">
+              <mat-label>Regime Tributário</mat-label>
+              <mat-select formControlName="regimeTributario">
+                <mat-option value="SIMPLES_NACIONAL">Simples Nacional</mat-option>
+                <mat-option value="LUCRO_PRESUMIDO">Lucro Presumido</mat-option>
+                <mat-option value="LUCRO_REAL">Lucro Real</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Ambiente SEFAZ</mat-label>
+              <mat-select formControlName="ambienteSefaz">
+                <mat-option value="HOMOLOGACAO">Homologação (Testes)</mat-option>
+                <mat-option value="PRODUCAO">Produção</mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>API Token (Focus NF-e)</mat-label>
+              <input matInput type="password" formControlName="apiTokenFiscal" placeholder="Token da Focus NF-e">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Série NFC-e</mat-label>
+              <input matInput type="number" formControlName="serieNfce">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Nº Sequencial Atual</mat-label>
+              <input matInput type="number" formControlName="numeroSequencialNfce">
+            </mat-form-field>
+
+            <div class="section-title">Operacional</div>
+            <mat-form-field appearance="outline">
+              <mat-label>IP da Impressora Térmica</mat-label>
+              <input matInput formControlName="impressoraTermicaIp" placeholder="192.168.1.100">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Porta da Impressora</mat-label>
+              <input matInput type="number" formControlName="impressoraTermicaPorta" placeholder="9100">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Alerta Global de Estoque Mínimo</mat-label>
+              <input matInput type="number" formControlName="alertaEstoqueMinimoGlobal">
+            </mat-form-field>
+
+            <div class="actions full-width">
+              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
+                <mat-icon>save</mat-icon> Salvar Configurações
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    <mat-card class="glass-card mt-20">
+      <mat-card-header>
+        <div mat-card-avatar><mat-icon color="warn" style="transform: scale(1.5);">verified_user</mat-icon></div>
+        <mat-card-title class="title">Certificado Digital A1</mat-card-title>
+        <mat-card-subtitle>Necessário para emissão de NFC-e em produção</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (statusCertificado()) {
+          <div class="status-container" [class.alert]="statusCertificado()?.alerta">
+            @if (statusCertificado()?.status === 'NOT_FOUND') {
+              <p class="status-msg danger">⚠️ Nenhum certificado configurado.</p>
+            } @else {
+              <p class="status-msg success">✅ Certificado válido até: {{ statusCertificado()?.validade | date: 'dd/MM/yyyy HH:mm' }}</p>
+              <p class="status-msg" [class.danger]="statusCertificado()?.alerta">
+                Dias restantes: {{ statusCertificado()?.diasRestantes }}
+              </p>
+            }
+          </div>
+        }
+
+        <form [formGroup]="certificadoForm" class="upload-form">
+          <div class="file-input-row">
+            <input type="file" (change)="onFileSelected($event)" accept=".pfx" #fileInput hidden>
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+              <mat-icon>upload_file</mat-icon>
+              {{ selectedFile ? selectedFile.name : 'Selecionar arquivo .pfx' }}
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Senha do Certificado</mat-label>
+            <input matInput type="password" formControlName="senha" placeholder="Sua senha secreta">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-flat-button color="accent" (click)="uploadCertificado()" [disabled]="!selectedFile || certificadoForm.invalid || isLoading()">
+              <mat-icon>cloud_upload</mat-icon> Enviar Certificado
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>

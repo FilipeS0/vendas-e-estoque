@@ -13,6 +13,8 @@ import com.filipe.api.mapper.estoque.EstoqueMapper;
 import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.mapper.venda.VendaMapper;
 import com.filipe.api.dto.venda.VendaResponse;
+import com.filipe.api.domain.venda.ParcelaCrediarioRepository;
+import com.filipe.api.dto.relatorio.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class RelatorioService {
     private final VendaRepository vendaRepository;
     private final EstoqueAtualRepository estoqueAtualRepository;
     private final LancamentoCaixaRepository lancamentoCaixaRepository;
+    private final ParcelaCrediarioRepository parcelaCrediarioRepository;
     private final VendaMapper vendaMapper;
     private final EstoqueMapper estoqueMapper;
 
@@ -121,14 +124,118 @@ public class RelatorioService {
             });
         });
 
+        // Top Products
+        Map<String, DashboardStatsResponse.TopProduto> topProdutosMap = new HashMap<>();
+        vendasRecentes.forEach(v -> {
+            v.getItens().forEach(item -> {
+                String nome = item.getProduto().getNome();
+                topProdutosMap.merge(nome,
+                        new DashboardStatsResponse.TopProduto(nome, item.getQuantidade().longValue(), item.getValorTotal()),
+                        (p1, p2) -> new DashboardStatsResponse.TopProduto(
+                                nome,
+                                p1.quantidade() + p2.quantidade(),
+                                p1.total().add(p2.total())
+                        ));
+            });
+        });
+
+        List<DashboardStatsResponse.TopProduto> topProdutos = topProdutosMap.values().stream()
+                .sorted((p1, p2) -> p2.total().compareTo(p1.total()))
+                .limit(5)
+                .collect(Collectors.toList());
+
         return new DashboardStatsResponse(
                 faturamentoTotal,
                 totalVendas,
                 ticketMedio,
                 produtosAbaixoMinimo,
                 vendasRecentemente,
-                List.of(), // TODO: Implement Top Products if needed
+                topProdutos,
                 faturamentoPorForma
         );
+    }
+
+    public List<VendaFormaPagamentoResponse> relatorioVendasPorFormaPagamento(LocalDateTime inicio, LocalDateTime fim) {
+        List<Venda> vendas = vendaRepository.findByDataHoraBetween(inicio, fim).stream()
+                .filter(v -> v.getStatus() == StatusVenda.CONFIRMADA)
+                .toList();
+
+        Map<FormaPagamento, BigDecimal> totais = new HashMap<>();
+        Map<FormaPagamento, Long> quantidades = new HashMap<>();
+
+        vendas.forEach(v -> v.getPagamentos().forEach(p -> {
+            totais.merge(p.getFormaPagamento(), p.getValor().subtract(p.getTroco()), BigDecimal::add);
+            quantidades.merge(p.getFormaPagamento(), 1L, Long::sum);
+        }));
+
+        return totais.entrySet().stream()
+                .map(e -> new VendaFormaPagamentoResponse(e.getKey().name(), quantidades.get(e.getKey()), e.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public List<VendaProdutoResponse> relatorioVendasPorProduto(LocalDateTime inicio, LocalDateTime fim) {
+        List<Venda> vendas = vendaRepository.findByDataHoraBetween(inicio, fim).stream()
+                .filter(v -> v.getStatus() == StatusVenda.CONFIRMADA)
+                .toList();
+
+        Map<String, BigDecimal> totais = new HashMap<>();
+        Map<String, BigDecimal> quantidades = new HashMap<>();
+
+        vendas.forEach(v -> v.getItens().forEach(item -> {
+            String nome = item.getProduto().getNome();
+            totais.merge(nome, item.getValorTotal(), BigDecimal::add);
+            quantidades.merge(nome, item.getQuantidade(), BigDecimal::add);
+        }));
+
+        return totais.entrySet().stream()
+                .map(e -> new VendaProdutoResponse(e.getKey(), quantidades.get(e.getKey()), e.getValue()))
+                .sorted((p1, p2) -> p2.total().compareTo(p1.total()))
+                .collect(Collectors.toList());
+    }
+
+    public ContasAReceberResumoResponse relatorioResumoContasAReceber() {
+        Object[] rawResult = parcelaCrediarioRepository.getResumoContasAReceber();
+        if (rawResult == null || rawResult.length == 0) {
+            return new ContasAReceberResumoResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        }
+        
+        Object[] row = (Object[]) rawResult[0];
+        return new ContasAReceberResumoResponse(
+                row[0] != null ? (BigDecimal) row[0] : BigDecimal.ZERO,
+                row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO,
+                row[2] != null ? (BigDecimal) row[2] : BigDecimal.ZERO
+        );
+    }
+
+    public FluxoCaixaResponse obterFluxoCaixa(LocalDate inicio, LocalDate fim) {
+        LocalDateTime dataHoraInicio = inicio.atStartOfDay();
+        LocalDateTime dataHoraFim = fim.atTime(23, 59, 59);
+
+        List<LancamentoCaixa> lancamentos = lancamentoCaixaRepository.findByDataHoraBetween(dataHoraInicio, dataHoraFim);
+
+        Map<LocalDate, List<LancamentoCaixa>> porDia = lancamentos.stream()
+                .collect(Collectors.groupingBy(l -> l.getDataHora().toLocalDate(), TreeMap::new, Collectors.toList()));
+
+        List<FluxoCaixaResponse.FluxoDiario> dias = porDia.entrySet().stream().map(entry -> {
+            LocalDate data = entry.getKey();
+            List<LancamentoCaixa> lancs = entry.getValue();
+
+            BigDecimal entradas = lancs.stream()
+                    .filter(l -> l.getTipo() == TipoLancamentoCaixa.ENTRADA)
+                    .map(LancamentoCaixa::getValor)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal saidas = lancs.stream()
+                    .filter(l -> l.getTipo() == TipoLancamentoCaixa.SAIDA)
+                    .map(LancamentoCaixa::getValor)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            return new FluxoCaixaResponse.FluxoDiario(data, entradas, saidas, entradas.subtract(saidas));
+        }).toList();
+
+        BigDecimal totalEntradas = dias.stream().map(FluxoCaixaResponse.FluxoDiario::entradas).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalSaidas = dias.stream().map(FluxoCaixaResponse.FluxoDiario::saidas).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new FluxoCaixaResponse(dias, totalEntradas, totalSaidas, totalEntradas.subtract(totalSaidas));
     }
 }

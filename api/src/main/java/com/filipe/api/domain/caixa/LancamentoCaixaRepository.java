@@ -26,4 +26,6 @@ public interface LancamentoCaixaRepository extends JpaRepository<LancamentoCaixa
             @Param("dataFim") LocalDateTime dataFim,
             Pageable pageable
     );
+
+    List<LancamentoCaixa> findByDataHoraBetween(LocalDateTime inicio, LocalDateTime fim);
 }

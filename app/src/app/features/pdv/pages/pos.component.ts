@@ -53,6 +53,7 @@ export class PosPageComponent {
   paymentForm = this.fb.group({
     formaPagamento: ['DINHEIRO', Validators.required],
     valor: [null, [Validators.required, Validators.min(0.01)]],
+    numeroParcelas: [1, [Validators.min(1)]],
   });
 
   paymentTypes = [
@@ -74,9 +75,10 @@ export class PosPageComponent {
   }
 
   private loadClientes() {
-    this.clienteService.getClientes()
-      .then((cs) => this.clientes.set(cs.map((c) => ({ id: c.id, nome: c.nome }))))
-      .catch(() => this.clientes.set([]));
+    this.clienteService.getClientes().subscribe({
+      next: (res) => this.clientes.set(res.content.map((c) => ({ id: c.id, nome: c.nome }))),
+      error: () => this.clientes.set([])
+    });
   }
 
   private async loadCaixa() {
@@ -112,8 +114,12 @@ export class PosPageComponent {
   addPagamento() {
     if (this.paymentForm.invalid) { this.paymentForm.markAllAsTouched(); return; }
     const raw = this.paymentForm.getRawValue();
-    this.pagamentos.update((items) => [...items, { formaPagamento: (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'], valor: Number(raw.valor) || 0 }]);
-    this.paymentForm.reset({ formaPagamento: 'DINHEIRO', valor: null });
+    this.pagamentos.update((items) => [...items, { 
+      formaPagamento: (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'], 
+      valor: Number(raw.valor) || 0,
+      numeroParcelas: raw.formaPagamento === 'CREDIARIO' ? Number(raw.numeroParcelas) : undefined
+    }]);
+    this.paymentForm.reset({ formaPagamento: 'DINHEIRO', valor: null, numeroParcelas: 1 });
   }
 
   removePagamento(p: PagamentoRequest) { this.pagamentos.update((items) => items.filter((i) => i !== p)); }

@@ -16,5 +16,8 @@ public record PagamentoRequest(
 
     // Optional card fields
     String nsu,
-    String autorizacao
+    String autorizacao,
+
+    // Optional for CREDIARIO
+    Integer numeroParcelas
 ) {}

@@ -1,9 +1,6 @@
 import { Component, input, effect } from '@angular/core';
 
-export interface SeriesPoint {
-  date: string;
-  value: number;
-}
+import { VendasPorDia } from '../../index';
 
 @Component({
   selector: 'app-line-chart',
@@ -12,7 +9,7 @@ export interface SeriesPoint {
   styleUrls: ['./line-chart.component.css'],
 })
 export class LineChartComponent {
-  data = input<SeriesPoint[]>([]);
+  data = input<VendasPorDia[]>([]);
   public points = '';
 
   // recompute `points` whenever `data()` changes
@@ -25,7 +22,7 @@ export class LineChartComponent {
 
     const width = 400;
     const height = 120;
-    const values = d.map((p) => p.value);
+    const values = d.map((p) => p.total);
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
@@ -33,7 +30,7 @@ export class LineChartComponent {
 
     const pts = d.map((p, i) => {
       const x = i * stepX;
-      const normalized = (p.value - min) / range;
+      const normalized = (p.total - min) / range;
       const y = height - normalized * height;
       return `${x},${y}`;
     });

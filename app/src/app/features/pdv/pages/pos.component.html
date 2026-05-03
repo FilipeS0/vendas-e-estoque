@@ -147,6 +147,13 @@
               }
             </mat-select>
           </mat-form-field>
+          
+          @if (paymentForm.get('formaPagamento')?.value === 'CREDIARIO') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Número de Parcelas</mat-label>
+              <input matInput type="number" formControlName="numeroParcelas" min="1" />
+            </mat-form-field>
+          }
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Valor</mat-label>
@@ -162,7 +169,7 @@
           <div class="payment-list">
             @for (payment of pagamentos(); track payment.formaPagamento) {
               <div class="payment-item">
-                <span>{{ payment.formaPagamento }}</span>
+                <span>{{ payment.formaPagamento }} {{ payment.numeroParcelas ? '(' + payment.numeroParcelas + 'x)' : '' }}</span>
                 <strong>{{ payment.valor | currency: 'BRL' }}</strong>
                 <button mat-icon-button color="warn" (click)="removePagamento(payment)">
                   <mat-icon>close</mat-icon>

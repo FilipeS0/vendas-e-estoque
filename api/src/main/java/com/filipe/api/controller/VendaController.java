@@ -17,7 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -34,7 +36,6 @@ public class VendaController {
     private final VendaService vendaService;
     private final NotaFiscalService notaFiscalService;
 
-    // Any authenticated staff can list and view sales
     @GetMapping
     @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
     public ResponseEntity<Page<VendaResponse>> list(
@@ -54,7 +55,6 @@ public class VendaController {
         return ResponseEntity.ok(vendaService.buscarVenda(id));
     }
 
-    // Fix 4: operator is the authenticated user — no longer taken from the request body
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
     public ResponseEntity<VendaResponse> start(
@@ -97,7 +97,6 @@ public class VendaController {
         return ResponseEntity.ok(vendaService.aplicarDescontoVenda(id, request.desconto()));
     }
 
-    // Fix 5: only GERENTE and ADMIN can cancel a confirmed sale
     @PostMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('GERENTE','ADMIN')")
     public ResponseEntity<VendaResponse> cancelar(
@@ -110,12 +109,22 @@ public class VendaController {
     @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
     public ResponseEntity<NotaFiscalResponse> gerarNotaFiscal(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(notaFiscalService.gerarNotaFiscalMock(id));
+                .body(notaFiscalService.emitirNotaFiscal(id));
     }
 
     @GetMapping("/{id}/nota-fiscal")
     @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
     public ResponseEntity<NotaFiscalResponse> consultarNotaFiscal(@PathVariable UUID id) {
         return ResponseEntity.ok(notaFiscalService.buscarPorVenda(id));
+    }
+
+    @GetMapping("/{id}/nota-fiscal/danfe")
+    @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
+    public ResponseEntity<byte[]> downloadDanfe(@PathVariable UUID id) {
+        byte[] pdf = notaFiscalService.gerarDanfe(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=danfe_" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }

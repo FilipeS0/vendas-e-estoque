@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { UiService } from '../../core/services/ui.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,6 +14,7 @@ import { UiService } from '../../core/services/ui.service';
 })
 export class SidebarComponent {
   private uiService = inject(UiService);
+  public authService = inject(AuthService);
   readonly sidebarOpen = this.uiService.sidebarOpen;
   toggleSidebar() { this.uiService.toggleSidebar(); }
 }

@@ -8,6 +8,7 @@ import com.filipe.api.domain.estoque.TipoMovimentacaoEstoque;
 import com.filipe.api.domain.produto.Produto;
 import com.filipe.api.domain.produto.ProdutoRepository;
 import com.filipe.api.domain.usuario.Usuario;
+import com.filipe.api.dto.estoque.AjusteInventarioRequest;
 import com.filipe.api.dto.estoque.MovimentacaoEstoqueRequest;
 import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.dto.estoque.SaidaManualEstoqueRequest;
@@ -108,6 +109,32 @@ public class EstoqueService {
                 .orElseThrow(() -> new BusinessException("Estoque do produto nao encontrado."));
         estoqueAtual.setQuantidadeMinima(quantidadeMinima);
         estoqueAtualRepository.save(estoqueAtual);
+    }
+
+    @Transactional
+    public MovimentacaoEstoqueResponse ajustarInventario(AjusteInventarioRequest request, Usuario usuario) {
+        EstoqueAtual estoque = estoqueAtualRepository.findByProdutoId(request.produtoId())
+                .orElseThrow(() -> new BusinessException("Estoque nao encontrado."));
+        
+        BigDecimal atual = estoque.getQuantidadeAtual();
+        BigDecimal diff = request.novaQuantidade().subtract(atual);
+        
+        if (diff.compareTo(BigDecimal.ZERO) == 0) {
+            throw new BusinessException("A nova quantidade e igual a atual. Nenhum ajuste necessario.");
+        }
+        
+        TipoMovimentacaoEstoque tipo = diff.compareTo(BigDecimal.ZERO) > 0 
+                ? TipoMovimentacaoEstoque.AJUSTE_POSITIVO 
+                : TipoMovimentacaoEstoque.AJUSTE_NEGATIVO;
+        
+        return registrarMovimentacaoInterna(
+                request.produtoId(),
+                tipo,
+                diff.abs(),
+                request.motivo() != null ? request.motivo() : "Ajuste de inventario",
+                "INVENTARIO",
+                usuario
+        );
     }
 
     // ── package-private: called directly by VendaService ─────────────────────
