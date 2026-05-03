@@ -3,6 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { DashboardStats, ProdutoRankingItem, VendaFormaPagItem, VendaPeriodoItem } from '../../../shared/index';
 
+export interface FluxoCaixaResponse {
+  dias: FluxoDiario[];
+  totalEntradas: number;
+  totalSaidas: number;
+  saldoFinal: number;
+}
+
+export interface FluxoDiario {
+  data: string;
+  entradas: number;
+  saidas: number;
+  saldo: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
   private http = inject(HttpClient);
@@ -37,7 +51,15 @@ export class ReportsService {
     });
   }
 
-  exportarPdf(tipo: 'vendas' | 'forma-pagamento' | 'ranking', params: object): Observable<Blob> {
+  getFluxoCaixa(inicio: string, fim: string): Observable<FluxoCaixaResponse> {
+    return this.http.get<FluxoCaixaResponse>(`${this.apiUrl}/fluxo-caixa`, {
+      params: { inicio, fim }
+    });
+  }
+
+  exportarPdf(tipo: 'vendas' | 'forma-pagamento' | 'ranking' | 'fluxo-caixa', params: object): Observable<Blob> {
+    // In backend, getFluxoCaixaPdf expects 'inicio' and 'fim', but other reports might expect 'dataInicio' and 'dataFim'.
+    // I should normalize this.
     return this.http.get(`${this.apiUrl}/${tipo}/pdf`, {
       params: params as Record<string, string>,
       responseType: 'blob',

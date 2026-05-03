@@ -105,6 +105,55 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumnsRanking"></tr>
         </table>
       </mat-tab>
+      <mat-tab label="Fluxo de Caixa">
+        <div class="tab-actions">
+          <button mat-flat-button color="primary" (click)="exportPdf('fluxo-caixa')">
+            <mat-icon>picture_as_pdf</mat-icon>
+            Exportar PDF
+          </button>
+        </div>
+
+        @if (fluxoCaixa()) {
+          <div class="summary-cards">
+            <mat-card class="summary-card success">
+              <mat-card-subtitle>Total Entradas</mat-card-subtitle>
+              <mat-card-title>{{ fluxoCaixa()?.totalEntradas | currency: 'BRL' }}</mat-card-title>
+            </mat-card>
+            <mat-card class="summary-card danger">
+              <mat-card-subtitle>Total Saídas</mat-card-subtitle>
+              <mat-card-title>{{ fluxoCaixa()?.totalSaidas | currency: 'BRL' }}</mat-card-title>
+            </mat-card>
+            <mat-card class="summary-card" [class.success]="(fluxoCaixa()?.saldoFinal || 0) >= 0" [class.danger]="(fluxoCaixa()?.saldoFinal || 0) < 0">
+              <mat-card-subtitle>Saldo Final</mat-card-subtitle>
+              <mat-card-title>{{ fluxoCaixa()?.saldoFinal | currency: 'BRL' }}</mat-card-title>
+            </mat-card>
+          </div>
+
+          <table mat-table [dataSource]="fluxoCaixa()?.dias || []" class="full-width">
+            <ng-container matColumnDef="data">
+              <th mat-header-cell *matHeaderCellDef>Data</th>
+              <td mat-cell *matCellDef="let item">{{ item.data | date: 'dd/MM/yyyy' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="entradas">
+              <th mat-header-cell *matHeaderCellDef>Entradas</th>
+              <td mat-cell *matCellDef="let item" class="success-text">{{ item.entradas | currency: 'BRL' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="saidas">
+              <th mat-header-cell *matHeaderCellDef>Saídas</th>
+              <td mat-cell *matCellDef="let item" class="danger-text">{{ item.saidas | currency: 'BRL' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="saldo">
+              <th mat-header-cell *matHeaderCellDef>Saldo do Dia</th>
+              <td mat-cell *matCellDef="let item" [class.success-text]="item.saldo >= 0" [class.danger-text]="item.saldo < 0">
+                {{ item.saldo | currency: 'BRL' }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsFluxo"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsFluxo"></tr>
+          </table>
+        }
+      </mat-tab>
     </mat-tab-group>
   </mat-card>
 </div>

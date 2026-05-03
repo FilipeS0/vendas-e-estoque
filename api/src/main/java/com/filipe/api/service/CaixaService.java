@@ -15,6 +15,7 @@ import com.filipe.api.dto.caixa.CaixaResponse;
 import com.filipe.api.dto.caixa.FecharCaixaRequest;
 import com.filipe.api.dto.caixa.LancamentoManualCaixaRequest;
 import com.filipe.api.dto.caixa.LancamentoCaixaResponse;
+
 import com.filipe.api.exception.BusinessException;
 import com.filipe.api.mapper.caixa.CaixaMapper;
 import com.filipe.api.shared.audit.AuditService;
@@ -73,11 +74,6 @@ public class CaixaService {
         return caixaMapper.toResponse(caixa);
     }
 
-    /**
-     * Fix 10 — role-aware listing.
-     * OPERADOR sees only their own caixas.
-     * GERENTE / ADMIN see every caixa in the system.
-     */
     @Transactional(readOnly = true)
     public List<CaixaResponse> listarCaixas(Usuario usuario, StatusCaixa status, LocalDateTime dataInicio, LocalDateTime dataFim) {
         if (usuario == null) {
@@ -161,10 +157,10 @@ public class CaixaService {
         }
 
         Caixa caixa = caixaRepository.findByIdWithLock(venda.getCaixa().getId())
-                .orElseThrow(() -> new BusinessException("Caixa aberto nao encontrado para a venda."));
+                .orElseThrow(() -> new BusinessException("Caixa aberto nao encontrado para the venda."));
 
         if (caixa.getStatus() != StatusCaixa.ABERTO) {
-            throw new BusinessException("Caixa aberto nao encontrado para a venda.");
+            throw new BusinessException("Caixa aberto nao encontrado para the venda.");
         }
 
         BigDecimal saldoAtual = caixa.getValorFechamentoSistema() != null
@@ -250,20 +246,6 @@ public class CaixaService {
         }
     }
 
-    /**
-     * Fix 1 — calculates the PHYSICAL cash balance expected in the drawer.
-     *
-     * Non-cash payments (card, PIX, etc.) do not move paper money, so they
-     * must be excluded from BOTH ENTRADA and SAIDA.
-     *
-     * The old code only skipped non-cash ENTRADAs, but still subtracted
-     * non-cash SAIDAs (e.g. a card-payment refund/cancellation), which made
-     * the computed cash balance go down even though no cash left the drawer.
-     *
-     * Rule: a lancamento impacts the physical balance only when:
-     *   - formaPagamento IS NULL  → manual / system entry with no payment form, always cash-like
-     *   - formaPagamento == DINHEIRO
-     */
     private BigDecimal calcularSaldoEsperado(UUID caixaId, BigDecimal valorAbertura) {
         BigDecimal saldo = valorAbertura != null ? valorAbertura : BigDecimal.ZERO;
 
@@ -271,7 +253,6 @@ public class CaixaService {
             boolean impactaSaldoFisico = lancamento.getFormaPagamento() == null
                     || lancamento.getFormaPagamento() == FormaPagamento.DINHEIRO;
 
-            // Fix: skip non-cash entries for BOTH directions, not only ENTRADA
             if (!impactaSaldoFisico) {
                 continue;
             }

@@ -16,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CrediarioService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CrediarioService.class);
 
     private final CrediarioRepository crediarioRepository;
     private final ParcelaCrediarioRepository parcelaRepository;
@@ -123,5 +128,13 @@ public class CrediarioService {
             c.getCreatedAt(),
             c.getParcelas().stream().map(this::toParcelaResponse).collect(Collectors.toList())
         );
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?") // Runs every day at midnight
+    public void verificarParcelasVencidas() {
+        logger.info("Iniciando rotina de marcacao de parcelas vencidas...");
+        int count = parcelaRepository.marcarParcelasVencidas();
+        logger.info("Foram marcadas {} parcelas como VENCIDA.", count);
     }
 }

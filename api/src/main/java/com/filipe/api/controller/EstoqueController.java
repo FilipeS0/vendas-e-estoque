@@ -1,10 +1,7 @@
 package com.filipe.api.controller;
 
 import com.filipe.api.domain.usuario.Usuario;
-import com.filipe.api.dto.estoque.EstoqueAtualResponse;
-import com.filipe.api.dto.estoque.MovimentacaoEstoqueRequest;
-import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
-import com.filipe.api.dto.estoque.SaidaManualEstoqueRequest;
+import com.filipe.api.dto.estoque.*;
 import com.filipe.api.service.EstoqueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -89,5 +86,15 @@ public class EstoqueController {
     ) {
         estoqueService.atualizarEstoqueMinimo(produtoId, quantidadeMinima);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/ajuste-inventario")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MovimentacaoEstoqueResponse> ajustarInventario(
+            @RequestBody @Valid AjusteInventarioRequest request,
+            Authentication authentication
+    ) {
+        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        return ResponseEntity.ok(estoqueService.ajustarInventario(request, usuario));
     }
 }

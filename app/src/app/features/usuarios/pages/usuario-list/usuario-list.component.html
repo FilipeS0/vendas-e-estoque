@@ -1,0 +1,64 @@
+<div class="page-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Gestão de Usuários</mat-card-title>
+      <div class="spacer"></div>
+      <button mat-raised-button color="primary" (click)="abrirDialog()">
+        <mat-icon>add</mat-icon> Novo Usuário
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      <table mat-table [dataSource]="usuarios()" class="full-width-table">
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *mat-header-cell.def> Nome </th>
+          <td mat-cell *mat-cell.def="let u"> {{u.nome}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *mat-header-cell.def> E-mail </th>
+          <td mat-cell *mat-cell.def="let u"> {{u.email}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="perfil">
+          <th mat-header-cell *mat-header-cell.def> Perfil </th>
+          <td mat-cell *mat-cell.def="let u"> 
+            <span class="role-badge">{{u.perfilNome}}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *mat-header-cell.def> Status </th>
+          <td mat-cell *mat-cell.def="let u">
+            <span class="status-badge" [class.active]="u.ativo">
+              {{u.ativo ? 'Ativo' : 'Inativo'}}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *mat-header-cell.def> Ações </th>
+          <td mat-cell *mat-cell.def="let u">
+            <button mat-icon-button color="primary" (click)="abrirDialog(u)" title="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            @if (u.ativo) {
+              <button mat-icon-button color="warn" (click)="inativar(u)" title="Inativar">
+                <mat-icon>block</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *mat-header-row.def="displayedColumns"></tr>
+        <tr mat-row *mat-row.def="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      @if (isLoading()) {
+        <div class="loading-spinner">
+          Carregando...
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

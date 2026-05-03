@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Cliente, ClienteExtrato, ClienteRequest, PageResponse } from '../../../shared/index';
 
@@ -8,11 +8,10 @@ export class ClienteService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/clientes';
 
-  /**
-   * Fetch all clients as a Promise (for use with toSignal)
-   */
-  async getClientes(): Promise<Cliente[]> {
-    return firstValueFrom(this.http.get<Cliente[]>(this.apiUrl));
+  getClientes(nome?: string, page: number = 0, size: number = 10): Observable<PageResponse<Cliente>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (nome) params = params.set('nome', nome);
+    return this.http.get<PageResponse<Cliente>>(this.apiUrl, { params });
   }
 
   /**

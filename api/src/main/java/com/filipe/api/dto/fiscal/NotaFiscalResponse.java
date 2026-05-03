@@ -1,5 +1,6 @@
 package com.filipe.api.dto.fiscal;
 
+import com.filipe.api.domain.fiscal.StatusNfe;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public record NotaFiscalResponse(
         LocalDateTime dataEmissao,
         String xmlAutorizado,
         String urlDanfe,
-        String status,
+        StatusNfe status,
         String mensagemRetorno,
         String protocolo,
         String ambiente
