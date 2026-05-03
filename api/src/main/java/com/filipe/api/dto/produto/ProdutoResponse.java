@@ -12,5 +12,7 @@ public record ProdutoResponse(
         String fornecedorNome,
         BigDecimal precoVenda,
         BigDecimal quantidadeEstoque,
+        String unidadeMedida,
+        String imagemUrl,
         Boolean ativo
 ) {}

@@ -5,12 +5,7 @@ import com.filipe.api.domain.estoque.EstoqueAtualRepository;
 import com.filipe.api.domain.estoque.MovimentacaoEstoque;
 import com.filipe.api.domain.estoque.MovimentacaoEstoqueRepository;
 import com.filipe.api.domain.estoque.TipoMovimentacaoEstoque;
-import com.filipe.api.domain.produto.Categoria;
-import com.filipe.api.domain.produto.CategoriaRepository;
-import com.filipe.api.domain.produto.Fornecedor;
-import com.filipe.api.domain.produto.FornecedorRepository;
-import com.filipe.api.domain.produto.Produto;
-import com.filipe.api.domain.produto.ProdutoRepository;
+import com.filipe.api.domain.produto.*;
 import com.filipe.api.dto.produto.ProdutoDetalheResponse;
 import com.filipe.api.dto.produto.ProdutoRequest;
 import com.filipe.api.dto.produto.ProdutoResponse;
@@ -25,6 +20,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,8 +44,12 @@ public class ProdutoService {
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final CategoriaRepository categoriaRepository;
     private final FornecedorRepository fornecedorRepository;
+    private final HistoricoPrecoRepository historicoPrecoRepository;
     private final ProdutoMapper produtoMapper;
     private final EstoqueMapper estoqueMapper;
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     public ProdutoDetalheResponse buscarPorId(UUID id) {
         Produto produto = produtoRepository.findById(id)
@@ -61,7 +67,7 @@ public class ProdutoService {
         Page<Produto> produtosPage;
 
         if (nome != null && !nome.trim().isEmpty()) {
-            produtosPage = produtoRepository.findByNomeContainingIgnoreCaseAndAtivoTrue(nome.trim(), pageable);
+            produtosPage = produtoRepository.findByMultiCriteria(nome.trim(), pageable);
         } else {
             produtosPage = produtoRepository.findByAtivoTrue(pageable);
         }
@@ -151,6 +157,8 @@ public class ProdutoService {
             movimentacaoEstoqueRepository.save(movimentacaoInicial);
         }
 
+        registrarHistoricoPreco(savedProduto, "Cadastro inicial");
+
         return produtoMapper.toResponse(savedProduto, estoqueAtual.getQuantidadeAtual());
     }
 
@@ -165,8 +173,16 @@ public class ProdutoService {
         Fornecedor fornecedor = fornecedorRepository.findById(request.fornecedorId())
                 .orElseThrow(() -> new BusinessException("Fornecedor nao encontrado."));
 
+        BigDecimal precoVendaAntigo = produto.getPrecoVenda();
+        BigDecimal precoCustoAntigo = produto.getPrecoCusto();
+
         produtoMapper.updateEntity(produto, request, categoria, fornecedor);
         Produto savedProduto = produtoRepository.save(produto);
+
+        if (precoVendaAntigo.compareTo(savedProduto.getPrecoVenda()) != 0 ||
+            precoCustoAntigo.compareTo(savedProduto.getPrecoCusto()) != 0) {
+            registrarHistoricoPreco(savedProduto, "Alteração manual");
+        }
 
         return produtoMapper.toResponse(savedProduto, buscarQuantidadeEstoque(savedProduto.getId()));
     }
@@ -183,5 +199,67 @@ public class ProdutoService {
         return estoqueAtualRepository.findByProdutoId(produtoId)
                 .map(EstoqueAtual::getQuantidadeAtual)
                 .orElse(BigDecimal.ZERO);
+    }
+
+    @Transactional
+    public void salvarImagem(UUID id, MultipartFile file) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Produto nao encontrado."));
+
+        try {
+            String fileName = id.toString() + getExtension(file.getOriginalFilename());
+            Path root = Paths.get(uploadDir);
+            if (!Files.exists(root)) {
+                Files.createDirectories(root);
+            }
+            Files.copy(file.getInputStream(), root.resolve(fileName), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            
+            produto.setImagemUrl("/api/v1/produtos/" + id + "/imagem");
+            produtoRepository.save(produto);
+        } catch (IOException e) {
+            throw new BusinessException("Erro ao salvar imagem: " + e.getMessage());
+        }
+    }
+
+    public byte[] buscarImagem(UUID id) {
+        try {
+            Path root = Paths.get(uploadDir);
+            if (!Files.exists(root)) {
+                throw new BusinessException("Imagem nao encontrada.");
+            }
+            
+            try (var stream = Files.list(root)) {
+                Optional<Path> file = stream
+                        .filter(p -> p.getFileName().toString().startsWith(id.toString()))
+                        .findFirst();
+
+                if (file.isPresent()) {
+                    return Files.readAllBytes(file.get());
+                } else {
+                    throw new BusinessException("Imagem nao encontrada.");
+                }
+            }
+        } catch (IOException e) {
+            throw new BusinessException("Erro ao buscar imagem: " + e.getMessage());
+        }
+    }
+
+    private String getExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) return ".jpg";
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    private void registrarHistoricoPreco(Produto produto, String motivo) {
+        HistoricoPreco historico = HistoricoPreco.builder()
+                .produto(produto)
+                .precoCusto(produto.getPrecoCusto())
+                .precoVenda(produto.getPrecoVenda())
+                .motivo(motivo)
+                .build();
+        historicoPrecoRepository.save(historico);
+    }
+
+    public List<HistoricoPreco> buscarHistoricoPrecos(UUID produtoId) {
+        return historicoPrecoRepository.findByProdutoIdOrderByDataAlteracaoDesc(produtoId);
     }
 }

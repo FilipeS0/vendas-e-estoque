@@ -13,4 +13,13 @@ public interface ProdutoRepository extends JpaRepository<Produto, UUID> {
     Optional<Produto> findByCodigoBarrasAndAtivoTrue(String codigoBarras);
     Page<Produto> findByAtivoTrue(Pageable pageable);
     Page<Produto> findByNomeContainingIgnoreCaseAndAtivoTrue(String nome, Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT p FROM Produto p
+        WHERE p.ativo = true
+        AND (LOWER(p.nome) LIKE LOWER(CONCAT('%', :query, '%'))
+             OR p.codigoBarras LIKE CONCAT('%', :query, '%')
+             OR p.codigoInterno LIKE LOWER(CONCAT('%', :query, '%')))
+    """)
+    Page<Produto> findByMultiCriteria(String query, Pageable pageable);
 }

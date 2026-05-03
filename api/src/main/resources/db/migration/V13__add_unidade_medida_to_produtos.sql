@@ -1,0 +1,1 @@
+ALTER TABLE produtos ADD COLUMN unidade_medida VARCHAR(2) NOT NULL DEFAULT 'UN';

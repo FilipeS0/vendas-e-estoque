@@ -3,6 +3,8 @@ package com.filipe.api.dto.produto;
 import com.filipe.api.domain.produto.Csosn;
 import com.filipe.api.domain.produto.CstPisCofins;
 import com.filipe.api.domain.produto.OrigemProduto;
+import com.filipe.api.domain.produto.UnidadeMedida;
+
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ public record ProdutoRequest(
         @NotBlank @Size(min = 8, max = 13) String codigoBarras,
         @NotBlank @Size(max = 200) String nome,
         String descricao,
+        @NotNull UnidadeMedida unidadeMedida,
         @NotNull UUID categoriaId,
         @NotNull UUID fornecedorId,
         @NotNull @PositiveOrZero BigDecimal precoCusto,

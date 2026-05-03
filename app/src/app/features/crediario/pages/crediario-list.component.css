@@ -1,0 +1,37 @@
+.page-wrap {
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.page-card {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+.filters-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0 1rem;
+}
+.filter-field {
+  min-width: 180px;
+}
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+}
+.dialog-info {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.full-width {
+  width: 100%;
+}

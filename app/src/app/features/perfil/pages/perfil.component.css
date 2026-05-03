@@ -1,0 +1,76 @@
+.page-wrap {
+  padding: 1.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 700px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-card,
+.senha-card {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+  padding: 1.5rem !important;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-circle mat-icon {
+  color: #fff;
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+.user-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+.user-email {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.roles-section {
+  margin-top: 1.25rem;
+}
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.roles-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}

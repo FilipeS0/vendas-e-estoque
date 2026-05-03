@@ -1,0 +1,133 @@
+<div class="page-wrap">
+  <mat-card class="page-card">
+    <mat-card-header>
+      <mat-card-title>Crediário</mat-card-title>
+      <mat-card-subtitle>Parcelas e liquidações</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Filtros -->
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="statusFilter">
+            @for (opt of statusOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" (click)="exportPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          Resumo PDF
+        </button>
+      </div>
+
+      <!-- Loading -->
+      @if (isLoading()) {
+        <div class="loading-wrap"><mat-spinner diameter="40"></mat-spinner></div>
+      }
+
+      <!-- Tabela -->
+      @if (!isLoading()) {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="dataSource()">
+            <ng-container matColumnDef="cliente">
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
+              <td mat-cell *matCellDef="let p">{{ p.clienteNome ?? '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="numeroParcela">
+              <th mat-header-cell *matHeaderCellDef>Parcela</th>
+              <td mat-cell *matCellDef="let p">{{ p.numeroParcela }}ª</td>
+            </ng-container>
+
+            <ng-container matColumnDef="valor">
+              <th mat-header-cell *matHeaderCellDef>Valor</th>
+              <td mat-cell *matCellDef="let p">{{ p.valor | currency: 'BRL' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="dataVencimento">
+              <th mat-header-cell *matHeaderCellDef>Vencimento</th>
+              <td mat-cell *matCellDef="let p">{{ p.dataVencimento | date: 'dd/MM/yyyy' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="valorPago">
+              <th mat-header-cell *matHeaderCellDef>Pago</th>
+              <td mat-cell *matCellDef="let p">{{ p.valorPago ?? 0 | currency: 'BRL' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let p">
+                <mat-chip [color]="statusColor(p.status)" highlighted>{{ p.status }}</mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let p">
+                @if (isPendente(p.status)) {
+                  <button
+                    mat-stroked-button
+                    color="primary"
+                    (click)="openLiquidarDialog(p, liquidarDialog)"
+                  >
+                    <mat-icon>payments</mat-icon> Liquidar
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[10, 25, 50]"
+          (page)="onPageChange($event)"
+        >
+        </mat-paginator>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Dialog liquidar -->
+<ng-template #liquidarDialog let-dialogRef>
+  <h2 mat-dialog-title>Liquidar Parcela</h2>
+  <mat-dialog-content [formGroup]="liquidarForm">
+    <p class="dialog-info">
+      Parcela {{ parcelaSelecionada()?.numeroParcela }}ª — Valor original:
+      <strong>{{ parcelaSelecionada()?.valor | currency: 'BRL' }}</strong>
+    </p>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Valor pago (R$)</mat-label>
+      <input matInput type="number" formControlName="valorPago" />
+      <mat-error>Informe um valor válido.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Caixa</mat-label>
+      <mat-select formControlName="caixaId">
+        @for (c of caixas(); track c.id) {
+          <mat-option [value]="c.id"
+            >Caixa aberto — {{ c.dataAbertura | date: 'dd/MM HH:mm' }}</mat-option
+          >
+        }
+      </mat-select>
+      @if (caixas().length === 0) {
+        <mat-hint style="color: #e53935">Nenhum caixa aberto encontrado.</mat-hint>
+      }
+      <mat-error>Selecione um caixa.</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-flat-button color="primary" (click)="submitLiquidar(dialogRef)">Confirmar</button>
+  </mat-dialog-actions>
+</ng-template>

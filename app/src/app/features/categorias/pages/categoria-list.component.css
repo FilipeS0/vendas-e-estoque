@@ -1,0 +1,18 @@
+.page-wrap {
+  padding: 1.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.page-card {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+.full-table {
+  width: 100%;
+}

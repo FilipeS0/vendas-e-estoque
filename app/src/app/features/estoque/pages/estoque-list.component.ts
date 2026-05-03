@@ -15,6 +15,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { EstoqueService, EstoqueAtual, MovimentacaoRequest } from '../services/estoque.service';
+import { ReportsService } from '../../relatorios/services/reports.service';
 
 @Component({
   selector: 'app-estoque-list',
@@ -42,6 +43,7 @@ export class EstoqueListComponent {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
+  private reportsService = inject(ReportsService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('movimentacaoDialog') movimentacaoDialog!: TemplateRef<any>;
@@ -163,5 +165,12 @@ export class EstoqueListComponent {
 
   isLowStock(item: EstoqueAtual) {
     return item.quantidadeAtual <= item.quantidadeMinima;
+  }
+
+  exportPdf() {
+    this.reportsService.exportarPdf('estoque/posicao', {}).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
   }
 }

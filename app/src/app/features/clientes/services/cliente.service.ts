@@ -15,6 +15,17 @@ export class ClienteService {
   }
 
   /**
+   * Fetch paged clients for the list view
+   */
+  getClientesPage(nome?: string, page?: number, size?: number): Observable<PageResponse<Cliente>> {
+    const params: Record<string, string> = {};
+    if (nome) params['nome'] = nome;
+    if (page != null) params['page'] = page.toString();
+    if (size != null) params['size'] = size.toString();
+    return this.http.get<PageResponse<Cliente>>(this.apiUrl, { params });
+  }
+
+  /**
    * Fetch a single client by ID
    */
   async getClienteById(id: string): Promise<Cliente> {

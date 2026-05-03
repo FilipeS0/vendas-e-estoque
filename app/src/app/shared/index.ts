@@ -109,7 +109,9 @@ export interface DashboardStats {
   totalVendas: number;
   ticketMedio: number;
   produtosAbaixoMinimo: number;
+  vendasDoDia: number;
   vendasRecentemente: VendasPorDia[];
+  series: SeriesPoint[];
   topProdutos: TopProduto[];
   faturamentoPorFormaPagamento: Record<string, number>;
 }

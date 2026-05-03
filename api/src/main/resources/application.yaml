@@ -6,3 +6,7 @@ api:
   security:
     token:
       secret: ${JWT_SECRET:your-local-dev-secret-key-1234567890}
+
+app:
+  upload:
+    dir: uploads

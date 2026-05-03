@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { CaixaService, Lancamento } from '../services/caixa.service';
+import { ReportsService } from '../../relatorios/services/reports.service';
 import { Caixa } from '../../../shared/index';
 
 @Component({
@@ -39,6 +40,7 @@ export class CaixaComponent {
   private caixaService = inject(CaixaService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private reportsService = inject(ReportsService);
 
   @ViewChild('lancamentoDialog') dialogTemplate!: TemplateRef<{
     tipo: 'SANGRIA' | 'SUPRIMENTO';
@@ -209,5 +211,15 @@ export class CaixaComponent {
 
   closeLancamentoDialog(dialogRef: any) {
     dialogRef.close();
+  }
+
+  exportPdf() {
+    const caixa = this.caixaAberta();
+    if (!caixa) return;
+
+    this.reportsService.exportarPdf(`caixa/balanco/${caixa.id}`, {}).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
   }
 }

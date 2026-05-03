@@ -27,6 +27,19 @@
 
     <div class="table-container">
       <table mat-table [dataSource]="dataSource()" class="product-table">
+        <ng-container matColumnDef="imagem">
+          <th mat-header-cell *matHeaderCellDef>Foto</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="thumb-container">
+              @if (element.imagemUrl) {
+                <img [src]="baseUrl + element.imagemUrl" alt="Thumb" class="product-thumb">
+              } @else {
+                <mat-icon class="no-thumb">image</mat-icon>
+              }
+            </div>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="codigoInterno">
           <th mat-header-cell *matHeaderCellDef>Cód. Interno</th>
           <td mat-cell *matCellDef="let element">{{ element.codigoInterno }}</td>

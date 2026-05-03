@@ -14,6 +14,23 @@
     <mat-card-content>
       <form [formGroup]="produtoForm" (ngSubmit)="onSubmit()" class="product-form">
         
+        <div class="image-upload-section">
+          <div class="image-preview" (click)="fileInput.click()">
+            @if (imagePreview()) {
+              <img [src]="imagePreview()" alt="Preview">
+            } @else {
+              <div class="placeholder">
+                <mat-icon>add_a_photo</mat-icon>
+                <span>Upload Foto</span>
+              </div>
+            }
+          </div>
+          <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none">
+          @if (selectedFile()) {
+            <p class="file-name">{{ selectedFile()?.name }}</p>
+          }
+        </div>
+
         <h3>Informações Básicas</h3>
         <div class="form-row">
           <mat-form-field appearance="outline">
@@ -33,13 +50,28 @@
           </mat-form-field>
         </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nome do Produto</mat-label>
-          <input matInput formControlName="nome">
-          @if (produtoForm.get('nome')?.hasError('required')) {
-            <mat-error>Nome é obrigatório</mat-error>
-          }
-        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nome do Produto</mat-label>
+            <input matInput formControlName="nome">
+            @if (produtoForm.get('nome')?.hasError('required')) {
+              <mat-error>Nome é obrigatório</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Unidade de Medida</mat-label>
+            <mat-select formControlName="unidadeMedida">
+              <mat-option value="UN">Unidade (UN)</mat-option>
+              <mat-option value="KG">Quilograma (KG)</mat-option>
+              <mat-option value="LT">Litro (LT)</mat-option>
+              <mat-option value="CX">Caixa (CX)</mat-option>
+              <mat-option value="FD">Fardo (FD)</mat-option>
+              <mat-option value="PC">Peça (PC)</mat-option>
+              <mat-option value="MT">Metro (MT)</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Descrição</mat-label>
@@ -111,6 +143,30 @@
           </button>
         </div>
 
+        @if (editMode() && historicoPrecos().length > 0) {
+          <mat-divider></mat-divider>
+          <h3>Histórico de Preços</h3>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Custo</th>
+                <th>Venda</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (h of historicoPrecos(); track h.id) {
+                <tr>
+                  <td>{{ h.dataAlteracao | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ h.precoCusto | currency: 'BRL' }}</td>
+                  <td>{{ h.precoVenda | currency: 'BRL' }}</td>
+                  <td>{{ h.motivo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
       </form>
     </mat-card-content>
   </mat-card>
