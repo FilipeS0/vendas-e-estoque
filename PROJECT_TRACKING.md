@@ -35,9 +35,9 @@
 
 - [ ] **5.1 — Testes de Controller (MockMvc)**
   - [x] `ProdutoControllerTest.java` (Listagem, Inativação, RBAC)
-  - [ ] `ProdutoControllerTest.java` (Expandir: Criação e Validação)
-  - [ ] `VendaControllerTest.java` (Fluxo: Iniciar → Itens → Finalizar)
-  - [ ] `CaixaControllerTest.java` (Abrir, Fechar, Sangria)
+  - [x] `ProdutoControllerTest.java` (Expandir: Criação e Validação)
+  - [x] `VendaControllerTest.java` (Fluxo: Iniciar → Itens → Finalizar)
+  - [x] `CaixaControllerTest.java` (Abrir, Fechar, Sangria)
 - [ ] **5.2 — Testes de Integração (Testcontainers)**
   - [x] Configurar infraestrutura (`AbstractIntegrationTest.java` + Docker)
   - [ ] `VendaFluxoIntegrationTest.java` (Fluxo E2E: Venda + Baixa Estoque + Nota Fiscal)

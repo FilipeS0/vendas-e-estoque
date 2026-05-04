@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CrediarioService, ParcelaResponse } from '../services/crediario.service';
+import { CrediarioService, ParcelaResponse, StatusParcela } from '../services/crediario.service';
 
 @Component({
   selector: 'app-crediario-page',
@@ -44,7 +44,7 @@ export class CrediarioPageComponent {
   carregar() {
     this.isLoading.set(true);
     const status = this.filterForm.value.status || undefined;
-    this.crediarioService.getParcelas(undefined, status, 0, 50).subscribe({
+    this.crediarioService.getParcelas(undefined, status as StatusParcela | undefined, 0, 50).subscribe({
       next: (res) => {
         this.parcelas.set(res.content);
         this.isLoading.set(false);

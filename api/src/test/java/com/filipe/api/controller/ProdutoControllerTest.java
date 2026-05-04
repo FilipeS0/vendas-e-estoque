@@ -1,7 +1,11 @@
 package com.filipe.api.controller;
 
+import com.filipe.api.dto.produto.ProdutoRequest;
 import com.filipe.api.dto.produto.ProdutoResponse;
 import com.filipe.api.service.ProdutoService;
+import com.filipe.api.domain.produto.UnidadeMedida;
+import com.filipe.api.domain.produto.OrigemProduto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,16 +23,19 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(ProdutoController.class)
 public class ProdutoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private ProdutoService produtoService;
@@ -70,7 +77,53 @@ public class ProdutoControllerTest {
         UUID id = UUID.randomUUID();
         
         mockMvc.perform(delete("/api/v1/produtos/{id}", id)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void deveCriarProdutoComSucesso() throws Exception {
+        ProdutoRequest request = new ProdutoRequest(
+                "P001", "7891234567890", "Produto Teste", "Desc",
+                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(),
+                new BigDecimal("10.00"), new BigDecimal("20.00"),
+                "12345678", null, "5102", OrigemProduto.NACIONAL,
+                null, null, null, null, null, null, BigDecimal.ZERO
+        );
+
+        ProdutoResponse response = ProdutoResponse.builder()
+                .id(UUID.randomUUID())
+                .nome("Produto Teste")
+                .precoVenda(new BigDecimal("20.00"))
+                .build();
+
+        when(produtoService.registrarProduto(any(ProdutoRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/produtos")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nome").value("Produto Teste"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void deveRetornarBadRequestAoCriarProdutoInvalido() throws Exception {
+        ProdutoRequest request = new ProdutoRequest(
+                "", "", "", null,
+                null, null, null,
+                null, null,
+                "", null, "", null,
+                null, null, null, null, null, null, null
+        );
+
+        mockMvc.perform(post("/api/v1/produtos")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 }
