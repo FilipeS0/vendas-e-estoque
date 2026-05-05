@@ -257,7 +257,7 @@ public class PdfReportGenerator {
             document.add(new Paragraph("Gerado em: " + java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
             document.add(new Paragraph("\n"));
 
-            document.add(new Paragraph("Total a Receber: R$ " + resumo.totalAReceber()).setBold());
+            document.add(new Paragraph("Total a Receber: R$ " + resumo.totalGeral()).setBold());
             document.add(new Paragraph("Total Vencido: R$ " + resumo.totalVencido()).setFontColor(com.itextpdf.kernel.colors.ColorConstants.RED));
             document.add(new Paragraph("Total a Vencer: R$ " + resumo.totalAVencer()));
 
@@ -285,7 +285,7 @@ public class PdfReportGenerator {
 
             for (VendaFormaPagamentoResponse item : data) {
                 table.addCell(item.formaPagamento());
-                table.addCell(item.vendas().toString());
+                table.addCell(item.quantidade().toString());
                 table.addCell(String.format("R$ %.2f", item.total()));
             }
 

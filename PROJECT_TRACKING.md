@@ -30,30 +30,30 @@
 
 ## 🚀 2. Plano de Execução (Passo a Passo)
 
-### 🟦 Passo 5 — Testes (EM PROGRESSO)
+### 🟦 Passo 5 — Testes (CONCLUÍDO)
 **Objetivo:** Garantir a estabilidade e evitar regressões.
 
-- [ ] **5.1 — Testes de Controller (MockMvc)**
+- [x] **5.1 — Testes de Controller (MockMvc)**
   - [x] `ProdutoControllerTest.java` (Listagem, Inativação, RBAC)
   - [x] `ProdutoControllerTest.java` (Expandir: Criação e Validação)
   - [x] `VendaControllerTest.java` (Fluxo: Iniciar → Itens → Finalizar)
   - [x] `CaixaControllerTest.java` (Abrir, Fechar, Sangria)
-- [ ] **5.2 — Testes de Integração (Testcontainers)**
+- [x] **5.2 — Testes de Integração (Testcontainers)**
   - [x] Configurar infraestrutura (`AbstractIntegrationTest.java` + Docker)
-  - [ ] `VendaFluxoIntegrationTest.java` (Fluxo E2E: Venda + Baixa Estoque + Nota Fiscal)
-  - [ ] `CrediarioIntegrationTest.java` (Venda Fiado + Liquidação Parcela)
-- [ ] **5.3 — TestDataBuilder**
+  - [x] `VendaFluxoIntegrationTest.java` (Fluxo E2E: Venda + Baixa Estoque + Nota Fiscal)
+  - [x] `CrediarioIntegrationTest.java` (Venda Fiado + Liquidação Parcela)
+- [x] **5.3 — TestDataBuilder**
   - [x] `createCategoria()`, `createFornecedor()`, `createProduto()`
-  - [ ] `createVenda()`, `createCaixa()`, `createUsuario()`, `createCliente()`
+  - [x] `createVenda()`, `createCaixa()`, `createUsuario()`, `createCliente()`
 
 ---
 
-### ⬜ Passo 6 — CI/CD e Deploy (PRÓXIMO)
+### ⬜ Passo 6 — CI/CD e Deploy (EM PROGRESSO)
 **Objetivo:** Automatizar o ciclo de vida da aplicação.
 
-- [ ] **6.1 — GitHub Actions**
-  - [ ] Pipeline de Build e Testes (Backend/Frontend)
-  - [ ] Build e Push de Imagens Docker
+- [x] **6.1 — GitHub Actions**
+  - [x] Pipeline de Build e Testes (Backend/Frontend)
+  - [x] Build e Push de Imagens Docker
 - [ ] **6.2 — HTTPS e Deploy Real**
   - [ ] nginx + SSL (Let's Encrypt)
   - [ ] `docker-compose.prod.yml`
