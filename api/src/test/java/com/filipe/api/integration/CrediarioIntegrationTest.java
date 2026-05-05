@@ -46,6 +46,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
+@Disabled("Requires Docker/Testcontainers")
 class CrediarioIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
