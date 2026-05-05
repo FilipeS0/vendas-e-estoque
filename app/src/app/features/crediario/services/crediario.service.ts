@@ -3,11 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PageResponse } from '../../../shared/index';
 
-<<<<<<< HEAD
 export type StatusParcela = 'PENDENTE' | 'PAGO' | 'PAGO_PARCIAL' | 'ATRASADO' | 'CANCELADO';
 
-=======
->>>>>>> 78f06991c37988671ced02d01bbc0f969512f32a
 export interface ParcelaResponse {
   id: string;
   numeroParcela: number;
@@ -15,13 +12,9 @@ export interface ParcelaResponse {
   dataVencimento: string;
   dataPagamento?: string;
   valorPago?: number;
-<<<<<<< HEAD
   status: StatusParcela;
   clienteNome?: string;
   clienteId?: string;
-=======
-  status: 'PENDENTE' | 'PAGA' | 'VENCIDA' | 'CANCELADA';
->>>>>>> 78f06991c37988671ced02d01bbc0f969512f32a
 }
 
 export interface LiquidarParcelaRequest {
@@ -34,22 +27,14 @@ export class CrediarioService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/crediarios';
 
-<<<<<<< HEAD
   getParcelas(
     clienteId?: string,
     status?: StatusParcela,
     page = 0,
-    size = 10,
+    size = 50,
   ): Observable<PageResponse<ParcelaResponse>> {
     let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
-    if (clienteId) params = params.set('clienteId', clienteId);
-    if (status) params = params.set('status', status);
-=======
-  getParcelas(clienteId?: string, status?: string, page = 0, size = 50): Observable<PageResponse<ParcelaResponse>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-    
+
     if (clienteId) {
       params = params.set('clienteId', clienteId);
     }
@@ -57,7 +42,6 @@ export class CrediarioService {
       params = params.set('status', status);
     }
 
->>>>>>> 78f06991c37988671ced02d01bbc0f969512f32a
     return this.http.get<PageResponse<ParcelaResponse>>(`${this.apiUrl}/parcelas`, { params });
   }
 
