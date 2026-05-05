@@ -2,18 +2,21 @@ package com.filipe.api.controller;
 
 import com.filipe.api.dto.produto.ProdutoRequest;
 import com.filipe.api.dto.produto.ProdutoResponse;
+import com.filipe.api.domain.usuario.UsuarioRepository;
+import com.filipe.api.security.SecurityConfig;
 import com.filipe.api.service.ProdutoService;
 import com.filipe.api.domain.produto.UnidadeMedida;
 import com.filipe.api.domain.produto.OrigemProduto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -29,27 +32,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(ProdutoController.class)
+@Import(SecurityConfig.class)
 public class ProdutoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private ProdutoService produtoService;
 
+    @MockitoBean
+    private UsuarioRepository usuarioRepository;
+
     @Test
     @WithMockUser(roles = "ADMIN")
     public void deveListarProdutosComSucesso() throws Exception {
-        ProdutoResponse response = ProdutoResponse.builder()
-                .id(UUID.randomUUID())
-                .nome("Cerveja Teste")
-                .codigoInterno("001")
-                .precoVenda(new BigDecimal("10.00"))
-                .ativo(true)
-                .build();
+        ProdutoResponse response = new ProdutoResponse(
+                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null,
+                new BigDecimal("10.00"), null, null, null, true
+        );
 
         when(produtoService.listarProdutos(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(response)));
@@ -67,6 +70,7 @@ public class ProdutoControllerTest {
         UUID id = UUID.randomUUID();
         
         mockMvc.perform(delete("/api/v1/produtos/{id}", id)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
@@ -93,11 +97,10 @@ public class ProdutoControllerTest {
                 null, null, null, null, null, null, BigDecimal.ZERO
         );
 
-        ProdutoResponse response = ProdutoResponse.builder()
-                .id(UUID.randomUUID())
-                .nome("Produto Teste")
-                .precoVenda(new BigDecimal("20.00"))
-                .build();
+        ProdutoResponse response = new ProdutoResponse(
+                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null,
+                new BigDecimal("20.00"), null, UnidadeMedida.UN.name(), null, true
+        );
 
         when(produtoService.registrarProduto(any(ProdutoRequest.class))).thenReturn(response);
 
