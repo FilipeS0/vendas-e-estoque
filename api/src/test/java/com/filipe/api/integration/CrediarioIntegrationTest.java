@@ -37,6 +37,7 @@ import com.filipe.api.service.CrediarioService;
 import com.filipe.api.service.VendaService;
 import com.filipe.api.shared.TestDataBuilder;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

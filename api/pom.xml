@@ -56,6 +56,10 @@
 			<artifactId>spring-boot-starter-flyway</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-json</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j-core</artifactId>
 			<version>8.10.1</version>
@@ -137,7 +141,7 @@
 			<artifactId>spring-boot-jdbc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- PDF Generation -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
@@ -145,7 +149,7 @@
 			<version>7.2.5</version>
 			<type>pom</type>
 		</dependency>
-		
+
 		<!-- QR Code -->
 		<dependency>
 			<groupId>com.google.zxing</groupId>
