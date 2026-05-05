@@ -134,7 +134,7 @@ public class CrediarioService {
     @Scheduled(cron = "0 0 0 * * ?") // Runs every day at midnight
     public void verificarParcelasVencidas() {
         logger.info("Iniciando rotina de marcacao de parcelas vencidas...");
-        int count = parcelaRepository.marcarParcelasVencidas();
+        int count = parcelaRepository.marcarParcelasVencidas(StatusParcela.VENCIDA, StatusParcela.PENDENTE);
         logger.info("Foram marcadas {} parcelas como VENCIDA.", count);
     }
 }
