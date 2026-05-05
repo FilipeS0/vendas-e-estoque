@@ -42,7 +42,7 @@ jobs:
           cache-dependency-path: api/pom.xml
 
       - name: Run backend tests
-        run: mvn --batch-mode --no-transfer-progress test
+        run: mvn --batch-mode --no-transfer-progress -e test
         working-directory: api
 
       - name: Package backend
@@ -78,7 +78,7 @@ jobs:
         working-directory: app
 
       - name: Run frontend tests
-        run: npm test -- --watch=false
+        run: npm test -- --watch=false --browsers=ChromeHeadless
         working-directory: app
 
       - name: Build frontend
