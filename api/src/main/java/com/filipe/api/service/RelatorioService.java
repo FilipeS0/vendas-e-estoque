@@ -5,6 +5,7 @@ import com.filipe.api.domain.caixa.LancamentoCaixaRepository;
 import com.filipe.api.domain.caixa.TipoLancamentoCaixa;
 import com.filipe.api.domain.estoque.EstoqueAtualRepository;
 import com.filipe.api.domain.venda.FormaPagamento;
+import com.filipe.api.domain.venda.StatusParcela;
 import com.filipe.api.domain.venda.StatusVenda;
 import com.filipe.api.domain.venda.Venda;
 import com.filipe.api.domain.venda.VendaRepository;
@@ -194,12 +195,14 @@ public class RelatorioService {
     }
 
     public ContasAReceberResumoResponse relatorioResumoContasAReceber() {
-        Object[] rawResult = parcelaCrediarioRepository.getResumoContasAReceber();
-        if (rawResult == null || rawResult.length == 0) {
+        Object[] row = parcelaCrediarioRepository.getResumoContasAReceber(
+                StatusParcela.ATRASADO,
+                StatusParcela.PENDENTE,
+                java.util.List.of(StatusParcela.PENDENTE, StatusParcela.ATRASADO, StatusParcela.PAGO_PARCIAL)
+        );
+        if (row == null || row.length == 0) {
             return new ContasAReceberResumoResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         }
-        
-        Object[] row = (Object[]) rawResult[0];
         return new ContasAReceberResumoResponse(
                 row[0] != null ? (BigDecimal) row[0] : BigDecimal.ZERO,
                 row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO,
