@@ -54,7 +54,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-surefire-reports
-          path: api/target/surefire-reports/
+          path: |
+            api/target/surefire-reports/
+            api/target/surefire-reports/*.dump
+            api/target/surefire-reports/*.dumpstream
           if-no-files-found: ignore
           retention-days: 7
 
