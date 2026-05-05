@@ -23,9 +23,9 @@ public interface ParcelaCrediarioRepository extends JpaRepository<ParcelaCrediar
             Pageable pageable);
 
     @Modifying
-    @Query("UPDATE ParcelaCrediario p SET p.status = :vencida " +
+    @Query("UPDATE ParcelaCrediario p SET p.status = :atrasado " +
            "WHERE p.status = :pendente AND p.dataVencimento < CURRENT_DATE")
-    int marcarParcelasVencidas(@Param("vencida") StatusParcela vencida,
+    int marcarParcelasVencidas(@Param("atrasado") StatusParcela atrasado,
                            @Param("pendente") StatusParcela pendente);
 
     @Query("""
