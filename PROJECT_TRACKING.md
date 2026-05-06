@@ -15,7 +15,7 @@
 
 | Módulo | Status | Principais Tecnologias / Detalhes |
 |:-------|:------:|:----------------------------------|
-| **Infra & DevOps** | ⚠️ | Spring Boot 4, Java 21, Angular 21, Docker. (Pendente: CI/CD) |
+| **Infra & DevOps** | ✅ | Spring Boot 4, Java 21, Angular 21, Docker, HTTPS + Deploy Real. |
 | **Segurança** | ✅ | JWT, Refresh Token, BCrypt, Auditoria persistida, Certificado A1 AES-256. |
 | **Produtos** | ✅ | CRUD, Soft Delete, Fiscais, Imagem (FS), Histórico Preços, UnidadeMedida. |
 | **Estoque** | ✅ | Movimentação, Baixa automática, Inventário, Alerta mínimo. |
@@ -54,9 +54,9 @@
 - [x] **6.1 — GitHub Actions**
   - [x] Pipeline de Build e Testes (Backend/Frontend)
   - [x] Build e Push de Imagens Docker
-- [ ] **6.2 — HTTPS e Deploy Real**
-  - [ ] nginx + SSL (Let's Encrypt)
-  - [ ] `docker-compose.prod.yml`
+- [x] **6.2 — HTTPS e Deploy Real**
+  - [x] nginx + SSL (Let's Encrypt)
+  - [x] `docker-compose.prod.yml`
 
 ---
 
