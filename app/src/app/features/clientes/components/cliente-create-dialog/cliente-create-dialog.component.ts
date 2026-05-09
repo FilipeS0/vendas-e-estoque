@@ -8,7 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { BrasilApiService } from '../../../../core/services/brasil-api.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef } from '@angular/core';
 
 @Component({
   selector: 'app-cliente-create-dialog',
@@ -21,7 +22,6 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    CommonModule,
   ],
   templateUrl: './cliente-create-dialog.component.html',
   styleUrls: ['./cliente-create-dialog.component.css'],
@@ -31,6 +31,7 @@ export class ClienteCreateDialogComponent {
   private dialogRef = inject(MatDialogRef<ClienteCreateDialogComponent>);
   private brasilApi = inject(BrasilApiService);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     nome: ['', Validators.required],
@@ -79,7 +80,9 @@ export class ClienteCreateDialogComponent {
     if (!cep || cep.length !== 8) return;
 
     this.isLoadingCep.set(true);
-    this.brasilApi.consultarCep(cep).subscribe({
+    this.brasilApi.consultarCep(cep)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.form.patchValue({
           logradouro: res.street,

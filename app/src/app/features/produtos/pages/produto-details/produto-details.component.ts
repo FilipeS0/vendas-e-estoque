@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +12,7 @@ import { Produto } from '../../../../shared/index';
 @Component({
   selector: 'app-produto-details',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, RouterModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, RouterModule],
   templateUrl: './produto-details.component.html',
   styleUrls: ['./produto-details.component.css']
 })
@@ -19,6 +20,7 @@ export class ProdutoDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private produtoService = inject(ProdutoService);
+  private destroyRef = inject(DestroyRef);
 
   produto = signal<Produto | null>(null);
   isLoading = signal(true);
@@ -26,7 +28,9 @@ export class ProdutoDetailsComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.produtoService.getProdutoById(id).subscribe({
+      this.produtoService.getProdutoById(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: (res) => {
           this.produto.set(res);
           this.isLoading.set(false);

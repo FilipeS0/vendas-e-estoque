@@ -21,6 +21,7 @@ import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
 import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.domain.venda.FormaPagamento;
+import com.filipe.api.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -64,7 +65,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Fluxo de Caixa", e);
+            throw new BusinessException("Erro ao gerar PDF", e);
         }
     }
 
@@ -139,7 +140,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar DANFE", e);
+            throw new BusinessException("Erro ao gerar DANFE", e);
         }
     }
 
@@ -176,7 +177,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Vendas", e);
+            throw new BusinessException("Erro ao gerar PDF de Vendas", e);
         }
     }
 
@@ -209,7 +210,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Estoque", e);
+            throw new BusinessException("Erro ao gerar PDF de Estoque", e);
         }
     }
 
@@ -242,7 +243,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Movimentação de Estoque", e);
+            throw new BusinessException("Erro ao gerar PDF de Movimentação de Estoque", e);
         }
     }
 
@@ -277,7 +278,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Balanço de Caixa", e);
+            throw new BusinessException("Erro ao gerar PDF de Balanço de Caixa", e);
         }
     }
 
@@ -298,7 +299,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Contas a Receber", e);
+            throw new BusinessException("Erro ao gerar PDF de Contas a Receber", e);
         }
     }
 
@@ -327,7 +328,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Vendas por Forma de Pagamento", e);
+            throw new BusinessException("Erro ao gerar PDF de Vendas por Forma de Pagamento", e);
         }
     }
 
@@ -359,7 +360,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Ranking de Produtos", e);
+            throw new BusinessException("Erro ao gerar PDF de Ranking de Produtos", e);
         }
     }
 

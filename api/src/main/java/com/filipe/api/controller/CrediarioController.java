@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class CrediarioController {
     private final CrediarioService crediarioService;
 
     @GetMapping("/parcelas")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<Page<ParcelaResponse>> listarParcelas(
             @RequestParam(required = false) UUID clienteId,
             @RequestParam(required = false) StatusParcela status,
@@ -35,6 +37,7 @@ public class CrediarioController {
     }
 
     @PostMapping("/parcelas/{id}/liquidar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<ParcelaResponse> liquidarParcela(
             @PathVariable UUID id,
             @RequestBody @Valid LiquidarParcelaRequest request,
