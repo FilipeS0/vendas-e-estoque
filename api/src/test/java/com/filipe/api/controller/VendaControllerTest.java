@@ -44,6 +44,9 @@ public class VendaControllerTest {
     @MockitoBean
     private com.filipe.api.domain.usuario.UsuarioRepository usuarioRepository;
 
+    @MockitoBean
+    private com.filipe.api.domain.caixa.CaixaRepository caixaRepository;
+
     private Usuario mockUsuario;
     private UUID vendaId;
 
