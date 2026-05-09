@@ -99,6 +99,11 @@ export interface HistoricoPreco {
   motivo: string;
 }
 
+export interface Ncm {
+  codigo: string;
+  descricao: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -154,5 +159,11 @@ export class ProdutoService {
 
   getHistoricoPrecos(id: string): Observable<HistoricoPreco[]> {
     return this.http.get<HistoricoPreco[]>(`${this.apiUrl}/produtos/${id}/historico-precos`);
+  }
+
+  searchNcms(query: string): Observable<Ncm[]> {
+    return this.http.get<Ncm[]>(`${this.apiUrl}/ncm/search`, {
+      params: new HttpParams().set('query', query),
+    });
   }
 }

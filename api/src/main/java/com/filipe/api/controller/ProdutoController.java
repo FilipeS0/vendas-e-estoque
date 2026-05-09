@@ -19,6 +19,9 @@ import com.filipe.api.domain.produto.HistoricoPreco;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +33,7 @@ public class ProdutoController {
     private final ProdutoService produtoService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<Page<ProdutoResponse>> list(
             @RequestParam(required = false) String nome,
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
@@ -39,7 +42,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/pdv")
-    @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<Page<ProdutoPdvResponse>> listPdv(
             @RequestParam(required = false) String query,
             @PageableDefault(size = 20) Pageable pageable) {
@@ -47,7 +50,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<ProdutoDetalheResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(produtoService.buscarPorId(id));
     }
@@ -58,42 +61,46 @@ public class ProdutoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<ProdutoResponse> create(@RequestBody @Valid ProdutoRequest request) {
         ProdutoResponse response = produtoService.registrarProduto(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<ProdutoResponse> update(@PathVariable UUID id, @RequestBody @Valid ProdutoUpdateRequest request) {
         return ResponseEntity.ok(produtoService.atualizarProduto(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         produtoService.inativarProduto(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/imagem")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<Void> uploadImagem(@PathVariable UUID id, @RequestParam("imagem") MultipartFile file) {
         produtoService.salvarImagem(id, file);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/imagem")
-    public ResponseEntity<byte[]> getImagem(@PathVariable UUID id) {
-        byte[] imagem = produtoService.buscarImagem(id);
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<byte[]> getImagem(@PathVariable UUID id) throws IOException {
+        Path path = produtoService.buscarCaminhoImagem(id);
+        byte[] imagem = Files.readAllBytes(path);
+        String contentType = Files.probeContentType(path);
+        
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG) // Standardizing to JPEG or detection
+                .contentType(MediaType.parseMediaType(contentType != null ? contentType : "image/jpeg"))
                 .body(imagem);
     }
 
     @GetMapping("/{id}/historico-precos")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<List<HistoricoPreco>> getHistoricoPrecos(@PathVariable UUID id) {
         return ResponseEntity.ok(produtoService.buscarHistoricoPrecos(id));
     }

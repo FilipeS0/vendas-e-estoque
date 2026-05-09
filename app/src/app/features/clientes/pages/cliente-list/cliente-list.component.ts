@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { ClienteService } from '../../services/cliente.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Cliente } from '../../../../shared/index';
 import { ClienteCreateDialogComponent } from '../../components/cliente-create-dialog/cliente-create-dialog.component';
 
@@ -30,6 +31,7 @@ import { ClienteCreateDialogComponent } from '../../components/cliente-create-di
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    MatSnackBarModule,
     CurrencyPipe,
   ],
   templateUrl: './cliente-list.component.html',
@@ -39,6 +41,7 @@ export class ClienteListComponent {
   private clienteService = inject(ClienteService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -98,9 +101,22 @@ export class ClienteListComponent {
   }
 
   openNewCustomerDialog() {
-    const dialogRef = this.dialog.open(ClienteCreateDialogComponent, { width: '480px' });
+    const dialogRef = this.dialog.open(ClienteCreateDialogComponent, { width: '550px' });
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'created') this.loadClientes();
+      if (result) {
+        this.isLoading.set(true);
+        this.clienteService.createCliente(result).subscribe({
+          next: () => {
+            this.snackBar.open('Cliente cadastrado com sucesso!', 'OK', { duration: 3000 });
+            this.loadClientes();
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            const msg = err.error?.message || 'Erro ao cadastrar cliente.';
+            this.snackBar.open(msg, 'OK', { duration: 5000 });
+          },
+        });
+      }
     });
   }
 }

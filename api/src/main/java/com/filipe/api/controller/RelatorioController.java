@@ -1,8 +1,10 @@
 package com.filipe.api.controller;
 
 import com.filipe.api.dto.relatorio.*;
+import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
+import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.service.RelatorioService;
 import com.filipe.api.shared.report.PdfReportGenerator;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +83,29 @@ public class RelatorioController {
                 .body(pdf);
     }
 
+    @GetMapping("/vendas/hoje")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<List<VendaResponse>> getVendasHoje() {
+        LocalDateTime inicio = LocalDate.now().atStartOfDay();
+        LocalDateTime fim = LocalDate.now().atTime(23, 59, 59);
+        return ResponseEntity.ok(relatorioService.relatorioVendasPeriodo(inicio, fim));
+    }
+
+    @GetMapping("/vendas/hoje/pdf")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<byte[]> getVendasHojePdf() {
+        LocalDateTime inicio = LocalDate.now().atStartOfDay();
+        LocalDateTime fim = LocalDate.now().atTime(23, 59, 59);
+        List<VendaResponse> data = relatorioService.relatorioVendasPeriodo(inicio, fim);
+        String period = "Hoje (" + LocalDate.now().toString() + ")";
+        byte[] pdf = pdfReportGenerator.gerarRelatorioVendas(data, period);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vendas_hoje.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
     @GetMapping("/estoque/posicao")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<List<EstoqueAtualResponse>> getEstoquePosicao() {
@@ -95,6 +120,36 @@ public class RelatorioController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=estoque_posicao.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @GetMapping("/estoque/abaixo-minimo/pdf")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<byte[]> getEstoqueAbaixoMinimoPdf() {
+        List<EstoqueAtualResponse> data = relatorioService.relatorioEstoqueAbaixoMinimo();
+        byte[] pdf = pdfReportGenerator.gerarRelatorioEstoque(data);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=estoque_abaixo_minimo.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @GetMapping("/estoque/movimentacoes/pdf")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<byte[]> getMovimentacoesEstoquePdf(
+            @RequestParam(required = false) UUID produtoId,
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim
+    ) {
+        List<MovimentacaoEstoqueResponse> data = relatorioService.relatorioMovimentacoesEstoque(produtoId, tipo, dataInicio, dataFim);
+        String period = (dataInicio != null ? dataInicio.toLocalDate().toString() : "Tudo") + " a " + (dataFim != null ? dataFim.toLocalDate().toString() : "Tudo");
+        byte[] pdf = pdfReportGenerator.gerarRelatorioMovimentacaoEstoque(data, period);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=movimentacoes_estoque.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }
@@ -120,14 +175,20 @@ public class RelatorioController {
 
     @GetMapping("/contas-a-receber/resumo")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
-    public ResponseEntity<ContasAReceberResumoResponse> getContasAReceberResumo() {
-        return ResponseEntity.ok(relatorioService.relatorioResumoContasAReceber());
+    public ResponseEntity<ContasAReceberResumoResponse> getContasAReceberResumo(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim
+    ) {
+        return ResponseEntity.ok(relatorioService.relatorioResumoContasAReceber(dataInicio, dataFim));
     }
 
     @GetMapping("/contas-a-receber/resumo/pdf")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
-    public ResponseEntity<byte[]> getContasAReceberResumoPdf() {
-        ContasAReceberResumoResponse data = relatorioService.relatorioResumoContasAReceber();
+    public ResponseEntity<byte[]> getContasAReceberResumoPdf(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim
+    ) {
+        ContasAReceberResumoResponse data = relatorioService.relatorioResumoContasAReceber(dataInicio, dataFim);
         byte[] pdf = pdfReportGenerator.gerarRelatorioContasAReceber(data);
 
         return ResponseEntity.ok()
@@ -153,15 +214,21 @@ public class RelatorioController {
     ) {
         List<VendaFormaPagamentoResponse> data = relatorioService.relatorioVendasPorFormaPagamento(inicio, fim);
         String period = inicio.toString() + " a " + fim.toString();
-        // FIXME: Use a specific PDF method if needed, otherwise generic
-        // For now, I'll add a method to PdfReportGenerator or use a generic one if I had it.
-        // Let's add it to PdfReportGenerator.
         byte[] pdf = pdfReportGenerator.gerarRelatorioVendasPorFormaPagamento(data, period);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vendas_forma_pagamento.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
+    }
+
+    @GetMapping("/produtos/ranking")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<List<VendaProdutoResponse>> getRankingProdutos(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim
+    ) {
+        return ResponseEntity.ok(relatorioService.relatorioVendasPorProduto(inicio, fim));
     }
 
     @GetMapping("/produtos/ranking/pdf")
@@ -179,4 +246,13 @@ public class RelatorioController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }
+
+    @GetMapping("/dashboard/stats")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<DashboardStatsResponse> getDashboardStats(
+            @RequestParam(required = false) Integer dias
+    ) {
+        return ResponseEntity.ok(relatorioService.getDashboardStats(dias));
+    }
 }
+

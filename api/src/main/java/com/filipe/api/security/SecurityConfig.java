@@ -27,6 +27,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
@@ -43,11 +46,15 @@ public class SecurityConfig {
     @Value("${api.security.token.secret}")
     private String jwtSecret;
 
+    @Value("${api.security.cors.allowed-origins:*}")
+    private String allowedOrigins;
+
     private final UsuarioRepository usuarioRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
+        return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
@@ -58,6 +65,27 @@ public class SecurityConfig {
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
                 }))
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        if (allowedOrigins.equals("*")) {
+            configuration.addAllowedOriginPattern("*");
+        } else {
+            for (String origin : allowedOrigins.split(",")) {
+                configuration.addAllowedOrigin(origin.trim());
+            }
+        }
+
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

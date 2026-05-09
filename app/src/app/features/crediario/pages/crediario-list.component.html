@@ -17,6 +17,16 @@
           </mat-select>
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Vencimento Início</mat-label>
+          <input matInput type="date" [formControl]="startDate" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Vencimento Fim</mat-label>
+          <input matInput type="date" [formControl]="endDate" />
+        </mat-form-field>
+
         <button mat-flat-button color="primary" (click)="exportPdf()">
           <mat-icon>picture_as_pdf</mat-icon>
           Resumo PDF

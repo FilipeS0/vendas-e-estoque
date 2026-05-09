@@ -78,7 +78,23 @@
               <input matInput type="number" formControlName="alertaEstoqueMinimoGlobal">
             </mat-form-field>
 
-            <div class="actions full-width">
+            <div class="section-title full-width" style="margin-top: 15px;">Integração PIX (QR Code)</div>
+            <mat-form-field appearance="outline">
+              <mat-label>Chave PIX</mat-label>
+              <input matInput formControlName="pixChave" placeholder="exemplo@pix.com.br">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Nome do Beneficiário</mat-label>
+              <input matInput formControlName="pixBeneficiario" placeholder="João da Silva">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Cidade do Beneficiário</mat-label>
+              <input matInput formControlName="pixCidade" placeholder="São Paulo">
+            </mat-form-field>
+
+            <div class="actions full-width" style="margin-top: 20px;">
               <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isLoading()">
                 <mat-icon>save</mat-icon> Salvar Configurações
               </button>

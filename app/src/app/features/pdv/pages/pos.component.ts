@@ -18,6 +18,8 @@ import { ClienteService } from '../../clientes/services/cliente.service';
 import { CaixaService } from '../../caixa/services/caixa.service';
 import { VendaService, PagamentoRequest, VendaRequest } from '../services/venda.service';
 import { ClienteSummary, Caixa } from '../../../shared/index';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PixDialogComponent } from '../../../shared/components/pix-dialog/pix-dialog.component';
 
 interface CarrinhoItem {
   produtoId: string; nome: string; quantidade: number; precoUnitario: number; valorTotal: number;
@@ -27,7 +29,7 @@ interface CarrinhoItem {
   selector: 'app-pos',
   imports: [ReactiveFormsModule, MatTableModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, MatDividerModule,
-    MatProgressSpinnerModule, CurrencyPipe],
+    MatProgressSpinnerModule, MatDialogModule, CurrencyPipe],
   templateUrl: './pos.component.html',
   styleUrls: ['./pos.component.css'],
 })
@@ -38,6 +40,7 @@ export class PosPageComponent {
   private vendaService = inject(VendaService);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   produtosBuscados = signal<ProdutoResponse[]>([]);
@@ -75,7 +78,9 @@ export class PosPageComponent {
   }
 
   private loadClientes() {
-    this.clienteService.getClientes().subscribe({
+    this.clienteService.getClientes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => this.clientes.set(res.content.map((c) => ({ id: c.id, nome: c.nome }))),
       error: () => this.clientes.set([])
     });
@@ -90,7 +95,9 @@ export class PosPageComponent {
   }
 
   private loadProdutos(nome: string) {
-    this.produtoService.getProdutos(nome || undefined, 0, 20).subscribe({
+    this.produtoService.getProdutos(nome || undefined, 0, 20)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => this.produtosBuscados.set(res.content), error: () => this.produtosBuscados.set([]),
     });
   }
@@ -114,10 +121,32 @@ export class PosPageComponent {
   addPagamento() {
     if (this.paymentForm.invalid) { this.paymentForm.markAllAsTouched(); return; }
     const raw = this.paymentForm.getRawValue();
+    const formaPagamento = (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'];
+    const valor = Number(raw.valor) || 0;
+
+    if (formaPagamento === 'PIX') {
+      const dialogRef = this.dialog.open(PixDialogComponent, {
+        width: '400px',
+        data: { valor: valor }
+      });
+
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(confirmed => {
+        if (confirmed) {
+          this.executeAddPagamento(formaPagamento, valor, raw.numeroParcelas);
+        }
+      });
+    } else {
+      this.executeAddPagamento(formaPagamento, valor, raw.numeroParcelas);
+    }
+  }
+
+  private executeAddPagamento(formaPagamento: any, valor: number, numeroParcelas: any) {
     this.pagamentos.update((items) => [...items, { 
-      formaPagamento: (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'], 
-      valor: Number(raw.valor) || 0,
-      numeroParcelas: raw.formaPagamento === 'CREDIARIO' ? Number(raw.numeroParcelas) : undefined
+      formaPagamento, 
+      valor,
+      numeroParcelas: formaPagamento === 'CREDIARIO' ? Number(numeroParcelas) : undefined
     }]);
     this.paymentForm.reset({ formaPagamento: 'DINHEIRO', valor: null, numeroParcelas: 1 });
   }
@@ -132,7 +161,9 @@ export class PosPageComponent {
       itens: this.carrinho().map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade })),
       pagamentos: this.pagamentos(), valorDesconto: this.desconto() > 0 ? this.desconto() : undefined };
     this.isLoading.set(true);
-    this.vendaService.criarVenda(request).subscribe({
+    this.vendaService.criarVenda(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.snackBar.open(`Venda #${res.numero} registrada!`, 'OK', { duration: 4000 });
         this.carrinho.set([]); this.pagamentos.set([]); this.clienteSelecionado.set(null);

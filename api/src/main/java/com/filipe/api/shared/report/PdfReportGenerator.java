@@ -19,7 +19,9 @@ import com.filipe.api.domain.fiscal.NotaFiscal;
 import com.filipe.api.dto.relatorio.*;
 import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
+import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.domain.venda.FormaPagamento;
+import com.filipe.api.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -63,11 +65,11 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Fluxo de Caixa", e);
+            throw new BusinessException("Erro ao gerar PDF", e);
         }
     }
 
-    public byte[] gerarDanfeNfce(NotaFiscal nota) {
+    public byte[] gerarDanfeNfce(NotaFiscal nota, String empresaNome) {
         // Formato para impressora térmica 80mm
         PageSize pageSize = new PageSize(226, 842); // Aproximadamente 80mm de largura
         
@@ -82,7 +84,7 @@ public class PdfReportGenerator {
                     .setBold()
                     .setFontSize(10));
             
-            document.add(new Paragraph("Empresa Exemplo LTDA") // FIXME: Pegar da Configuracao
+            document.add(new Paragraph(empresaNome != null ? empresaNome : "Empresa não identificada")
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontSize(8));
             
@@ -138,7 +140,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar DANFE", e);
+            throw new BusinessException("Erro ao gerar DANFE", e);
         }
     }
 
@@ -175,7 +177,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Vendas", e);
+            throw new BusinessException("Erro ao gerar PDF de Vendas", e);
         }
     }
 
@@ -208,7 +210,40 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Estoque", e);
+            throw new BusinessException("Erro ao gerar PDF de Estoque", e);
+        }
+    }
+
+    public byte[] gerarRelatorioMovimentacaoEstoque(List<MovimentacaoEstoqueResponse> data, String period) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            document.add(new Paragraph("Relatório de Movimentação de Estoque").setFontSize(18).setBold());
+            document.add(new Paragraph("Período/Filtros: " + period));
+            document.add(new Paragraph("\n"));
+
+            Table table = new Table(UnitValue.createPercentArray(new float[]{3, 4, 2, 2, 3})).useAllAvailableWidth();
+            table.addHeaderCell("Data/Hora");
+            table.addHeaderCell("Produto");
+            table.addHeaderCell("Tipo");
+            table.addHeaderCell("Quantidade");
+            table.addHeaderCell("Motivo");
+
+            for (MovimentacaoEstoqueResponse m : data) {
+                table.addCell(m.dataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                table.addCell(m.produtoNome());
+                table.addCell(m.tipo());
+                table.addCell(m.quantidade().toString());
+                table.addCell(m.motivo() != null ? m.motivo() : "");
+            }
+
+            document.add(table);
+            document.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new BusinessException("Erro ao gerar PDF de Movimentação de Estoque", e);
         }
     }
 
@@ -243,7 +278,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Balanço de Caixa", e);
+            throw new BusinessException("Erro ao gerar PDF de Balanço de Caixa", e);
         }
     }
 
@@ -257,14 +292,14 @@ public class PdfReportGenerator {
             document.add(new Paragraph("Gerado em: " + java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
             document.add(new Paragraph("\n"));
 
-            document.add(new Paragraph("Total a Receber: R$ " + resumo.totalAReceber()).setBold());
+            document.add(new Paragraph("Total a Receber: R$ " + resumo.totalGeral()).setBold());
             document.add(new Paragraph("Total Vencido: R$ " + resumo.totalVencido()).setFontColor(com.itextpdf.kernel.colors.ColorConstants.RED));
             document.add(new Paragraph("Total a Vencer: R$ " + resumo.totalAVencer()));
 
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Contas a Receber", e);
+            throw new BusinessException("Erro ao gerar PDF de Contas a Receber", e);
         }
     }
 
@@ -285,7 +320,7 @@ public class PdfReportGenerator {
 
             for (VendaFormaPagamentoResponse item : data) {
                 table.addCell(item.formaPagamento());
-                table.addCell(item.vendas().toString());
+                table.addCell(item.quantidade().toString());
                 table.addCell(String.format("R$ %.2f", item.total()));
             }
 
@@ -293,7 +328,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Vendas por Forma de Pagamento", e);
+            throw new BusinessException("Erro ao gerar PDF de Vendas por Forma de Pagamento", e);
         }
     }
 
@@ -325,7 +360,7 @@ public class PdfReportGenerator {
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF de Ranking de Produtos", e);
+            throw new BusinessException("Erro ao gerar PDF de Ranking de Produtos", e);
         }
     }
 

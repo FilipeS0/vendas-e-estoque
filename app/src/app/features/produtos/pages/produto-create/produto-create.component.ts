@@ -8,8 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Categoria, Fornecedor, HistoricoPreco, ProdutoService } from '../../services/produto.service';
+import { Categoria, Fornecedor, HistoricoPreco, Ncm, ProdutoService } from '../../services/produto.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { debounceTime, distinctUntilChanged, filter, switchMap, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-produto-create',
@@ -22,6 +25,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
     MatIconModule,
     MatSnackBarModule,
     MatDividerModule,
+    MatAutocompleteModule,
     CurrencyPipe,
     DatePipe,
   ],
@@ -62,6 +66,20 @@ export class ProdutoCreateComponent {
   selectedFile = signal<File | null>(null);
   imagePreview = signal<string | null>(null);
   historicoPrecos = signal<HistoricoPreco[]>([]);
+  ncms = signal<Ncm[]>([]);
+
+  constructor() {
+    this.produtoForm
+      .get('ncm')
+      ?.valueChanges.pipe(
+        takeUntilDestroyed(),
+        debounceTime(300),
+        distinctUntilChanged(),
+        filter((value) => typeof value === 'string' && value.length >= 3),
+        switchMap((query) => this.produtoService.searchNcms(query))
+      )
+      .subscribe((results) => this.ncms.set(results));
+  }
 
   ngOnInit() {
     this.produtoService.getCategorias().subscribe((res) => this.categorias.set(res));
@@ -160,5 +178,14 @@ export class ProdutoCreateComponent {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  onNcmSelected(event: any) {
+    const ncm = event.option.value as Ncm;
+    this.produtoForm.get('ncm')?.setValue(ncm.codigo, { emitEvent: false });
+  }
+
+  displayNcm(ncm: any): string {
+    return ncm?.codigo || ncm || '';
   }
 }

@@ -1,3 +1,10 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .page-wrap {
   padding: 1.5rem 2rem;
   max-width: 1100px;

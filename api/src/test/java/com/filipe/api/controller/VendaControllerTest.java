@@ -1,6 +1,7 @@
 package com.filipe.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.filipe.api.domain.usuario.Perfil;
 import com.filipe.api.domain.usuario.Usuario;
 import com.filipe.api.domain.venda.FormaPagamento;
 import com.filipe.api.dto.venda.*;
@@ -9,7 +10,7 @@ import com.filipe.api.service.VendaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,8 +34,7 @@ public class VendaControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private VendaService vendaService;
@@ -42,15 +42,23 @@ public class VendaControllerTest {
     @MockitoBean
     private NotaFiscalService notaFiscalService;
 
+    @MockitoBean
+    private com.filipe.api.domain.usuario.UsuarioRepository usuarioRepository;
+
+    @MockitoBean
+    private com.filipe.api.domain.caixa.CaixaRepository caixaRepository;
+
     private Usuario mockUsuario;
     private UUID vendaId;
 
     @BeforeEach
     void setUp() {
+        Perfil perfilAdmin = Perfil.builder().id(UUID.randomUUID()).nome("ADMIN").build();
         mockUsuario = Usuario.builder()
                 .id(UUID.randomUUID())
                 .email("test@test.com")
                 .nome("Test User")
+                .perfil(perfilAdmin)
                 .build();
         vendaId = UUID.randomUUID();
     }
@@ -58,10 +66,11 @@ public class VendaControllerTest {
     @Test
     public void deveIniciarVendaComSucesso() throws Exception {
         VendaStartRequest request = new VendaStartRequest(UUID.randomUUID(), null);
-        VendaResponse response = VendaResponse.builder()
-                .id(vendaId)
-                .status("EM_ANDAMENTO")
-                .build();
+        VendaResponse response = new VendaResponse(
+                vendaId, null, null, null, null, null,
+                com.filipe.api.domain.venda.StatusVenda.EM_ANDAMENTO,
+                List.of(), List.of(), null, null, null
+        );
 
         when(vendaService.iniciarVenda(any(VendaStartRequest.class), any(Usuario.class))).thenReturn(response);
 
@@ -78,10 +87,10 @@ public class VendaControllerTest {
     @Test
     public void deveAdicionarItemComSucesso() throws Exception {
         ItemVendaRequest request = new ItemVendaRequest(UUID.randomUUID(), new BigDecimal("2.00"), BigDecimal.ZERO);
-        VendaResponse response = VendaResponse.builder()
-                .id(vendaId)
-                .valorTotal(new BigDecimal("40.00"))
-                .build();
+        VendaResponse response = new VendaResponse(
+                vendaId, null, null, null, null, new BigDecimal("40.00"),
+                null, List.of(), List.of(), null, null, null
+        );
 
         when(vendaService.adicionarItem(eq(vendaId), any(ItemVendaRequest.class))).thenReturn(response);
 
@@ -99,10 +108,11 @@ public class VendaControllerTest {
         FinalizarVendaRequest request = new FinalizarVendaRequest(
                 List.of(new PagamentoRequest(FormaPagamento.DINHEIRO, new BigDecimal("40.00"), null, null, null))
         );
-        VendaResponse response = VendaResponse.builder()
-                .id(vendaId)
-                .status("CONFIRMADA")
-                .build();
+        VendaResponse response = new VendaResponse(
+                vendaId, null, null, null, null, null,
+                com.filipe.api.domain.venda.StatusVenda.CONFIRMADA,
+                List.of(), List.of(), null, null, null
+        );
 
         when(vendaService.finalizarVenda(eq(vendaId), any(FinalizarVendaRequest.class))).thenReturn(response);
 

@@ -1,4 +1,5 @@
-import { Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -41,6 +42,7 @@ export class CaixaComponent {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private reportsService = inject(ReportsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('lancamentoDialog') dialogTemplate!: TemplateRef<{
     tipo: 'SANGRIA' | 'SUPRIMENTO';
@@ -171,7 +173,9 @@ export class CaixaComponent {
       data: { tipo },
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async (result) => {
       if (!result) {
         return;
       }
@@ -217,7 +221,9 @@ export class CaixaComponent {
     const caixa = this.caixaAberta();
     if (!caixa) return;
 
-    this.reportsService.exportarPdf(`caixa/balanco/${caixa.id}`, {}).subscribe((blob) => {
+    this.reportsService.exportarPdf(`caixa/balanco/${caixa.id}`, {})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((blob) => {
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
     });

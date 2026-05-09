@@ -1,0 +1,45 @@
+services:
+    db:
+        image: postgres:15-alpine
+        container_name: erp_db
+        env_file:
+            - .env
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: unless-stopped
+        # Porta não exposta — acesso apenas interno via rede Docker
+
+    api:
+        build:
+            context: ./api
+        container_name: erp_api
+        env_file:
+            - .env
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+            - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+            - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+            - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+        depends_on:
+            - db
+        restart: unless-stopped
+        # Porta não exposta — acesso apenas via nginx
+
+    frontend:
+        build:
+            context: ./app
+            dockerfile: Dockerfile
+        container_name: erp_frontend
+        volumes:
+            - ./app/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+            # Certificado autoassinado gerado pelo script scripts/gerar-cert.sh
+            - ./certs:/etc/nginx/certs:ro
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - api
+        restart: unless-stopped
+
+volumes:
+    pgdata:

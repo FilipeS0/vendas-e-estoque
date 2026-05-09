@@ -58,6 +58,8 @@ export const routes: Routes = [
           import('./features/clientes/pages/cliente-list/cliente-list.component').then(
             (m) => m.ClienteListComponent,
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'clientes/:id',
@@ -65,12 +67,23 @@ export const routes: Routes = [
           import('./features/clientes/pages/cliente-details/cliente-details.component').then(
             (m) => m.ClienteDetailsPageComponent,
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'produtos',
         loadComponent: () =>
           import('./features/produtos/pages/produto-list/produto-list.component').then(
             (m) => m.ProdutoListComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
+      },
+      {
+        path: 'produtos/detalhes/:id',
+        loadComponent: () =>
+          import('./features/produtos/pages/produto-details/produto-details.component').then(
+            (m) => m.ProdutoDetailsComponent,
           ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
@@ -110,6 +123,15 @@ export const routes: Routes = [
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
       },
       {
+        path: 'crediario/:id',
+        loadComponent: () =>
+          import('./features/crediario/pages/crediario-page.component').then(
+            (m) => m.CrediarioPageComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
+      },
+      {
         path: 'perfil',
         loadComponent: () =>
           import('./features/perfil/pages/perfil.component').then((m) => m.PerfilComponent),
@@ -144,12 +166,7 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN'] },
       },
-      {
-        path: 'crediario',
-        loadComponent: () => import('./features/crediario/pages/crediario-page.component').then((m) => m.CrediarioPageComponent),
-        canActivate: [roleGuard],
-        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
-      },
+
     ],
   },
 ];

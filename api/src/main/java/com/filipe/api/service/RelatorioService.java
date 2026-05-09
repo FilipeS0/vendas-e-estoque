@@ -4,11 +4,15 @@ import com.filipe.api.domain.caixa.LancamentoCaixa;
 import com.filipe.api.domain.caixa.LancamentoCaixaRepository;
 import com.filipe.api.domain.caixa.TipoLancamentoCaixa;
 import com.filipe.api.domain.estoque.EstoqueAtualRepository;
+import com.filipe.api.domain.estoque.MovimentacaoEstoqueRepository;
+import com.filipe.api.domain.estoque.TipoMovimentacaoEstoque;
 import com.filipe.api.domain.venda.FormaPagamento;
+import com.filipe.api.domain.venda.StatusParcela;
 import com.filipe.api.domain.venda.StatusVenda;
 import com.filipe.api.domain.venda.Venda;
 import com.filipe.api.domain.venda.VendaRepository;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
+import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.mapper.estoque.EstoqueMapper;
 import com.filipe.api.dto.dashboard.DashboardStatsResponse;
 import com.filipe.api.mapper.venda.VendaMapper;
@@ -35,6 +39,7 @@ public class RelatorioService {
 
     private final VendaRepository vendaRepository;
     private final EstoqueAtualRepository estoqueAtualRepository;
+    private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final LancamentoCaixaRepository lancamentoCaixaRepository;
     private final ParcelaCrediarioRepository parcelaCrediarioRepository;
     private final VendaMapper vendaMapper;
@@ -49,6 +54,26 @@ public class RelatorioService {
     public List<EstoqueAtualResponse> relatorioPosicaoEstoque() {
         return estoqueAtualRepository.findAll().stream()
                 .map(estoqueMapper::toEstoqueAtualResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<EstoqueAtualResponse> relatorioEstoqueAbaixoMinimo() {
+        return estoqueAtualRepository.findAbaixoMinimo().stream()
+                .map(estoqueMapper::toEstoqueAtualResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<MovimentacaoEstoqueResponse> relatorioMovimentacoesEstoque(UUID produtoId, String tipoStr, LocalDateTime inicio, LocalDateTime fim) {
+        TipoMovimentacaoEstoque tipo = null;
+        if (tipoStr != null && !tipoStr.isBlank()) {
+            try {
+                tipo = TipoMovimentacaoEstoque.valueOf(tipoStr.trim().toUpperCase());
+            } catch (Exception ignored) {}
+        }
+        return movimentacaoEstoqueRepository.findComFiltros(produtoId, tipo, inicio, fim, org.springframework.data.domain.Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(m -> estoqueMapper.toResponse(m, m.getUsuario()))
                 .collect(Collectors.toList());
     }
 
@@ -80,9 +105,10 @@ public class RelatorioService {
         return response;
     }
 
-    public DashboardStatsResponse getDashboardStats() {
-        LocalDateTime trintaDiasAtras = LocalDateTime.now().minusDays(30);
-        List<Venda> vendasRecentes = vendaRepository.findByDataHoraBetween(trintaDiasAtras, LocalDateTime.now())
+    public DashboardStatsResponse getDashboardStats(Integer dias) {
+        int diasAnalise = (dias != null && dias > 0) ? dias : 30;
+        LocalDateTime periodoAtras = LocalDateTime.now().minusDays(diasAnalise);
+        List<Venda> vendasRecentes = vendaRepository.findByDataHoraBetween(periodoAtras, LocalDateTime.now())
                 .stream()
                 .filter(v -> v.getStatus() == StatusVenda.CONFIRMADA)
                 .toList();
@@ -193,13 +219,17 @@ public class RelatorioService {
                 .collect(Collectors.toList());
     }
 
-    public ContasAReceberResumoResponse relatorioResumoContasAReceber() {
-        Object[] rawResult = parcelaCrediarioRepository.getResumoContasAReceber();
-        if (rawResult == null || rawResult.length == 0) {
+    public ContasAReceberResumoResponse relatorioResumoContasAReceber(LocalDate inicio, LocalDate fim) {
+        Object[] row = parcelaCrediarioRepository.getResumoContasAReceber(
+                StatusParcela.ATRASADO,
+                StatusParcela.PENDENTE,
+                java.util.List.of(StatusParcela.PENDENTE, StatusParcela.ATRASADO, StatusParcela.PAGO_PARCIAL),
+                inicio,
+                fim
+        );
+        if (row == null || row.length == 0) {
             return new ContasAReceberResumoResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         }
-        
-        Object[] row = (Object[]) rawResult[0];
         return new ContasAReceberResumoResponse(
                 row[0] != null ? (BigDecimal) row[0] : BigDecimal.ZERO,
                 row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO,

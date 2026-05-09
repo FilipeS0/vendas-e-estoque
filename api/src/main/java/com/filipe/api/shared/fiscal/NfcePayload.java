@@ -23,6 +23,12 @@ public class NfcePayload {
         private BigDecimal valorUnitario;
         private BigDecimal quantidade;
         private BigDecimal valorTotal;
+        private String csosn;
+        private String cstPisCofins;
+        private BigDecimal aliquotaIcms;
+        private BigDecimal aliquotaPis;
+        private BigDecimal aliquotaCofins;
+        private String origem;
     }
 
     @Data

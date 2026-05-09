@@ -1,0 +1,107 @@
+<div class="page-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-icon class="spin">autorenew</mat-icon>
+      <p>Carregando detalhes do produto...</p>
+    </div>
+  } @else if (produto()) {
+    <mat-card class="glass-card detail-card">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <mat-icon color="primary" style="transform: scale(1.5);">inventory_2</mat-icon>
+        </div>
+        <mat-card-title class="title">{{ produto()?.nome }}</mat-card-title>
+        <mat-card-subtitle>
+          Código de Barras: {{ produto()?.codigoBarras || 'N/A' }} | Categoria: {{ produto()?.categoria?.nome || 'N/A' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-content class="content-grid">
+        <div class="detail-section">
+          <h3>Informações Básicas</h3>
+          <div class="detail-row">
+            <span class="label">ID:</span>
+            <span class="value">{{ produto()?.id }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Nome:</span>
+            <span class="value">{{ produto()?.nome }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Descrição:</span>
+            <span class="value">{{ produto()?.descricao || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Status:</span>
+            <span class="value">
+              <span class="status-badge" [class.active]="produto()?.ativo" [class.inactive]="!produto()?.ativo">
+                {{ produto()?.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Preços</h3>
+          <div class="detail-row">
+            <span class="label">Preço de Custo:</span>
+            <span class="value">{{ produto()?.precoCusto | currency:'BRL' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Preço de Venda:</span>
+            <span class="value">{{ produto()?.precoVenda | currency:'BRL' }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Dados Fiscais</h3>
+          <div class="detail-row">
+            <span class="label">NCM:</span>
+            <span class="value">{{ produto()?.ncm || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">CFOP:</span>
+            <span class="value">{{ produto()?.cfop || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">CSOSN:</span>
+            <span class="value">{{ produto()?.csosn || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">CST PIS/COFINS:</span>
+            <span class="value">{{ produto()?.cstPisCofins || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Origem:</span>
+            <span class="value">{{ produto()?.origem || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Alíquota ICMS:</span>
+            <span class="value">{{ produto()?.aliquotaIcms ? produto()?.aliquotaIcms + '%' : '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Alíquota PIS:</span>
+            <span class="value">{{ produto()?.aliquotaPis ? produto()?.aliquotaPis + '%' : '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Alíquota COFINS:</span>
+            <span class="value">{{ produto()?.aliquotaCofins ? produto()?.aliquotaCofins + '%' : '-' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-actions align="end">
+        <button mat-button (click)="voltar()">
+          <mat-icon>arrow_back</mat-icon> Voltar
+        </button>
+        <button mat-flat-button color="accent" [routerLink]="['/produtos/editar', produto()?.id]">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>
