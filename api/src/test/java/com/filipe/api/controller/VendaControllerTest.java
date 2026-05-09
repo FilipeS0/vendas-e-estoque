@@ -41,6 +41,9 @@ public class VendaControllerTest {
     @MockitoBean
     private NotaFiscalService notaFiscalService;
 
+    @MockitoBean
+    private com.filipe.api.domain.usuario.UsuarioRepository usuarioRepository;
+
     private Usuario mockUsuario;
     private UUID vendaId;
 
