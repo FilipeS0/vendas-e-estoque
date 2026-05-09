@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,6 @@ import { PixService, PixResponse } from '../../../core/services/pix.service';
 import { CurrencyPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-pix-dialog',
@@ -27,7 +26,7 @@ export class PixDialogComponent {
   public data = inject(MAT_DIALOG_DATA);
   private pixService = inject(PixService);
   private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   pixData = signal<PixResponse | null>(null);
   isLoading = signal(true);

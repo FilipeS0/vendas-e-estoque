@@ -24,7 +24,7 @@ export class UsuarioListComponent {
   private usuarioService = inject(UsuarioService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   usuarios = signal<Usuario[]>([]);
   isLoading = signal(false);

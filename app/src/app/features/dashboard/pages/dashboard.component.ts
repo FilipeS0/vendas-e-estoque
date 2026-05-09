@@ -6,19 +6,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ReportsService } from '../../relatorios/services/reports.service';
 import { DashboardStats, VendasPorDia } from '../../../shared/index';
-import { DecimalPipe, CurrencyPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, DecimalPipe, CurrencyPipe, NgxChartsModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, CurrencyPipe, NgxChartsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardPageComponent {
-  public authService = inject(AuthService);
-  public router = inject(Router);
-  private reportsService = inject(ReportsService);
+  public readonly authService = inject(AuthService);
+  public readonly router = inject(Router);
+  private readonly reportsService = inject(ReportsService);
   public stats = signal<DashboardStats | null>(null);
 
   // Computed data for charts

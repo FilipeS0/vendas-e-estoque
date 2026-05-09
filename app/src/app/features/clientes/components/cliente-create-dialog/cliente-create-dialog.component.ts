@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -9,7 +9,6 @@ import { BrasilApiService } from '../../../../core/services/brasil-api.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef } from '@angular/core';
 
 @Component({
   selector: 'app-cliente-create-dialog',
@@ -31,7 +30,7 @@ export class ClienteCreateDialogComponent {
   private dialogRef = inject(MatDialogRef<ClienteCreateDialogComponent>);
   private brasilApi = inject(BrasilApiService);
   private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     nome: ['', Validators.required],

@@ -42,7 +42,7 @@ export class CaixaComponent {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private reportsService = inject(ReportsService);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('lancamentoDialog') dialogTemplate!: TemplateRef<{
     tipo: 'SANGRIA' | 'SUPRIMENTO';
