@@ -23,9 +23,9 @@
 | **Vendas** | ✅ | Itens, Descontos, Múltiplos Pagos, Troco, Cancelamento, Crediário, PIX QR Code. |
 | **Clientes** | ✅ | CRUD, CPF, Limite Crédito, Saldo Devedor, Extrato, BrasilAPI. |
 | **Crediário** | ✅ | Registro Fiado, Parcelas Automáticas, Liquidação, Scheduler Vencimento. |
-| **Fiscal / NFC-e** | ✅ | FocusNfeClient, Certificado A1, Contingência, DANFE 80mm. Campos fiscais dinâmicos, CNPJ do emitente e cancelamento real OK. |
+| **Fiscal / NFC-e** | ✅ | FocusNfeClient (emissão + cancelamento real), Certificado A1, Contingência, DANFE 80mm, campos fiscais dinâmicos, CNPJ dinâmico. |
 | **Relatórios** | ✅ | iText 7 (PDF), Vendas, Estoque, Caixa, Fluxo de Caixa, Dashboard, Rankings, Contas a Receber. |
-| **Fornecedores** | ✅ | CRUD + Paginação + @PreAuthorize + Soft Delete OK. Listagem filtra inativos. |
+| **Fornecedores** | ✅ | CRUD + Paginação + @PreAuthorize + Soft Delete + Filtro inativos + BusinessException. |
 | **Configurações** | ✅ | Dados da empresa, NFC-e, PIX (chave/beneficiário/cidade), Certificado A1 c/ scheduler de vencimento. |
 
 ---
@@ -95,6 +95,41 @@
 | ~~GAP-028~~ | ~~**VendaService: `System.err.println` em vez de logger**~~ | Vendas | `[x]` Substituído por `log.error()` usando Slf4j. |
 
 ---
+
+## 📋 2.2 Third Pass — Status Final
+
+> ✅ **Codebase limpo.** Zero ocorrências de: `FIXME`, `TODO`, `HACK`, `System.err`, `e.printStackTrace()`, `RuntimeException` em services.
+
+### 🟢 Housekeeping
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| GAP-029 | **Arquivos de build log commitados no repositório** | Infra | `app/build_log.txt`, `app/build_log_2.txt`, `app/build_log_3.txt` — Arquivos temporários de debug que não deveriam estar no Git. Adicionar ao `.gitignore` e remover do tracking. |
+
+---
+
+## 🗺️ 5. Roadmap — Fase 3 (Expansão) & Fase 4 (Futuro)
+
+> Itens da especificação técnica §13 ainda não implementados.
+
+### Fase 3 — Expansão (Previsto)
+
+| ID | Descrição | Status | Detalhes |
+|:---|:----------|:------:|:--------|
+| ROAD-001 | Suporte a múltiplos caixas | ❌ | Arquitetura já preparada (`Caixa` vinculado a `Venda`). Falta UI para gerenciar N caixas simultâneos. |
+| ROAD-002 | Integração PIX automático (gateway) | ❌ | PIX estático (QR Code copia e cola) implementado. Falta integração com gateway para confirmação automática via webhooks. |
+| ROAD-003 | Ordens de compra a fornecedores | ❌ | CRUD de fornecedores completo. Falta módulo de pedidos de compra com fluxo (rascunho → aprovado → recebido → estoque). |
+| ROAD-004 | Integração com balança (Toledo/Filizola) | ❌ | Campo `UnidadeMedida` (KG, UN) já existe no produto. Falta integração serial/USB com protocolo de balança. |
+| ROAD-005 | App mobile para consulta de estoque | ❌ | API REST já disponível. Falta app mobile (Flutter/React Native). |
+
+### Fase 4 — Futuro
+
+| ID | Descrição | Status |
+|:---|:----------|:------:|
+| ROAD-006 | E-commerce integrado | ❌ |
+| ROAD-007 | NF-e de entrada (nota de compra) | ❌ |
+| ROAD-008 | Módulo de funcionários e comissões | ❌ |
+| ROAD-009 | Integração com contabilidade | ❌ |
 
 ## 🚀 3. Plano de Execução — Tarefas Concluídas (Arquivo)
 
