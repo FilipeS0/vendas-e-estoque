@@ -11,6 +11,7 @@ import com.filipe.api.domain.caixa.TipoLancamentoCaixa;
 import com.filipe.api.service.CaixaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -37,33 +38,37 @@ public class CaixaController {
     private final CaixaService caixaService;
 
     @PostMapping("/abrir")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<CaixaResponse> abrir(
             @RequestBody @Valid AbrirCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         CaixaResponse response = caixaService.abrirCaixa(request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<List<CaixaResponse>> listar(
             @RequestParam(required = false) StatusCaixa status,
             @RequestParam(required = false) LocalDateTime dataInicio,
             @RequestParam(required = false) LocalDateTime dataFim,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.ok(caixaService.listarCaixas(usuario, status, dataInicio, dataFim));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<CaixaResponse> buscar(@PathVariable UUID id, Authentication authentication) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.ok(caixaService.buscarCaixa(id, usuario));
     }
 
     @GetMapping("/{id}/lancamentos")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<Page<LancamentoCaixaResponse>> listarLancamentos(
             @PathVariable UUID id,
             @RequestParam(required = false) TipoLancamentoCaixa tipo,
@@ -72,61 +77,66 @@ public class CaixaController {
             @PageableDefault(size = 30, sort = "dataHora") Pageable pageable,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.ok(caixaService.listarLancamentos(id, usuario, tipo, dataInicio, dataFim, pageable));
     }
 
     @PostMapping("/{id}/lancamentos/entrada")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<LancamentoCaixaResponse> registrarEntradaManual(
             @PathVariable UUID id,
             @RequestBody @Valid LancamentoManualCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         LancamentoCaixaResponse response = caixaService.registrarEntradaManual(id, request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/{id}/lancamentos/saida")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<LancamentoCaixaResponse> registrarSaidaManual(
             @PathVariable UUID id,
             @RequestBody @Valid LancamentoManualCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         LancamentoCaixaResponse response = caixaService.registrarSaidaManual(id, request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/{id}/suprimento")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<LancamentoCaixaResponse> suprimento(
             @PathVariable UUID id,
             @RequestBody @Valid LancamentoManualCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(caixaService.registrarEntradaManual(id, request, usuario));
     }
 
     @PostMapping("/{id}/sangria")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<LancamentoCaixaResponse> sangria(
             @PathVariable UUID id,
             @RequestBody @Valid LancamentoManualCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(caixaService.registrarSaidaManual(id, request, usuario));
     }
 
     @PostMapping("/{id}/fechar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<CaixaResponse> fechar(
             @PathVariable UUID id,
             @RequestBody @Valid FecharCaixaRequest request,
             Authentication authentication
     ) {
-        Usuario usuario = authentication != null ? (Usuario) authentication.getPrincipal() : null;
+        Usuario usuario = (Usuario) authentication.getPrincipal();
         CaixaResponse response = caixaService.fecharCaixa(id, request, usuario);
         return ResponseEntity.ok(response);
     }

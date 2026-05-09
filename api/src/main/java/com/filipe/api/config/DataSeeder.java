@@ -9,12 +9,15 @@ import com.filipe.api.domain.usuario.PerfilRepository;
 import com.filipe.api.domain.usuario.Usuario;
 import com.filipe.api.domain.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Profile("!prod")
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
@@ -23,6 +26,9 @@ public class DataSeeder implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${ADMIN_PASSWORD:admin123}")
+    private String adminPassword;
 
     @Override
     @Transactional
@@ -44,7 +50,7 @@ public class DataSeeder implements CommandLineRunner {
                 usuarioRepository.save(Usuario.builder()
                         .nome("Administrador")
                         .email("admin@erp.com")
-                        .senhaHash(passwordEncoder.encode("admin123"))
+                        .senhaHash(passwordEncoder.encode(adminPassword))
                         .perfil(adminPerfil)
                         .build());
             }

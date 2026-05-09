@@ -1,6 +1,7 @@
 package com.filipe.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.filipe.api.domain.usuario.Perfil;
 import com.filipe.api.domain.usuario.Usuario;
 import com.filipe.api.dto.caixa.*;
 import com.filipe.api.service.CaixaService;
@@ -42,10 +43,12 @@ public class CaixaControllerTest {
 
     @BeforeEach
     void setUp() {
+        Perfil perfilAdmin = Perfil.builder().id(UUID.randomUUID()).nome("ADMIN").build();
         mockUsuario = Usuario.builder()
                 .id(UUID.randomUUID())
                 .email("test@test.com")
                 .nome("Test User")
+                .perfil(perfilAdmin)
                 .build();
     }
 
