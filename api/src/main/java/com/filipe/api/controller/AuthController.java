@@ -7,6 +7,8 @@ import com.filipe.api.dto.auth.LoginResponse;
 import com.filipe.api.dto.auth.RefreshTokenRequest;
 import com.filipe.api.dto.auth.UpdateSenhaRequest;
 import com.filipe.api.domain.usuario.UsuarioRepository;
+import com.filipe.api.dto.usuario.UsuarioResponse;
+import com.filipe.api.mapper.usuario.UsuarioMapper;
 import com.filipe.api.security.TokenService;
 import com.filipe.api.shared.config.RateLimiterConfig;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,7 @@ public class AuthController {
     private final RateLimiterConfig rateLimiterConfig;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioMapper usuarioMapper;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
@@ -70,9 +73,9 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Usuario> getMe(Authentication authentication) {
+    public ResponseEntity<UsuarioResponse> getMe(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(usuarioMapper.toResponse(usuario));
     }
 
     @PutMapping("/senha")

@@ -58,6 +58,8 @@ export const routes: Routes = [
           import('./features/clientes/pages/cliente-list/cliente-list.component').then(
             (m) => m.ClienteListComponent,
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'clientes/:id',
@@ -65,6 +67,8 @@ export const routes: Routes = [
           import('./features/clientes/pages/cliente-details/cliente-details.component').then(
             (m) => m.ClienteDetailsPageComponent,
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
         path: 'produtos',
@@ -114,6 +118,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/crediario/pages/crediario-list.component').then(
             (m) => m.CrediarioListComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
+      },
+      {
+        path: 'crediario/:id',
+        loadComponent: () =>
+          import('./features/crediario/pages/crediario-page.component').then(
+            (m) => m.CrediarioPageComponent,
           ),
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE', 'ROLE_OPERADOR'] },
