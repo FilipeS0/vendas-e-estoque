@@ -1,88 +1,85 @@
-# Modern Retail ERP System
+# Sistema ERP de Venda e Estoque Moderno
 
-A robust, full-stack Enterprise Resource Planning (ERP) system designed specifically for retail operations and Point of Sale (POS) integrations. This project is built using Domain-Driven Design (DDD) principles and leverages a modern technology stack to deliver a secure, performant, and reactive user experience.
+Um sistema completo de Gestão de Vendas e Estoque (ERP) projetado especificamente para operações de varejo e integração com PDV (Ponto de Venda). Este projeto utiliza os princípios de Domain-Driven Design (DDD) e uma stack tecnológica moderna para oferecer uma experiência de usuário segura, performática e reativa.
 
-## 🚀 Technology Stack
+## 🚀 Stack Tecnológica
 
 ### Backend
-- **Java 21**
-- **Spring Boot 4.0+**
-- **Spring Security** (Stateless JWT Authentication)
-- **Spring Data JPA** (Hibernate)
-- **PostgreSQL 15**
-- **Flyway** (Database Migrations)
-- **Lombok**
+- **Java 21 & Spring Boot 4.x**: Alta performance e produtividade.
+- **Spring Security & OAuth2**: Autenticação stateless baseada em JWT.
+- **Spring Data JPA & PostgreSQL 16**: Persistência robusta com migrações via Flyway.
+- **AES-GCM Crypto**: Criptografia avançada para dados sensíveis.
+- **Rate Limiting (Bucket4j)**: Proteção contra ataques de força bruta.
 
 ### Frontend
-- **Angular 21+** (Standalone Components, modern `@if` / `@for` control flow)
-- **Angular Material** (Premium, reactive UI components)
-- **RxJS** (State management, debouncing)
+- **Angular 21**: Uso intensivo de Standalone Components e Signals.
+- **Angular Material**: Interface premium e componentes reativos.
+- **Ngx-Charts**: Visualização de métricas e performance em tempo real.
+- **RxJS**: Gerenciamento de estado e fluxos assíncronos.
 
-### Infrastructure
-- **Docker & Docker Compose** (Multi-stage builds, isolated environments)
-
----
-
-## 🌟 Key Features
-
-- **Robust Security**: Stateless JWT-based authentication with Spring Security. Protected API endpoints and Angular Route Guards.
-- **Product Management**: 
-  - Complete CRUD lifecycle for Products.
-  - Strict validations (EAN/Barcode uniqueness, NCM formatting, positive pricing).
-  - Native Backend Pagination using Spring's `Pageable`.
-  - Frontend filtering with RxJS Debouncing for high-performance searches.
-  - **Soft Deletes**: Products are inactivated instead of dropped from the database to preserve historical sales records.
-- **Automated Provisioning**: Built-in `DataSeeder` automatically injects default categories, suppliers, and an Admin user on startup.
-- **Open Source Ready**: Sensitive credentials are automatically excluded via `.gitignore` and `.env` configuration. Dummy fallback keys are used to prevent accidental credential leaks.
+### Infraestrutura
+- **Docker & Docker Compose**: Build multi-estágio e isolamento total.
+- **CI/CD**: Pipelines configurados para validação de qualidade e build.
 
 ---
 
-## 🛠️ Getting Started
+## 🌟 Funcionalidades Principais
 
-Follow these steps to run the application locally for development or testing.
+- **Segurança Avançada**: Autenticação JWT com Spring Security, filtros de segurança e RBAC (ADMIN, GERENTE, OPERADOR).
+- **PDV (Ponto de Venda)**: Interface de venda rápida com busca dinâmica, integração com PIX dinâmico e emissão de comprovantes.
+- **Gestão de Produtos e Estoque**: 
+  - Ciclo de vida completo (CRUD) com validações rigorosas (EAN, NCM).
+  - Suporte a imagens de produtos com validação de MIME type.
+  - Paginação nativa e filtros otimizados com RxJS.
+  - **Inativação Lógica (Soft Delete)**: Preserva histórico de vendas inativando registros.
+- **Gestão Financeira e Crediário**: Controle total de parcelas, liquidação e balanços de caixa.
+- **Relatórios**: Geração de PDFs profissionais para vendas, orçamentos e balanços de estoque.
+- **Provisionamento Automático**: `DataSeeder` injeta usuários, categorias e fornecedores padrão no primeiro acesso.
 
-### 1. Prerequisites
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
-- Node.js (v18+) & npm
-- JDK 21+ (Optional, for running outside of Docker)
+---
 
-### 2. Environment Configuration
-Create a `.env` file in the root directory based on the following template.
+## 🛠️ Como Iniciar
 
-### 3. Run the Backend & Database (via Docker)
-Start the PostgreSQL database and the Spring Boot API using Docker Compose:
+### 1. Pré-requisitos
+- [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/install/)
+- Node.js (v20+) e npm
+- JDK 21+
 
+### 2. Configuração de Ambiente
+Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`.
+
+### 3. Executar o Backend e Banco de Dados (via Docker)
 ```bash
 docker compose up --build
 ```
-The backend API will be available at `http://localhost:8080`.
-*Note: Flyway migrations and the Data Seeder will run automatically on startup.*
+A API estará disponível em `http://localhost:8080`.
 
-### 4. Run the Frontend
-Open a new terminal, navigate to the `app` directory, and start the Angular development server:
-
+### 4. Executar o Frontend
 ```bash
 cd app
 npm install
 npm run start
 ```
-The frontend application will be available at `http://localhost:4200`.
+O frontend estará disponível em `http://localhost:4200`.
 
 ---
 
-## 🔐 Default Credentials
+## 🔐 Credenciais Padrão (Admin)
 
-Because the application uses an automated `DataSeeder`, you can log into the system immediately using the following Admin credentials:
+Após o provisionamento automático, você pode acessar o sistema com:
 
-- **Email:** `admin@erp.com`
-- **Password:** `admin123`
+- **E-mail:** `admin@erp.com`
+- **Senha:** `admin123`
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contribuição
 
-This project is open-source! Feel free to submit Pull Requests to add new features, improve the UI, or fix bugs. Ensure that you do not commit any sensitive `.env` files or hardcode real passwords into the codebase.
+Este é um projeto de código aberto! Sinta-se à vontade para enviar Pull Requests, sugerir melhorias na UI ou reportar bugs.
 
-## 📝 License
+## 📝 Licença
 
-This project is licensed under the MIT License.
+Este projeto está licenciado sob a MIT License.
+
+---
+Desenvolvido por Filipe S.
