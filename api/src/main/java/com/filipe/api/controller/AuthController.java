@@ -5,6 +5,8 @@ import com.filipe.api.dto.auth.AccessTokenResponse;
 import com.filipe.api.dto.auth.LoginRequest;
 import com.filipe.api.dto.auth.LoginResponse;
 import com.filipe.api.dto.auth.RefreshTokenRequest;
+import com.filipe.api.dto.auth.UpdateSenhaRequest;
+import com.filipe.api.domain.usuario.UsuarioRepository;
 import com.filipe.api.security.TokenService;
 import com.filipe.api.shared.config.RateLimiterConfig;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +30,8 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final RateLimiterConfig rateLimiterConfig;
+    private final PasswordEncoder passwordEncoder;
+    private final UsuarioRepository usuarioRepository;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
@@ -68,6 +73,20 @@ public class AuthController {
     public ResponseEntity<Usuario> getMe(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/senha")
+    public ResponseEntity<Void> updateSenha(@RequestBody @Valid UpdateSenhaRequest request, Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+
+        if (!passwordEncoder.matches(request.senhaAtual(), usuario.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Senha atual incorreta");
+        }
+
+        usuario.setSenhaHash(passwordEncoder.encode(request.novaSenha()));
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.noContent().build();
     }
 
     private String resolveClientIp(HttpServletRequest request) {

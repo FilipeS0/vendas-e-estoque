@@ -57,12 +57,24 @@ export class PerfilComponent {
       this.form.markAllAsTouched();
       return;
     }
-    const { novaSenha, confirmacao } = this.form.value;
+    const { senhaAtual, novaSenha, confirmacao } = this.form.value;
     if (novaSenha !== confirmacao) {
       this.snackBar.open('As senhas não coincidem.', 'OK', { duration: 3000 });
       return;
     }
-    // TODO: chamar endpoint PUT /api/v1/auth/senha quando disponível no backend
-    this.snackBar.open('Funcionalidade de troca de senha em breve.', 'OK', { duration: 3000 });
+
+    this.isSaving.set(true);
+    this.authService.updateSenha({ senhaAtual, novaSenha }).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.snackBar.open('Senha alterada com sucesso!', 'OK', { duration: 3000 });
+        this.form.reset();
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        const msg = err.error?.message || 'Erro ao alterar senha. Verifique a senha atual.';
+        this.snackBar.open(msg, 'OK', { duration: 3000 });
+      },
+    });
   }
 }

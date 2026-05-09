@@ -76,4 +76,8 @@ export class AuthService {
     if (!user || !user.authorities) return false;
     return user.authorities.some((a) => a.authority === role);
   }
+
+  updateSenha(payload: any): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/senha`, payload);
+  }
 }

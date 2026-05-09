@@ -214,9 +214,6 @@ public class RelatorioController {
     ) {
         List<VendaFormaPagamentoResponse> data = relatorioService.relatorioVendasPorFormaPagamento(inicio, fim);
         String period = inicio.toString() + " a " + fim.toString();
-        // FIXME: Use a specific PDF method if needed, otherwise generic
-        // For now, I'll add a method to PdfReportGenerator or use a generic one if I had it.
-        // Let's add it to PdfReportGenerator.
         byte[] pdf = pdfReportGenerator.gerarRelatorioVendasPorFormaPagamento(data, period);
 
         return ResponseEntity.ok()
