@@ -104,7 +104,7 @@
 
 | ID | Descrição | Módulo | Detalhes |
 |:---|:----------|:------:|:--------|
-| GAP-029 | **Arquivos de build log commitados no repositório** | Infra | `app/build_log.txt`, `app/build_log_2.txt`, `app/build_log_3.txt` — Arquivos temporários de debug que não deveriam estar no Git. Adicionar ao `.gitignore` e remover do tracking. |
+| ~~GAP-029~~ | ~~**Arquivos de build log commitados no repositório**~~ | Infra | `[x]` Removidos do Git e adicionados ao `.gitignore`. |
 
 ---
 

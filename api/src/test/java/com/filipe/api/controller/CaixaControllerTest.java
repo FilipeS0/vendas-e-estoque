@@ -35,6 +35,9 @@ public class CaixaControllerTest {
     @MockitoBean
     private CaixaService caixaService;
 
+    @MockitoBean
+    private com.filipe.api.domain.usuario.UsuarioRepository usuarioRepository;
+
     private Usuario mockUsuario;
 
     @BeforeEach
