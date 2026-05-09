@@ -30,7 +30,7 @@ public class FocusNfeClient implements SefazClient {
     private static final String URL_PRODUCAO = "https://api.focusnfe.com.br/v2/nfce";
 
     @Override
-    public NfceResponse emitirNfce(NfcePayload payload, String token, String ambiente) {
+    public NfceResponse emitirNfce(NfcePayload payload, String token, String ambiente, String cnpjEmitente) {
         String url = "PRODUCAO".equalsIgnoreCase(ambiente) ? URL_PRODUCAO : URL_HOMOLOGACAO;
         
         try {
@@ -39,7 +39,7 @@ public class FocusNfeClient implements SefazClient {
                 "data_emissao", java.time.OffsetDateTime.now().toString(),
                 "tipo_operacao", 1, // Saída
                 "presenca_comprador", 1, // Operação presencial
-                "cnpj_emitente", "FIXME", // Deveria vir da config
+                "cnpj_emitente", cnpjEmitente != null ? cnpjEmitente.replaceAll("\\D", "") : "",
                 "nome_destinatario", payload.getNomeDestinatario() != null ? payload.getNomeDestinatario() : "",
                 "cpf_destinatario", payload.getCpfDestinatario() != null ? payload.getCpfDestinatario() : "",
                 "items", payload.getItems().stream().map(item -> Map.<String, Object>ofEntries(
@@ -52,11 +52,11 @@ public class FocusNfeClient implements SefazClient {
                     Map.entry("quantidade_comercial", item.getQuantidade()),
                     Map.entry("valor_unitario_comercial", item.getValorUnitario()),
                     Map.entry("valor_bruto", item.getValorTotal()),
-                    Map.entry("icms_situacao_tributaria", "102"), // Simples Nacional
-                    Map.entry("icms_origem", 0)
+                    Map.entry("icms_situacao_tributaria", item.getCsosn() != null ? item.getCsosn().replaceAll("\\D", "") : "102"),
+                    Map.entry("icms_origem", item.getOrigem() != null ? item.getOrigem() : "0")
                 )).toList(),
                 "formas_pagamento", payload.getPagamentos().stream().map(p -> Map.of(
-                    "forma_pagamento", "99", // Outros (ou mapear correto)
+                    "forma_pagamento", mapFormaPagamento(p.getFormaPagamento()),
                     "valor_pagamento", p.getValor()
                 )).toList()
             );
@@ -109,8 +109,36 @@ public class FocusNfeClient implements SefazClient {
     }
 
     @Override
-    public void cancelarNfce(String chaveAcesso, String motivo, String token, String ambiente) {
-        // Implementação similar usando DELETE ou POST /cancelar
-        log.warn("Cancelamento real via Focus NF-e não implementado no esqueleto.");
+    public void cancelarNfce(String chaveAcesso, String motivo, String token, String ambiente, String cnpjEmitente) {
+        String url = "PRODUCAO".equalsIgnoreCase(ambiente) ? URL_PRODUCAO : URL_HOMOLOGACAO;
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url + "/" + chaveAcesso + "?justificativa=" + java.net.URLEncoder.encode(motivo, java.nio.charset.StandardCharsets.UTF_8)))
+                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((token + ":").getBytes()))
+                    .DELETE()
+                    .build();
+
+            log.info("Canceling NFC-e via Focus NF-e: {}", chaveAcesso);
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400 && response.statusCode() != 422) {
+                throw new BusinessException("Erro no cancelamento com Focus NF-e: HTTP " + response.statusCode());
+            }
+        } catch (Exception e) {
+            log.error("Failed to cancel NFC-e via Focus NF-e", e);
+            throw new BusinessException("Falha no cancelamento da NFC-e: " + e.getMessage());
+        }
+    }
+
+    private String mapFormaPagamento(String forma) {
+        if (forma == null) return "99";
+        return switch (forma.toUpperCase()) {
+            case "DINHEIRO" -> "01";
+            case "CARTAO_CREDITO" -> "03";
+            case "CARTAO_DEBITO" -> "04";
+            case "PIX" -> "17";
+            case "CREDIARIO" -> "05"; // Crédito Loja
+            default -> "99";
+        };
     }
 }

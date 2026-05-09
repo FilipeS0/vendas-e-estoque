@@ -68,7 +68,7 @@ public class PdfReportGenerator {
         }
     }
 
-    public byte[] gerarDanfeNfce(NotaFiscal nota) {
+    public byte[] gerarDanfeNfce(NotaFiscal nota, String empresaNome) {
         // Formato para impressora térmica 80mm
         PageSize pageSize = new PageSize(226, 842); // Aproximadamente 80mm de largura
         
@@ -83,7 +83,7 @@ public class PdfReportGenerator {
                     .setBold()
                     .setFontSize(10));
             
-            document.add(new Paragraph("Empresa Exemplo LTDA") // FIXME: Pegar da Configuracao
+            document.add(new Paragraph(empresaNome != null ? empresaNome : "Empresa não identificada")
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontSize(8));
             

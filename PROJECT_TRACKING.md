@@ -16,17 +16,17 @@
 | Módulo | Status | Principais Tecnologias / Detalhes |
 |:-------|:------:|:----------------------------------|
 | **Infra & DevOps** | ✅ | Spring Boot 4, Java 21, Angular 21, Docker, HTTPS + Deploy Real. |
-| **Segurança** | ⚠️ | JWT, Refresh Token, BCrypt, Auditoria persistida, Certificado A1 AES-256. Rate-limiter definido mas só atua em tentativas *falhadas* de login. |
-| **Produtos** | ✅ | CRUD, Soft Delete, Fiscais, Imagem (FS), Histórico Preços, UnidadeMedida. |
-| **Estoque** | ✅ | Movimentação, Baixa automática, Inventário, Alerta mínimo. |
-| **Caixa / PDV** | ✅ | Abertura/Fechamento, Sangria/Suprimento, Fluxo consolidado. |
-| **Vendas** | ✅ | Itens, Descontos, Múltiplos Pagos, Troco, Cancelamento, Crediário. |
-| **Clientes** | ✅ | CRUD, CPF, Limite Crédito, Saldo Devedor, Extrato. |
+| **Segurança** | ✅ | JWT, Refresh Token, BCrypt, Auditoria persistida, Certificado A1 AES-256. Rate-limiter pré-autenticação. |
+| **Produtos** | ✅ | CRUD, Soft Delete, Fiscais, Imagem (FS), Histórico Preços, UnidadeMedida, Tela de Detalhes. |
+| **Estoque** | ✅ | Movimentação, Baixa automática, Inventário, Alerta mínimo, Relatórios PDF. |
+| **Caixa / PDV** | ✅ | Abertura/Fechamento, Sangria/Suprimento, Fluxo consolidado, Vendas Turno Atual. |
+| **Vendas** | ✅ | Itens, Descontos, Múltiplos Pagos, Troco, Cancelamento, Crediário, PIX QR Code. |
+| **Clientes** | ✅ | CRUD, CPF, Limite Crédito, Saldo Devedor, Extrato, BrasilAPI. |
 | **Crediário** | ✅ | Registro Fiado, Parcelas Automáticas, Liquidação, Scheduler Vencimento. |
-| **Fiscal / NFC-e** | ⚠️ | FocusNfeClient, Certificado A1, Contingência, DANFE 80mm. NCM/CFOP hardcoded na emissão real. |
-| **Relatórios** | ⚠️ | iText 7 (PDF), Vendas, Estoque, Caixa, Fluxo de Caixa, Dashboard. Faltam alguns relatórios da spec. |
-| **Fornecedores** | ⚠️ | CRUD básico funcional, mas sem paginação, segurança (@PreAuthorize) e validação (@Valid). |
-| **Configurações** | ⚠️ | Dados da empresa, NFC-e, PIX. Faltam campos PIX no formulário frontend. |
+| **Fiscal / NFC-e** | ✅ | FocusNfeClient (emissão + cancelamento real), Certificado A1, Contingência, DANFE 80mm, campos fiscais dinâmicos, CNPJ dinâmico. |
+| **Relatórios** | ✅ | iText 7 (PDF), Vendas, Estoque, Caixa, Fluxo de Caixa, Dashboard, Rankings, Contas a Receber. |
+| **Fornecedores** | ✅ | CRUD + Paginação + @PreAuthorize + Soft Delete + Filtro inativos + BusinessException. |
+| **Configurações** | ✅ | Dados da empresa, NFC-e, PIX (chave/beneficiário/cidade), Certificado A1 c/ scheduler de vencimento. |
 
 ---
 
@@ -69,6 +69,67 @@
 | ~~GAP-021~~ | ~~**NfcePayload não inclui todos os campos tributários**~~ | Fiscal | `[x]` Resolvido junto com GAP-001 e mapeado os campos fiscais dinâmicos |
 
 ---
+
+## 📋 2.1 Second Pass — Novos Gaps Encontrados
+
+### 🔴 Alta Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-022~~ | ~~**FocusNfeClient: CNPJ do emitente hardcoded como "FIXME"**~~ | Fiscal | `[x]` Agora lê dinamicamente de `Configuracao.cnpj`. |
+| ~~GAP-023~~ | ~~**DANFE: Nome da empresa hardcoded "Empresa Exemplo LTDA"**~~ | Relatórios | `[x]` `PdfReportGenerator` agora recebe `empresaNome` da configuração. |
+| ~~GAP-024~~ | ~~**FocusNfeClient: cancelarNfce() não implementado**~~ | Fiscal | `[x]` Implementado envio de DELETE para API da FocusNFe com justificativa. |
+
+### 🟡 Média Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-025~~ | ~~**FornecedorService.listar() retorna fornecedores inativos**~~ | Fornecedores | `[x]` Alterado para `findByAtivoTrue(pageable)`. |
+| ~~GAP-026~~ | ~~**FornecedorService usa `RuntimeException` em vez de `BusinessException`**~~ | Fornecedores | `[x]` Padronizado para `BusinessException` (HTTP 422). |
+| ~~GAP-027~~ | ~~**FocusNfeClient: ICMS e forma de pagamento hardcoded**~~ | Fiscal | `[x]` Mapeamento dinâmico de CSOSN, Origem e códigos de pagamento SEFAZ. |
+
+### 🟢 Baixa Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-028~~ | ~~**VendaService: `System.err.println` em vez de logger**~~ | Vendas | `[x]` Substituído por `log.error()` usando Slf4j. |
+
+---
+
+## 📋 2.2 Third Pass — Status Final
+
+> ✅ **Codebase limpo.** Zero ocorrências de: `FIXME`, `TODO`, `HACK`, `System.err`, `e.printStackTrace()`, `RuntimeException` em services.
+
+### 🟢 Housekeeping
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| GAP-029 | **Arquivos de build log commitados no repositório** | Infra | `app/build_log.txt`, `app/build_log_2.txt`, `app/build_log_3.txt` — Arquivos temporários de debug que não deveriam estar no Git. Adicionar ao `.gitignore` e remover do tracking. |
+
+---
+
+## 🗺️ 5. Roadmap — Fase 3 (Expansão) & Fase 4 (Futuro)
+
+> Itens da especificação técnica §13 ainda não implementados.
+
+### Fase 3 — Expansão (Previsto)
+
+| ID | Descrição | Status | Detalhes |
+|:---|:----------|:------:|:--------|
+| ROAD-001 | Suporte a múltiplos caixas | ❌ | Arquitetura já preparada (`Caixa` vinculado a `Venda`). Falta UI para gerenciar N caixas simultâneos. |
+| ROAD-002 | Integração PIX automático (gateway) | ❌ | PIX estático (QR Code copia e cola) implementado. Falta integração com gateway para confirmação automática via webhooks. |
+| ROAD-003 | Ordens de compra a fornecedores | ❌ | CRUD de fornecedores completo. Falta módulo de pedidos de compra com fluxo (rascunho → aprovado → recebido → estoque). |
+| ROAD-004 | Integração com balança (Toledo/Filizola) | ❌ | Campo `UnidadeMedida` (KG, UN) já existe no produto. Falta integração serial/USB com protocolo de balança. |
+| ROAD-005 | App mobile para consulta de estoque | ❌ | API REST já disponível. Falta app mobile (Flutter/React Native). |
+
+### Fase 4 — Futuro
+
+| ID | Descrição | Status |
+|:---|:----------|:------:|
+| ROAD-006 | E-commerce integrado | ❌ |
+| ROAD-007 | NF-e de entrada (nota de compra) | ❌ |
+| ROAD-008 | Módulo de funcionários e comissões | ❌ |
+| ROAD-009 | Integração com contabilidade | ❌ |
 
 ## 🚀 3. Plano de Execução — Tarefas Concluídas (Arquivo)
 

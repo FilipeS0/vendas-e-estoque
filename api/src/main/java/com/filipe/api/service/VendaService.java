@@ -31,6 +31,7 @@ import com.filipe.api.exception.BusinessException;
 import com.filipe.api.mapper.venda.VendaMapper;
 import com.filipe.api.shared.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VendaService {
 
     private final VendaRepository vendaRepository;
@@ -294,7 +296,7 @@ public class VendaService {
             notaFiscalService.emitirNotaFiscal(venda.getId());
         } catch (Exception e) {
             // Log but don't fail the sale finalization
-            System.err.println("Erro ao gerar nota fiscal automatica: " + e.getMessage());
+            log.error("Erro ao gerar nota fiscal automatica para venda {}: {}", venda.getId(), e.getMessage());
         }
 
         return vendaMapper.toResponse(venda);
