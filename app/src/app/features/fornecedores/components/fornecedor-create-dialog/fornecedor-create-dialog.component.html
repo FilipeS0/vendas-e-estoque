@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>Novo fornecedor</h2>
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-row-cnpj">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>CNPJ</mat-label>
+        <input matInput formControlName="cnpj" maxlength="18" placeholder="00.000.000/0000-00" (input)="formatCnpj($event)" (blur)="consultarCnpj()" />
+        @if (isLoadingCnpj()) {
+          <mat-spinner matSuffix [diameter]="18"></mat-spinner>
+        } @else {
+          <button mat-icon-button matSuffix (click)="consultarCnpj()" type="button" [disabled]="form.get('cnpj')?.invalid">
+            <mat-icon>search</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nome / Razão Social</mat-label>
+      <input matInput formControlName="nome" />
+      @if (form.controls.nome.invalid && form.controls.nome.touched) {
+        <mat-error>O nome é obrigatório.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Telefone</mat-label>
+        <input matInput formControlName="telefone" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row-cep">
+      <mat-form-field appearance="outline">
+        <mat-label>CEP</mat-label>
+        <input matInput formControlName="cep" maxlength="9" placeholder="00000-000" (blur)="consultarCep()" />
+        @if (isLoadingCep()) {
+          <mat-spinner matSuffix [diameter]="18"></mat-spinner>
+        } @else {
+          <button mat-icon-button matSuffix (click)="consultarCep()" type="button" [disabled]="form.get('cep')?.invalid">
+            <mat-icon>search</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Logradouro</mat-label>
+      <input matInput formControlName="logradouro" />
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Número</mat-label>
+        <input matInput formControlName="numero" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Bairro</mat-label>
+        <input matInput formControlName="bairro" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Cidade</mat-label>
+        <input matInput formControlName="cidade" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 80px">
+        <mat-label>UF</mat-label>
+        <input matInput formControlName="uf" maxlength="2" />
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || isSaving">
+    Criar fornecedor
+  </button>
+</mat-dialog-actions>

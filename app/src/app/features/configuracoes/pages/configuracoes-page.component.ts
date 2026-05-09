@@ -47,7 +47,10 @@ export class ConfiguracoesPageComponent {
     numeroSequencialNfce: [1, [Validators.required, Validators.min(1)]],
     impressoraTermicaIp: [''],
     impressoraTermicaPorta: [9100],
-    alertaEstoqueMinimoGlobal: [5, [Validators.required, Validators.min(0)]]
+    alertaEstoqueMinimoGlobal: [5, [Validators.required, Validators.min(0)]],
+    pixChave: [''],
+    pixBeneficiario: [''],
+    pixCidade: ['']
   });
 
   certificadoForm = this.fb.group({

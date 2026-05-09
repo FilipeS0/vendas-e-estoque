@@ -18,6 +18,8 @@ import { ClienteService } from '../../clientes/services/cliente.service';
 import { CaixaService } from '../../caixa/services/caixa.service';
 import { VendaService, PagamentoRequest, VendaRequest } from '../services/venda.service';
 import { ClienteSummary, Caixa } from '../../../shared/index';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PixDialogComponent } from '../../../shared/components/pix-dialog/pix-dialog.component';
 
 interface CarrinhoItem {
   produtoId: string; nome: string; quantidade: number; precoUnitario: number; valorTotal: number;
@@ -27,7 +29,7 @@ interface CarrinhoItem {
   selector: 'app-pos',
   imports: [ReactiveFormsModule, MatTableModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, MatDividerModule,
-    MatProgressSpinnerModule, CurrencyPipe],
+    MatProgressSpinnerModule, MatDialogModule, CurrencyPipe],
   templateUrl: './pos.component.html',
   styleUrls: ['./pos.component.css'],
 })
@@ -38,6 +40,7 @@ export class PosPageComponent {
   private vendaService = inject(VendaService);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   produtosBuscados = signal<ProdutoResponse[]>([]);
@@ -114,10 +117,30 @@ export class PosPageComponent {
   addPagamento() {
     if (this.paymentForm.invalid) { this.paymentForm.markAllAsTouched(); return; }
     const raw = this.paymentForm.getRawValue();
+    const formaPagamento = (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'];
+    const valor = Number(raw.valor) || 0;
+
+    if (formaPagamento === 'PIX') {
+      const dialogRef = this.dialog.open(PixDialogComponent, {
+        width: '400px',
+        data: { valor: valor }
+      });
+
+      dialogRef.afterClosed().subscribe(confirmed => {
+        if (confirmed) {
+          this.executeAddPagamento(formaPagamento, valor, raw.numeroParcelas);
+        }
+      });
+    } else {
+      this.executeAddPagamento(formaPagamento, valor, raw.numeroParcelas);
+    }
+  }
+
+  private executeAddPagamento(formaPagamento: any, valor: number, numeroParcelas: any) {
     this.pagamentos.update((items) => [...items, { 
-      formaPagamento: (raw.formaPagamento ?? 'DINHEIRO') as PagamentoRequest['formaPagamento'], 
-      valor: Number(raw.valor) || 0,
-      numeroParcelas: raw.formaPagamento === 'CREDIARIO' ? Number(raw.numeroParcelas) : undefined
+      formaPagamento, 
+      valor,
+      numeroParcelas: formaPagamento === 'CREDIARIO' ? Number(numeroParcelas) : undefined
     }]);
     this.paymentForm.reset({ formaPagamento: 'DINHEIRO', valor: null, numeroParcelas: 1 });
   }

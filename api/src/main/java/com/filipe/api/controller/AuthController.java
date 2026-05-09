@@ -32,6 +32,12 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
         String clientIp = resolveClientIp(httpRequest);
 
+        var bucket = rateLimiterConfig.resolveBucket(clientIp);
+        if (!bucket.tryConsume(1)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Muitas tentativas. Aguarde antes de tentar novamente.");
+        }
+
         try {
             var authToken = new UsernamePasswordAuthenticationToken(request.email(), request.password());
             Authentication authentication = authenticationManager.authenticate(authToken);
@@ -42,11 +48,6 @@ public class AuthController {
 
             return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
         } catch (AuthenticationException ex) {
-            var bucket = rateLimiterConfig.resolveBucket(clientIp);
-            if (!bucket.tryConsume(1)) {
-                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
-                        "Muitas tentativas. Aguarde antes de tentar novamente.");
-            }
             throw ex;
         }
     }

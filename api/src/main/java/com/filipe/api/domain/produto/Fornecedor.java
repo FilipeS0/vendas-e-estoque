@@ -32,6 +32,14 @@ public class Fornecedor {
     @Column(length = 100)
     private String email;
 
+    private String cep;
+    private String logradouro;
+    private String numero;
+    private String bairro;
+    private String cidade;
+    private String uf;
+    private String complemento;
+
     @Builder.Default
     private Boolean ativo = true;
 

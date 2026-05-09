@@ -31,9 +31,18 @@
         <mat-card-title>Vendas por Dia</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (salesChartData()) {
+        @if (salesChartData().length > 0) {
           <div class="chart-container">
-            <app-chart type="line" [data]="salesChartData()"></app-chart>
+            <ngx-charts-area-chart
+              [scheme]="colorScheme"
+              [results]="salesChartData()"
+              [xAxis]="true"
+              [yAxis]="true"
+              [legend]="false"
+              [showXAxisLabel]="false"
+              [showYAxisLabel]="false"
+              [autoScale]="true">
+            </ngx-charts-area-chart>
           </div>
         }
       </mat-card-content>
@@ -44,9 +53,15 @@
         <mat-card-title>Formas de Pagamento</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (paymentsChartData()) {
+        @if (paymentsChartData().length > 0) {
           <div class="chart-container">
-            <app-chart type="doughnut" [data]="paymentsChartData()"></app-chart>
+            <ngx-charts-pie-chart
+              [scheme]="colorScheme"
+              [results]="paymentsChartData()"
+              [legend]="true"
+              [labels]="true"
+              [doughnut]="true">
+            </ngx-charts-pie-chart>
           </div>
         }
       </mat-card-content>

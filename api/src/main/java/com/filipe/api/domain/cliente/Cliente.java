@@ -3,6 +3,7 @@ package com.filipe.api.domain.cliente;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,7 +32,13 @@ public class Cliente {
 
     private String telefone;
 
-    private String endereco;
+    private String cep;
+    private String logradouro;
+    private String numero;
+    private String bairro;
+    private String cidade;
+    private String uf;
+    private String complemento;
 
     @Builder.Default
     @Column(name = "limite_credito", precision = 15, scale = 2)
@@ -48,4 +55,8 @@ public class Cliente {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

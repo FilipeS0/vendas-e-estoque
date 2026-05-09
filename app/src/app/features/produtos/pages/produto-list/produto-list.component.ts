@@ -12,7 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ProdutoService, ProdutoResponse } from '../../services/produto.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-produto-list',
@@ -27,6 +27,7 @@ import { Router } from '@angular/router';
     MatSnackBarModule,
     ReactiveFormsModule,
     CurrencyPipe,
+    RouterModule,
   ],
   templateUrl: './produto-list.component.html',
   styleUrls: ['./produto-list.component.css'],

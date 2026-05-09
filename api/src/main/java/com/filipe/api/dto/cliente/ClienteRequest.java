@@ -7,5 +7,11 @@ public record ClienteRequest(
     String cpf,
     String email,
     String telefone,
-    String endereco
+    String cep,
+    String logradouro,
+    String numero,
+    String bairro,
+    String cidade,
+    String uf,
+    String complemento
 ) {}

@@ -15,11 +15,15 @@ public interface ParcelaCrediarioRepository extends JpaRepository<ParcelaCrediar
            SELECT p FROM ParcelaCrediario p
            WHERE (:clienteId IS NULL OR p.crediario.cliente.id = :clienteId)
            AND   (:status    IS NULL OR p.status = :status)
+           AND   (cast(:inicio as date) IS NULL OR p.dataVencimento >= :inicio)
+           AND   (cast(:fim as date) IS NULL OR p.dataVencimento <= :fim)
            ORDER BY p.dataVencimento ASC
            """)
     Page<ParcelaCrediario> findComFiltros(
             @Param("clienteId") UUID clienteId,
             @Param("status")    StatusParcela status,
+            @Param("inicio")    java.time.LocalDate inicio,
+            @Param("fim")       java.time.LocalDate fim,
             Pageable pageable);
 
     @Modifying
@@ -35,8 +39,12 @@ public interface ParcelaCrediarioRepository extends JpaRepository<ParcelaCrediar
              SUM(p.valor - p.valorPago)
            FROM ParcelaCrediario p
            WHERE p.status IN :statuses
+           AND (cast(:inicio as date) IS NULL OR p.dataVencimento >= :inicio)
+           AND (cast(:fim as date) IS NULL OR p.dataVencimento <= :fim)
            """)
     Object[] getResumoContasAReceber(@Param("vencida") StatusParcela vencida,
                                      @Param("pendente") StatusParcela pendente,
-                                     @Param("statuses") java.util.List<StatusParcela> statuses);
+                                     @Param("statuses") java.util.List<StatusParcela> statuses,
+                                     @Param("inicio") java.time.LocalDate inicio,
+                                     @Param("fim") java.time.LocalDate fim);
 }

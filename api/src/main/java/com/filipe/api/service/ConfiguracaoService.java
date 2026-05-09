@@ -66,6 +66,9 @@ public class ConfiguracaoService {
             configuracao.setImpressoraTermicaIp(request.impressoraTermicaIp());
             configuracao.setImpressoraTermicaPorta(request.impressoraTermicaPorta());
             configuracao.setAlertaEstoqueMinimoGlobal(request.alertaEstoqueMinimoGlobal());
+            configuracao.setPixChave(request.pixChave());
+            configuracao.setPixBeneficiario(request.pixBeneficiario());
+            configuracao.setPixCidade(request.pixCidade());
         }
         
         return configuracaoMapper.toResponse(configuracaoRepository.save(configuracao));

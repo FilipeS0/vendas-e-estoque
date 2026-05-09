@@ -76,6 +76,15 @@ export const routes: Routes = [
         data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
       },
       {
+        path: 'produtos/detalhes/:id',
+        loadComponent: () =>
+          import('./features/produtos/pages/produto-details/produto-details.component').then(
+            (m) => m.ProdutoDetailsComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
+      },
+      {
         path: 'produtos/novo',
         loadComponent: () =>
           import('./features/produtos/pages/produto-create/produto-create.component').then(
@@ -144,12 +153,7 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['ROLE_ADMIN'] },
       },
-      {
-        path: 'crediario',
-        loadComponent: () => import('./features/crediario/pages/crediario-page.component').then((m) => m.CrediarioPageComponent),
-        canActivate: [roleGuard],
-        data: { roles: ['ROLE_ADMIN', 'ROLE_GERENTE'] },
-      },
+
     ],
   },
 ];

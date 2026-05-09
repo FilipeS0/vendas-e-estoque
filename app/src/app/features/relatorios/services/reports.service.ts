@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { DashboardStats, ProdutoRankingItem, VendaFormaPagItem, VendaPeriodoItem } from '../../../shared/index';
 
@@ -25,8 +25,12 @@ export class ReportsService {
   /**
    * Fetch dashboard statistics
    */
-  async getDashboardStats(): Promise<DashboardStats> {
-    return firstValueFrom(this.http.get<DashboardStats>(`${this.apiUrl}/dashboard/stats`));
+  async getDashboardStats(dias?: number): Promise<DashboardStats> {
+    let params = new HttpParams();
+    if (dias) {
+      params = params.set('dias', dias.toString());
+    }
+    return firstValueFrom(this.http.get<DashboardStats>(`${this.apiUrl}/dashboard/stats`, { params }));
   }
 
   getVendasPorPeriodo(inicio: string, fim: string): Observable<VendaPeriodoItem[]> {

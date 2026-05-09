@@ -19,6 +19,7 @@ import com.filipe.api.domain.fiscal.NotaFiscal;
 import com.filipe.api.dto.relatorio.*;
 import com.filipe.api.dto.venda.VendaResponse;
 import com.filipe.api.dto.estoque.EstoqueAtualResponse;
+import com.filipe.api.dto.estoque.MovimentacaoEstoqueResponse;
 import com.filipe.api.domain.venda.FormaPagamento;
 import org.springframework.stereotype.Component;
 
@@ -209,6 +210,39 @@ public class PdfReportGenerator {
             return out.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF de Estoque", e);
+        }
+    }
+
+    public byte[] gerarRelatorioMovimentacaoEstoque(List<MovimentacaoEstoqueResponse> data, String period) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            document.add(new Paragraph("Relatório de Movimentação de Estoque").setFontSize(18).setBold());
+            document.add(new Paragraph("Período/Filtros: " + period));
+            document.add(new Paragraph("\n"));
+
+            Table table = new Table(UnitValue.createPercentArray(new float[]{3, 4, 2, 2, 3})).useAllAvailableWidth();
+            table.addHeaderCell("Data/Hora");
+            table.addHeaderCell("Produto");
+            table.addHeaderCell("Tipo");
+            table.addHeaderCell("Quantidade");
+            table.addHeaderCell("Motivo");
+
+            for (MovimentacaoEstoqueResponse m : data) {
+                table.addCell(m.dataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                table.addCell(m.produtoNome());
+                table.addCell(m.tipo());
+                table.addCell(m.quantidade().toString());
+                table.addCell(m.motivo() != null ? m.motivo() : "");
+            }
+
+            document.add(table);
+            document.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar PDF de Movimentação de Estoque", e);
         }
     }
 

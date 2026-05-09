@@ -50,6 +50,10 @@ export interface Produto {
   aliquotaIcms?: number;
   aliquotaPis?: number;
   aliquotaCofins?: number;
+  csosn?: string;
+  cstPisCofins?: string;
+  origem?: string;
+  categoria?: Categoria;
   ativo?: boolean;
   criadoEm?: string;
 }
