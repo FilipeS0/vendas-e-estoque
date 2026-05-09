@@ -1,0 +1,57 @@
+
+> app@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                        |  Raw size | Estimated transfer size
+chunk-SH4J3ZBP.js   | -                            | 299.30 kB |                82.23 kB
+styles-QLUTBOY5.css | styles                       | 113.83 kB |                 8.78 kB
+chunk-DZDDDF6P.js   | -                            |  83.48 kB |                20.71 kB
+main-FECMKJFG.js    | main                         |  78.24 kB |                20.85 kB
+chunk-QOY2IE47.js   | -                            |  45.97 kB |                10.65 kB
+chunk-4WTMQHNG.js   | -                            |  39.61 kB |                 8.19 kB
+chunk-R3RHKOTR.js   | -                            |  36.06 kB |                 4.38 kB
+chunk-7KDQASTR.js   | -                            |  28.33 kB |                 4.43 kB
+chunk-2AZV3G4J.js   | -                            |  15.34 kB |                 4.18 kB
+chunk-WPUSOEII.js   | -                            |   9.72 kB |                 2.30 kB
+chunk-2KR6BGYB.js   | -                            |   5.69 kB |                 1.53 kB
+chunk-6KZJ7GXO.js   | -                            |   5.58 kB |                 1.71 kB
+chunk-34WP7WHI.js   | -                            |   4.71 kB |                 1.02 kB
+chunk-MLMGL4QO.js   | -                            |   3.91 kB |                 1.03 kB
+chunk-RWYNYIPQ.js   | -                            |   2.81 kB |               865 bytes
+chunk-ECC24HHO.js   | -                            |   1.54 kB |               570 bytes
+chunk-EKNSNW3R.js   | -                            |   1.49 kB |               538 bytes
+chunk-ZCIQI5RJ.js   | -                            |   1.24 kB |               567 bytes
+
+                    | Initial total                | 776.86 kB |               174.52 kB
+
+Lazy chunk files    | Names                        |  Raw size | Estimated transfer size
+chunk-QZ3WHUSF.js   | dashboard-component          | 205.46 kB |                50.12 kB
+chunk-AL3VRPZB.js   | relatorios-component         | 150.46 kB |                28.11 kB
+chunk-H23JF2G3.js   | -                            |  60.81 kB |                 9.81 kB
+chunk-7OZM47GM.js   | -                            |  40.61 kB |                 8.60 kB
+chunk-H7MO5JCI.js   | produto-create-component     |  33.91 kB |                 9.42 kB
+chunk-R7A2NJSF.js   | -                            |  29.76 kB |                 6.97 kB
+chunk-6K5UH64X.js   | -                            |  29.64 kB |                 4.90 kB
+chunk-R3XNTN33.js   | -                            |  27.00 kB |                 7.08 kB
+chunk-MUYIM6WX.js   | pos-component                |  19.53 kB |                 5.74 kB
+chunk-D26ZS3J5.js   | -                            |  17.67 kB |                 4.75 kB
+chunk-HRULS62T.js   | cliente-list-component       |  13.32 kB |                 4.00 kB
+chunk-TQUMQVSN.js   | -                            |  13.29 kB |                 3.41 kB
+chunk-5UDCBKFV.js   | caixa-component              |  12.49 kB |                 3.63 kB
+chunk-U6QYYIET.js   | configuracoes-page-component |  11.70 kB |                 3.72 kB
+chunk-5ETMAJMH.js   | fornecedor-list-component    |  11.58 kB |                 3.48 kB
+...and 19 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [33.943 seconds] - 2026-05-09T14:32:00.284Z
+
+▲ [WARNING] NG8113: DecimalPipe is not used within the template of DashboardPageComponent [plugin angular-compiler]
+
+    src/app/features/dashboard/pages/dashboard.component.ts:14:59:
+      14 │ ...tonModule, MatIconModule, DecimalPipe, CurrencyPipe, NgxChartsM...
+         ╵                              ~~~~~~~~~~~
+
+
+Output location: /home/filipe/Documents/erp/app/dist/app
+

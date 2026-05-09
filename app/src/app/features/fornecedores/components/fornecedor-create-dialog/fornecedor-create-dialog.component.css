@@ -1,0 +1,21 @@
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row mat-form-field {
+  flex: 1;
+}
+
+.form-row-cep, .form-row-cnpj {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.dialog-content {
+  padding-top: 20px;
+}

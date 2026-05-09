@@ -117,7 +117,18 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>NCM</mat-label>
-            <input matInput formControlName="ncm" maxlength="8">
+            <input matInput formControlName="ncm" maxlength="8" [matAutocomplete]="autoNcm">
+            <mat-autocomplete #autoNcm="matAutocomplete" (optionSelected)="onNcmSelected($event)" [displayWith]="displayNcm">
+              @for (ncm of ncms(); track ncm.codigo) {
+                <mat-option [value]="ncm">
+                  <span class="ncm-code">{{ ncm.codigo }}</span> - 
+                  <small class="ncm-desc">{{ ncm.descricao }}</small>
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (produtoForm.get('ncm')?.hasError('required')) {
+              <mat-error>Obrigatório</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">

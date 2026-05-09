@@ -70,6 +70,8 @@ export class CrediarioListComponent {
 
   clienteSearch = new FormControl('');
   statusFilter = new FormControl<StatusParcela | ''>('');
+  startDate = new FormControl('');
+  endDate = new FormControl('');
 
   liquidarForm = this.fb.group({
     valorPago: [null as number | null, [Validators.required, Validators.min(0.01)]],
@@ -110,11 +112,23 @@ export class CrediarioListComponent {
       this.currentPage.set(0);
       this.loadParcelas();
     });
+
+    this.startDate.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.currentPage.set(0);
+      this.loadParcelas();
+    });
+
+    this.endDate.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.currentPage.set(0);
+      this.loadParcelas();
+    });
   }
 
   loadParcelas() {
     this.isLoading.set(true);
     const status = this.statusFilter.value || undefined;
+    const inicio = this.startDate.value || undefined;
+    const fim = this.endDate.value || undefined;
 
     this.crediarioService
       .getParcelas(
@@ -122,6 +136,8 @@ export class CrediarioListComponent {
         status as StatusParcela | undefined,
         this.currentPage(),
         this.pageSize(),
+        inicio,
+        fim
       )
       .subscribe({
         next: (res) => {
@@ -206,7 +222,11 @@ export class CrediarioListComponent {
   }
 
   exportPdf() {
-    this.reportsService.exportarPdf('contas-a-receber/resumo', {}).subscribe((blob) => {
+    const params = {
+      dataInicio: this.startDate.value,
+      dataFim: this.endDate.value
+    };
+    this.reportsService.exportarPdf('contas-a-receber/resumo', params).subscribe((blob) => {
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
     });

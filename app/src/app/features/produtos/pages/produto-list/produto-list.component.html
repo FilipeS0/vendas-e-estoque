@@ -75,6 +75,14 @@
             <button
               mat-icon-button
               color="primary"
+              [routerLink]="['/produtos/detalhes', element.id]"
+              matTooltip="Ver Detalhes"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="primary"
               (click)="editProduto(element.id)"
               matTooltip="Editar Produto"
             >

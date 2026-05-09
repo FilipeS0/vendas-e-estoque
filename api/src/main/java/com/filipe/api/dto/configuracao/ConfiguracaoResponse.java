@@ -15,5 +15,8 @@ public record ConfiguracaoResponse(
     Long numeroSequencialNfce,
     String impressoraTermicaIp,
     Integer impressoraTermicaPorta,
-    Integer alertaEstoqueMinimoGlobal
+    Integer alertaEstoqueMinimoGlobal,
+    String pixChave,
+    String pixBeneficiario,
+    String pixCidade
 ) {}

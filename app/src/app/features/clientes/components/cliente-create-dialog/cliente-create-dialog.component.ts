@@ -5,6 +5,10 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { BrasilApiService } from '../../../../core/services/brasil-api.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-cliente-create-dialog',
@@ -15,6 +19,9 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    CommonModule,
   ],
   templateUrl: './cliente-create-dialog.component.html',
   styleUrls: ['./cliente-create-dialog.component.css'],
@@ -22,15 +29,25 @@ import { MatInputModule } from '@angular/material/input';
 export class ClienteCreateDialogComponent {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<ClienteCreateDialogComponent>);
+  private brasilApi = inject(BrasilApiService);
+  private snackBar = inject(MatSnackBar);
 
   form = this.fb.group({
     nome: ['', Validators.required],
     cpf: [''],
     telefone: [''],
+    cep: ['', [Validators.minLength(8), Validators.maxLength(9)]],
+    logradouro: [''],
+    numero: [''],
+    bairro: [''],
+    cidade: [''],
+    uf: ['', [Validators.minLength(2), Validators.maxLength(2)]],
+    complemento: [''],
     limiteCredito: [0, [Validators.required, Validators.min(0)]],
   });
 
   isSaving = signal(false);
+  isLoadingCep = signal(false);
 
   submit() {
     if (this.form.invalid) {
@@ -55,5 +72,28 @@ export class ClienteCreateDialogComponent {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     input.value = formatted;
     this.form.controls.cpf.setValue(formatted, { emitEvent: false });
+  }
+
+  consultarCep() {
+    const cep = this.form.get('cep')?.value?.replace(/\D/g, '');
+    if (!cep || cep.length !== 8) return;
+
+    this.isLoadingCep.set(true);
+    this.brasilApi.consultarCep(cep).subscribe({
+      next: (res) => {
+        this.form.patchValue({
+          logradouro: res.street,
+          bairro: res.neighborhood,
+          cidade: res.city,
+          uf: res.state,
+        });
+        this.isLoadingCep.set(false);
+        this.snackBar.open('CEP encontrado!', 'OK', { duration: 2000 });
+      },
+      error: () => {
+        this.isLoadingCep.set(false);
+        this.snackBar.open('CEP não encontrado.', 'OK', { duration: 3000 });
+      },
+    });
   }
 }

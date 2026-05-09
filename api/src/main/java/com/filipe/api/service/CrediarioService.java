@@ -38,8 +38,8 @@ public class CrediarioService {
     private final CaixaService caixaService;
 
     @Transactional(readOnly = true)
-    public Page<ParcelaResponse> listarParcelas(UUID clienteId, StatusParcela status, Pageable pageable) {
-        return parcelaRepository.findComFiltros(clienteId, status, pageable)
+    public Page<ParcelaResponse> listarParcelas(UUID clienteId, StatusParcela status, LocalDate inicio, LocalDate fim, Pageable pageable) {
+        return parcelaRepository.findComFiltros(clienteId, status, inicio, fim, pageable)
                 .map(this::toParcelaResponse);
     }
 

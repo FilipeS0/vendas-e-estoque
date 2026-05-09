@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Pagamento via PIX</h2>
+<mat-dialog-content class="dialog-content">
+  <div class="pix-container">
+    <p class="valor">Valor: <strong>{{ data.valor | currency: 'BRL' }}</strong></p>
+
+    @if (isLoading()) {
+      <div class="loading-wrap">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Gerando QR Code...</p>
+      </div>
+    } @else if (pixData()) {
+      <div class="qr-code-wrap">
+        <img [src]="'data:image/png;base64,' + pixData()?.qrCode" alt="QR Code PIX" />
+      </div>
+      
+      <div class="copy-paste-wrap">
+        <p class="hint">Ou use o "Copia e Cola":</p>
+        <div class="payload-box">
+          <code>{{ pixData()?.payload }}</code>
+        </div>
+        <button mat-stroked-button color="primary" (click)="copyPayload()" class="full-width">
+          <mat-icon>content_copy</mat-icon> Copiar Código
+        </button>
+      </div>
+
+      <div class="info-alert">
+        <mat-icon>info</mat-icon>
+        <span>Após o pagamento ser confirmado pelo cliente, clique em "Confirmar Pagamento".</span>
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="isLoading() || !pixData()">
+    Confirmar Pagamento
+  </button>
+</mat-dialog-actions>

@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/v1/crediarios")
@@ -26,8 +28,10 @@ public class CrediarioController {
     public ResponseEntity<Page<ParcelaResponse>> listarParcelas(
             @RequestParam(required = false) UUID clienteId,
             @RequestParam(required = false) StatusParcela status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
             Pageable pageable) {
-        return ResponseEntity.ok(crediarioService.listarParcelas(clienteId, status, pageable));
+        return ResponseEntity.ok(crediarioService.listarParcelas(clienteId, status, dataInicio, dataFim, pageable));
     }
 
     @PostMapping("/parcelas/{id}/liquidar")

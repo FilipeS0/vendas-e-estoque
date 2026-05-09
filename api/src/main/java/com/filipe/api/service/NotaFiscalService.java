@@ -106,11 +106,17 @@ public class NotaFiscalService {
                 .items(venda.getItens().stream().map(item -> NfcePayload.Item.builder()
                         .codigo(item.getProduto().getCodigoBarras())
                         .descricao(item.getProduto().getNome())
-                        .ncm("00000000") // Mapear corretamente no futuro
-                        .cfop("5102")    // Mapear corretamente no futuro
+                        .ncm(item.getProduto().getNcm())
+                        .cfop(item.getProduto().getCfop())
                         .quantidade(item.getQuantidade())
                         .valorUnitario(item.getPrecoUnitario())
                         .valorTotal(item.getValorTotal())
+                        .csosn(item.getProduto().getCsosn() != null ? item.getProduto().getCsosn().name() : null)
+                        .cstPisCofins(item.getProduto().getCstPisCofins() != null ? item.getProduto().getCstPisCofins().name() : null)
+                        .aliquotaIcms(item.getProduto().getAliquotaIcms())
+                        .aliquotaPis(item.getProduto().getAliquotaPis())
+                        .aliquotaCofins(item.getProduto().getAliquotaCofins())
+                        .origem(item.getProduto().getOrigem() != null ? String.valueOf(item.getProduto().getOrigem().ordinal()) : "0")
                         .build()).toList())
                 .pagamentos(venda.getPagamentos().stream().map(p -> NfcePayload.Pagamento.builder()
                         .formaPagamento(p.getFormaPagamento().name())
@@ -155,6 +161,10 @@ public class NotaFiscalService {
     @Transactional
     public void cancelarNotaFiscal(UUID vendaId, String motivo) {
         notaFiscalRepository.findByVendaId(vendaId).ifPresent(notaFiscal -> {
+            if (notaFiscal.getDataEmissao().plusMinutes(30).isBefore(LocalDateTime.now())) {
+                throw new BusinessException("O prazo legal de 30 minutos para cancelamento expirou.");
+            }
+
             Configuracao config = configuracaoRepository.findAll().stream().findFirst().orElse(null);
             
             if (config != null && config.getApiTokenFiscal() != null && !config.getApiTokenFiscal().isBlank()) {

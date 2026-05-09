@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface CaixaRepository extends JpaRepository<Caixa, UUID> {
     Optional<Caixa> findByIdAndStatus(UUID id, StatusCaixa status);
+    Optional<Caixa> findByOperadorIdAndStatus(UUID operadorId, StatusCaixa status);
     boolean existsByOperadorIdAndStatus(UUID operadorId, StatusCaixa status);
     List<Caixa> findByOperadorId(UUID operadorId);
 

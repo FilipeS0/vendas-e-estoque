@@ -14,7 +14,13 @@ public class ClienteMapper {
                 .cpf(request.cpf())
                 .email(request.email())
                 .telefone(request.telefone())
-                .endereco(request.endereco())
+                .cep(request.cep())
+                .logradouro(request.logradouro())
+                .numero(request.numero())
+                .bairro(request.bairro())
+                .cidade(request.cidade())
+                .uf(request.uf())
+                .complemento(request.complemento())
                 .ativo(true)
                 .build();
     }
@@ -24,7 +30,13 @@ public class ClienteMapper {
         cliente.setCpf(request.cpf());
         cliente.setEmail(request.email());
         cliente.setTelefone(request.telefone());
-        cliente.setEndereco(request.endereco());
+        cliente.setCep(request.cep());
+        cliente.setLogradouro(request.logradouro());
+        cliente.setNumero(request.numero());
+        cliente.setBairro(request.bairro());
+        cliente.setCidade(request.cidade());
+        cliente.setUf(request.uf());
+        cliente.setComplemento(request.complemento());
     }
 
     public ClienteResponse toResponse(Cliente cliente) {
@@ -34,7 +46,13 @@ public class ClienteMapper {
                 cliente.getCpf(),
                 cliente.getEmail(),
                 cliente.getTelefone(),
-                cliente.getEndereco(),
+                cliente.getCep(),
+                cliente.getLogradouro(),
+                cliente.getNumero(),
+                cliente.getBairro(),
+                cliente.getCidade(),
+                cliente.getUf(),
+                cliente.getComplemento(),
                 cliente.getLimiteCredito(),
                 cliente.getSaldoDevedor(),
                 cliente.getAtivo(),

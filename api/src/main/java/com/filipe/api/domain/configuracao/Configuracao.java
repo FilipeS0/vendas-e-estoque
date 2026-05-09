@@ -42,6 +42,11 @@ public class Configuracao {
     private Integer impressoraTermicaPorta;
     private Integer alertaEstoqueMinimoGlobal;
     
+    // PIX
+    private String pixChave;
+    private String pixBeneficiario;
+    private String pixCidade;
+    
     // Certificado Digital A1
     @Column(name = "certificado_path")
     private String certificadoPath;

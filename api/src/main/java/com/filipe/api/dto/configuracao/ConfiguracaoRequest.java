@@ -15,5 +15,8 @@ public record ConfiguracaoRequest(
     @NotNull Long numeroSequencialNfce,
     String impressoraTermicaIp,
     Integer impressoraTermicaPorta,
-    @NotNull Integer alertaEstoqueMinimoGlobal
+    @NotNull Integer alertaEstoqueMinimoGlobal,
+    String pixChave,
+    String pixBeneficiario,
+    String pixCidade
 ) {}

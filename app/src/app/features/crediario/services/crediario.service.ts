@@ -32,6 +32,8 @@ export class CrediarioService {
     status?: StatusParcela,
     page = 0,
     size = 50,
+    dataInicio?: string,
+    dataFim?: string
   ): Observable<PageResponse<ParcelaResponse>> {
     let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
 
@@ -40,6 +42,12 @@ export class CrediarioService {
     }
     if (status) {
       params = params.set('status', status);
+    }
+    if (dataInicio) {
+      params = params.set('dataInicio', dataInicio);
+    }
+    if (dataFim) {
+      params = params.set('dataFim', dataFim);
     }
 
     return this.http.get<PageResponse<ParcelaResponse>>(`${this.apiUrl}/parcelas`, { params });

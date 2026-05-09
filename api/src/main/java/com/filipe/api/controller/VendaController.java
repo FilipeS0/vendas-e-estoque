@@ -5,6 +5,9 @@ import com.filipe.api.domain.venda.StatusVenda;
 import com.filipe.api.dto.fiscal.NotaFiscalResponse;
 import com.filipe.api.dto.venda.AplicarDescontoVendaRequest;
 import com.filipe.api.dto.venda.CancelarVendaRequest;
+import com.filipe.api.domain.caixa.Caixa;
+import com.filipe.api.domain.caixa.StatusCaixa;
+import com.filipe.api.domain.caixa.CaixaRepository;
 import com.filipe.api.dto.venda.FinalizarVendaRequest;
 import com.filipe.api.dto.venda.ItemVendaRequest;
 import com.filipe.api.dto.venda.VendaResponse;
@@ -35,6 +38,7 @@ public class VendaController {
 
     private final VendaService vendaService;
     private final NotaFiscalService notaFiscalService;
+    private final CaixaRepository caixaRepository;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
@@ -47,6 +51,19 @@ public class VendaController {
             @PageableDefault(size = 20, sort = "dataHora") Pageable pageable
     ) {
         return ResponseEntity.ok(vendaService.listarVendas(status, dataInicio, dataFim, numero, caixaId, pageable));
+    }
+
+    @GetMapping("/turno-atual")
+    @PreAuthorize("hasAnyRole('OPERADOR','GERENTE','ADMIN')")
+    public ResponseEntity<Page<VendaResponse>> listarTurnoAtual(
+            Authentication authentication,
+            @PageableDefault(size = 50, sort = "dataHora", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+    ) {
+        Usuario operador = (Usuario) authentication.getPrincipal();
+        Caixa caixaAberto = caixaRepository.findByOperadorIdAndStatus(operador.getId(), StatusCaixa.ABERTO)
+                .orElseThrow(() -> new com.filipe.api.exception.BusinessException("Nenhum caixa aberto para este operador no turno atual."));
+        
+        return ResponseEntity.ok(vendaService.listarVendas(null, null, null, null, caixaAberto.getId(), pageable));
     }
 
     @GetMapping("/{id}")

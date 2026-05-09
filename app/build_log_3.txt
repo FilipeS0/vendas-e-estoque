@@ -1,0 +1,28 @@
+
+> app@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Application bundle generation failed. [33.434 seconds] - 2026-05-09T14:35:32.136Z
+
+▲ [WARNING] NG8113: DecimalPipe is not used within the template of DashboardPageComponent [plugin angular-compiler]
+
+    src/app/features/dashboard/pages/dashboard.component.ts:14:59:
+      14 │ ...tonModule, MatIconModule, DecimalPipe, CurrencyPipe, NgxChartsM...
+         ╵                              ~~~~~~~~~~~
+
+
+✘ [ERROR] NG8002: Can't bind to 'routerLink' since it isn't a known property of 'button'. [plugin angular-compiler]
+
+    src/app/features/produtos/pages/produto-list/produto-list.component.html:78:14:
+      78 │               [routerLink]="['/produtos/detalhes', element.id]"
+         ╵               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component ProdutoListComponent.
+
+    src/app/features/produtos/pages/produto-list/produto-list.component.ts:31:15:
+      31 │   templateUrl: './produto-list.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
