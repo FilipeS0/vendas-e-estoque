@@ -78,7 +78,9 @@ export class PosPageComponent {
   }
 
   private loadClientes() {
-    this.clienteService.getClientes().subscribe({
+    this.clienteService.getClientes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => this.clientes.set(res.content.map((c) => ({ id: c.id, nome: c.nome }))),
       error: () => this.clientes.set([])
     });
@@ -93,7 +95,9 @@ export class PosPageComponent {
   }
 
   private loadProdutos(nome: string) {
-    this.produtoService.getProdutos(nome || undefined, 0, 20).subscribe({
+    this.produtoService.getProdutos(nome || undefined, 0, 20)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => this.produtosBuscados.set(res.content), error: () => this.produtosBuscados.set([]),
     });
   }
@@ -126,7 +130,9 @@ export class PosPageComponent {
         data: { valor: valor }
       });
 
-      dialogRef.afterClosed().subscribe(confirmed => {
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(confirmed => {
         if (confirmed) {
           this.executeAddPagamento(formaPagamento, valor, raw.numeroParcelas);
         }
@@ -155,7 +161,9 @@ export class PosPageComponent {
       itens: this.carrinho().map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade })),
       pagamentos: this.pagamentos(), valorDesconto: this.desconto() > 0 ? this.desconto() : undefined };
     this.isLoading.set(true);
-    this.vendaService.criarVenda(request).subscribe({
+    this.vendaService.criarVenda(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.snackBar.open(`Venda #${res.numero} registrada!`, 'OK', { duration: 4000 });
         this.carrinho.set([]); this.pagamentos.set([]); this.clienteSelecionado.set(null);

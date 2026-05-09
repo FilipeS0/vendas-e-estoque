@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +24,7 @@ export class UsuarioListComponent {
   private usuarioService = inject(UsuarioService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   usuarios = signal<Usuario[]>([]);
   isLoading = signal(false);
@@ -34,7 +36,9 @@ export class UsuarioListComponent {
 
   carregar() {
     this.isLoading.set(true);
-    this.usuarioService.getUsuarios(0, 50).subscribe({
+    this.usuarioService.getUsuarios(0, 50)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.usuarios.set(res.content);
         this.isLoading.set(false);
@@ -52,14 +56,18 @@ export class UsuarioListComponent {
       data: usuario
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
       if (result) this.carregar();
     });
   }
 
   inativar(usuario: Usuario) {
     if (confirm(`Deseja realmente inativar o usuário ${usuario.nome}?`)) {
-      this.usuarioService.inativarUsuario(usuario.id).subscribe({
+      this.usuarioService.inativarUsuario(usuario.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.snackBar.open('Usuário inativado com sucesso!', 'OK', { duration: 3000 });
           this.carregar();

@@ -46,6 +46,9 @@ public class SecurityConfig {
     @Value("${api.security.token.secret}")
     private String jwtSecret;
 
+    @Value("${api.security.cors.allowed-origins:*}")
+    private String allowedOrigins;
+
     private final UsuarioRepository usuarioRepository;
 
     @Bean
@@ -67,7 +70,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); 
+        
+        if (allowedOrigins.equals("*")) {
+            configuration.addAllowedOriginPattern("*");
+        } else {
+            for (String origin : allowedOrigins.split(",")) {
+                configuration.addAllowedOrigin(origin.trim());
+            }
+        }
+
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

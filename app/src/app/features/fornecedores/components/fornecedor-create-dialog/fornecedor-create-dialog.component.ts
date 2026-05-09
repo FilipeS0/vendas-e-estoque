@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BrasilApiService } from '../../../../core/services/brasil-api.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-fornecedor-create-dialog',
@@ -21,7 +21,6 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    CommonModule,
   ],
   templateUrl: './fornecedor-create-dialog.component.html',
   styleUrls: ['./fornecedor-create-dialog.component.css'],
@@ -31,6 +30,7 @@ export class FornecedorCreateDialogComponent {
   private dialogRef = inject(MatDialogRef<FornecedorCreateDialogComponent>);
   private brasilApi = inject(BrasilApiService);
   private snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     nome: ['', Validators.required],
@@ -69,7 +69,9 @@ export class FornecedorCreateDialogComponent {
     if (!cnpj || cnpj.length !== 14) return;
 
     this.isLoadingCnpj.set(true);
-    this.brasilApi.consultarCnpj(cnpj).subscribe({
+    this.brasilApi.consultarCnpj(cnpj)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.form.patchValue({
           nome: res.nome_fantasia || res.razao_social,
@@ -97,7 +99,9 @@ export class FornecedorCreateDialogComponent {
     if (!cep || cep.length !== 8) return;
 
     this.isLoadingCep.set(true);
-    this.brasilApi.consultarCep(cep).subscribe({
+    this.brasilApi.consultarCep(cep)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.form.patchValue({
           logradouro: res.street,

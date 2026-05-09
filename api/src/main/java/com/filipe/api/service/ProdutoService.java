@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,6 +52,8 @@ public class ProdutoService {
 
     @Value("${app.upload.dir}")
     private String uploadDir;
+
+    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
     public ProdutoDetalheResponse buscarPorId(UUID id) {
         Produto produto = produtoRepository.findById(id)
@@ -206,6 +210,10 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Produto nao encontrado."));
 
+        if (file.getContentType() == null || !ALLOWED_MIME_TYPES.contains(file.getContentType().toLowerCase())) {
+            throw new BusinessException("Tipo de arquivo não permitido. Apenas JPEG, PNG e WEBP são aceitos.");
+        }
+
         try {
             String fileName = id.toString() + getExtension(file.getOriginalFilename());
             Path root = Paths.get(uploadDir);
@@ -221,7 +229,7 @@ public class ProdutoService {
         }
     }
 
-    public byte[] buscarImagem(UUID id) {
+    public Path buscarCaminhoImagem(UUID id) {
         try {
             Path root = Paths.get(uploadDir);
             if (!Files.exists(root)) {
@@ -229,18 +237,22 @@ public class ProdutoService {
             }
             
             try (var stream = Files.list(root)) {
-                Optional<Path> file = stream
+                return stream
                         .filter(p -> p.getFileName().toString().startsWith(id.toString()))
-                        .findFirst();
-
-                if (file.isPresent()) {
-                    return Files.readAllBytes(file.get());
-                } else {
-                    throw new BusinessException("Imagem nao encontrada.");
-                }
+                        .findFirst()
+                        .orElseThrow(() -> new BusinessException("Imagem nao encontrada."));
             }
         } catch (IOException e) {
             throw new BusinessException("Erro ao buscar imagem: " + e.getMessage());
+        }
+    }
+
+    public byte[] buscarImagem(UUID id) {
+        try {
+            Path path = buscarCaminhoImagem(id);
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new BusinessException("Erro ao ler imagem: " + e.getMessage());
         }
     }
 

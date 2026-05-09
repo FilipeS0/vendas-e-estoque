@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class FocusNfeClient implements SefazClient {
     
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
+            .connectTimeout(Duration.ofSeconds(10))
             .build();
 
     private static final String URL_HOMOLOGACAO = "https://homologacao.focusnfe.com.br/v2/nfce";
@@ -68,6 +70,7 @@ public class FocusNfeClient implements SefazClient {
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((token + ":").getBytes()))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .timeout(Duration.ofSeconds(30))
                     .build();
 
             log.info("Sending NFC-e to Focus NF-e ({}): {}", ambiente, url);
@@ -116,6 +119,7 @@ public class FocusNfeClient implements SefazClient {
                     .uri(URI.create(url + "/" + chaveAcesso + "?justificativa=" + java.net.URLEncoder.encode(motivo, java.nio.charset.StandardCharsets.UTF_8)))
                     .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((token + ":").getBytes()))
                     .DELETE()
+                    .timeout(Duration.ofSeconds(30))
                     .build();
 
             log.info("Canceling NFC-e via Focus NF-e: {}", chaveAcesso);

@@ -20,6 +20,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,6 +64,22 @@ public class ProdutoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].nome").value("Cerveja Teste"));
+    }
+
+    @Test
+    @WithMockUser(roles = "GERENTE")
+    public void devePermitirListagemParaGerente() throws Exception {
+        ProdutoResponse response = new ProdutoResponse(
+                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null,
+                new BigDecimal("10.00"), null, null, null, true
+        );
+
+        when(produtoService.listarProdutos(anyString(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(response)));
+
+        mockMvc.perform(get("/api/v1/produtos")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -128,5 +146,51 @@ public class ProdutoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "GERENTE")
+    public void devePermitirCriacaoParaGerente() throws Exception {
+        ProdutoRequest request = new ProdutoRequest(
+                "P001", "7891234567890", "Produto Teste", "Desc",
+                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(),
+                new BigDecimal("10.00"), new BigDecimal("20.00"),
+                "12345678", null, "5102", OrigemProduto.NACIONAL,
+                null, null, null, null, null, null, BigDecimal.ZERO
+        );
+
+        ProdutoResponse response = new ProdutoResponse(
+                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null,
+                new BigDecimal("20.00"), null, UnidadeMedida.UN.name(), null, true
+        );
+
+        when(produtoService.registrarProduto(any(ProdutoRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/produtos")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockUser(roles = "GERENTE")
+    public void devePermitirInativacaoParaGerente() throws Exception {
+        UUID id = UUID.randomUUID();
+        
+        mockMvc.perform(delete("/api/v1/produtos/{id}", id)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(roles = "OPERADOR")
+    public void deveNegarBuscaDeImagemParaOperador() throws Exception {
+        UUID id = UUID.randomUUID();
+        
+        mockMvc.perform(get("/api/v1/produtos/{id}/imagem", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }
