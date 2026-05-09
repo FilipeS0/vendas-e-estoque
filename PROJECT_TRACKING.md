@@ -16,17 +16,17 @@
 | Módulo | Status | Principais Tecnologias / Detalhes |
 |:-------|:------:|:----------------------------------|
 | **Infra & DevOps** | ✅ | Spring Boot 4, Java 21, Angular 21, Docker, HTTPS + Deploy Real. |
-| **Segurança** | ⚠️ | JWT, Refresh Token, BCrypt, Auditoria persistida, Certificado A1 AES-256. Rate-limiter definido mas só atua em tentativas *falhadas* de login. |
-| **Produtos** | ✅ | CRUD, Soft Delete, Fiscais, Imagem (FS), Histórico Preços, UnidadeMedida. |
-| **Estoque** | ✅ | Movimentação, Baixa automática, Inventário, Alerta mínimo. |
-| **Caixa / PDV** | ✅ | Abertura/Fechamento, Sangria/Suprimento, Fluxo consolidado. |
-| **Vendas** | ✅ | Itens, Descontos, Múltiplos Pagos, Troco, Cancelamento, Crediário. |
-| **Clientes** | ✅ | CRUD, CPF, Limite Crédito, Saldo Devedor, Extrato. |
+| **Segurança** | ✅ | JWT, Refresh Token, BCrypt, Auditoria persistida, Certificado A1 AES-256. Rate-limiter pré-autenticação. |
+| **Produtos** | ✅ | CRUD, Soft Delete, Fiscais, Imagem (FS), Histórico Preços, UnidadeMedida, Tela de Detalhes. |
+| **Estoque** | ✅ | Movimentação, Baixa automática, Inventário, Alerta mínimo, Relatórios PDF. |
+| **Caixa / PDV** | ✅ | Abertura/Fechamento, Sangria/Suprimento, Fluxo consolidado, Vendas Turno Atual. |
+| **Vendas** | ✅ | Itens, Descontos, Múltiplos Pagos, Troco, Cancelamento, Crediário, PIX QR Code. |
+| **Clientes** | ✅ | CRUD, CPF, Limite Crédito, Saldo Devedor, Extrato, BrasilAPI. |
 | **Crediário** | ✅ | Registro Fiado, Parcelas Automáticas, Liquidação, Scheduler Vencimento. |
-| **Fiscal / NFC-e** | ⚠️ | FocusNfeClient, Certificado A1, Contingência, DANFE 80mm. NCM/CFOP hardcoded na emissão real. |
-| **Relatórios** | ⚠️ | iText 7 (PDF), Vendas, Estoque, Caixa, Fluxo de Caixa, Dashboard. Faltam alguns relatórios da spec. |
-| **Fornecedores** | ⚠️ | CRUD básico funcional, mas sem paginação, segurança (@PreAuthorize) e validação (@Valid). |
-| **Configurações** | ⚠️ | Dados da empresa, NFC-e, PIX. Faltam campos PIX no formulário frontend. |
+| **Fiscal / NFC-e** | ✅ | FocusNfeClient, Certificado A1, Contingência, DANFE 80mm. Campos fiscais dinâmicos, CNPJ do emitente e cancelamento real OK. |
+| **Relatórios** | ✅ | iText 7 (PDF), Vendas, Estoque, Caixa, Fluxo de Caixa, Dashboard, Rankings, Contas a Receber. |
+| **Fornecedores** | ✅ | CRUD + Paginação + @PreAuthorize + Soft Delete OK. Listagem filtra inativos. |
+| **Configurações** | ✅ | Dados da empresa, NFC-e, PIX (chave/beneficiário/cidade), Certificado A1 c/ scheduler de vencimento. |
 
 ---
 
@@ -67,6 +67,32 @@
 | ~~GAP-019~~ | ~~**FornecedorController sem paginação**~~ | Fornecedores | `[x]` Retorno do `listar()` alterado para `Page<FornecedorResponse>` |
 | ~~GAP-020~~ | ~~**Consulta de vendas do turno atual inexistente**~~ | Vendas | `[x]` Adicionado endpoint `GET /vendas/turno-atual` |
 | ~~GAP-021~~ | ~~**NfcePayload não inclui todos os campos tributários**~~ | Fiscal | `[x]` Resolvido junto com GAP-001 e mapeado os campos fiscais dinâmicos |
+
+---
+
+## 📋 2.1 Second Pass — Novos Gaps Encontrados
+
+### 🔴 Alta Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-022~~ | ~~**FocusNfeClient: CNPJ do emitente hardcoded como "FIXME"**~~ | Fiscal | `[x]` Agora lê dinamicamente de `Configuracao.cnpj`. |
+| ~~GAP-023~~ | ~~**DANFE: Nome da empresa hardcoded "Empresa Exemplo LTDA"**~~ | Relatórios | `[x]` `PdfReportGenerator` agora recebe `empresaNome` da configuração. |
+| ~~GAP-024~~ | ~~**FocusNfeClient: cancelarNfce() não implementado**~~ | Fiscal | `[x]` Implementado envio de DELETE para API da FocusNFe com justificativa. |
+
+### 🟡 Média Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-025~~ | ~~**FornecedorService.listar() retorna fornecedores inativos**~~ | Fornecedores | `[x]` Alterado para `findByAtivoTrue(pageable)`. |
+| ~~GAP-026~~ | ~~**FornecedorService usa `RuntimeException` em vez de `BusinessException`**~~ | Fornecedores | `[x]` Padronizado para `BusinessException` (HTTP 422). |
+| ~~GAP-027~~ | ~~**FocusNfeClient: ICMS e forma de pagamento hardcoded**~~ | Fiscal | `[x]` Mapeamento dinâmico de CSOSN, Origem e códigos de pagamento SEFAZ. |
+
+### 🟢 Baixa Prioridade
+
+| ID | Descrição | Módulo | Detalhes |
+|:---|:----------|:------:|:--------|
+| ~~GAP-028~~ | ~~**VendaService: `System.err.println` em vez de logger**~~ | Vendas | `[x]` Substituído por `log.error()` usando Slf4j. |
 
 ---
 

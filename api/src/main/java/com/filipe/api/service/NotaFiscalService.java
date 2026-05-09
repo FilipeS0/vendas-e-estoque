@@ -48,7 +48,10 @@ public class NotaFiscalService {
         NotaFiscal notaFiscal = notaFiscalRepository.findByVendaId(vendaId)
                 .orElseThrow(() -> new BusinessException("Nota fiscal nao encontrada para esta venda."));
         
-        return pdfReportGenerator.gerarDanfeNfce(notaFiscal);
+        Configuracao config = configuracaoRepository.findAll().stream().findFirst().orElse(null);
+        String empresaNome = config != null ? config.getRazaoSocial() : "Empresa não configurada";
+
+        return pdfReportGenerator.gerarDanfeNfce(notaFiscal, empresaNome);
     }
 
     @Transactional
@@ -126,7 +129,7 @@ public class NotaFiscalService {
 
         NfceResponse response;
         try {
-            response = sefazClient.emitirNfce(payload, config.getApiTokenFiscal(), config.getAmbienteSefaz());
+            response = sefazClient.emitirNfce(payload, config.getApiTokenFiscal(), config.getAmbienteSefaz(), config.getCnpj());
         } catch (Exception e) {
             log.error("Erro na comunicação com SEFAZ. Entrando em CONTINGÊNCIA: {}", e.getMessage());
             response = NfceResponse.builder()
@@ -169,7 +172,7 @@ public class NotaFiscalService {
             
             if (config != null && config.getApiTokenFiscal() != null && !config.getApiTokenFiscal().isBlank()) {
                 try {
-                    sefazClient.cancelarNfce(notaFiscal.getChaveAcesso(), motivo, config.getApiTokenFiscal(), config.getAmbienteSefaz());
+                    sefazClient.cancelarNfce(notaFiscal.getChaveAcesso(), motivo, config.getApiTokenFiscal(), config.getAmbienteSefaz(), config.getCnpj());
                 } catch (Exception e) {
                     log.error("Erro ao cancelar nota na SEFAZ: {}", e.getMessage());
                 }
