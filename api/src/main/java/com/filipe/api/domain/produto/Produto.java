@@ -32,6 +32,7 @@ public class Produto {
 
     private String descricao;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "unidade_medida", nullable = false, length = 2)
     private UnidadeMedida unidadeMedida = UnidadeMedida.UN;

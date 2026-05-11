@@ -44,16 +44,21 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         if (perfilRepository.count() == 0) {
-            Perfil adminPerfil = perfilRepository.save(Perfil.builder().nome("ADMIN").build());
-            
-            if (usuarioRepository.count() == 0) {
-                usuarioRepository.save(Usuario.builder()
-                        .nome("Administrador")
-                        .email("admin@erp.com")
-                        .senhaHash(passwordEncoder.encode(adminPassword))
-                        .perfil(adminPerfil)
-                        .build());
-            }
+            perfilRepository.save(Perfil.builder().nome("ADMIN").build());
+            perfilRepository.save(Perfil.builder().nome("GERENTE").build());
+            perfilRepository.save(Perfil.builder().nome("OPERADOR").build());
+        }
+
+        if (usuarioRepository.count() == 0) {
+            Perfil adminPerfil = perfilRepository.findByNome("ADMIN")
+                    .orElseThrow(() -> new RuntimeException("Perfil ADMIN não encontrado"));
+
+            usuarioRepository.save(Usuario.builder()
+                    .nome("Administrador")
+                    .email("admin@erp.com")
+                    .senhaHash(passwordEncoder.encode(adminPassword))
+                    .perfil(adminPerfil)
+                    .build());
         }
     }
 }
