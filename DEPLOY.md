@@ -32,6 +32,10 @@ POSTGRES_DB=erp
 POSTGRES_USER=erp_user
 POSTGRES_PASSWORD=SENHA_FORTE_AQUI
 DOMAIN=seudominio.com
+JWT_SECRET=VALOR_ALEATORIO_64_CHARS
+CRYPTO_SECRET=VALOR_ALEATORIO_32_CHARS
+ADMIN_PASSWORD=SENHA_PRODUCAO_ADMIN
+CORS_ALLOWED_ORIGINS=https://seudominio.com
 ```
 
 > ⚠️ Nunca comite o `.env` no Git. Ele está (ou deve estar) no `.gitignore`.
