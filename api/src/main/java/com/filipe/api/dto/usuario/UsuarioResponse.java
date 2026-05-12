@@ -1,5 +1,6 @@
 package com.filipe.api.dto.usuario;
 
+import java.util.List;
 import java.util.UUID;
 
 public record UsuarioResponse(
@@ -8,5 +9,8 @@ public record UsuarioResponse(
     String email,
     String perfilNome,
     UUID perfilId,
-    Boolean ativo
-) {}
+    Boolean ativo,
+    List<AuthorityResponse> authorities
+) {
+    public record AuthorityResponse(String authority) {}
+}
