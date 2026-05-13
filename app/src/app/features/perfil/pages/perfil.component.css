@@ -1,7 +1,5 @@
 .page-wrap {
-  padding: 1.5rem 2rem;
   max-width: 900px;
-  margin: 0 auto;
 }
 .profile-grid {
   display: grid;
@@ -16,9 +14,6 @@
 
 .info-card,
 .senha-card {
-  border-radius: 12px !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: none !important;
   padding: 1.5rem !important;
 }
 

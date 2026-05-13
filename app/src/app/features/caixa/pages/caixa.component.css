@@ -1,6 +1,5 @@
 .caixa-page {
   max-width: 980px;
-  margin: 24px auto;
 }
 
 .header-row {
@@ -47,7 +46,6 @@
 .close-message {
   margin-top: 16px;
   padding: 12px;
-  border-radius: 8px;
   background: rgba(76, 175, 80, 0.08);
   color: #2e7d32;
 }

@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1.2fr 1.5fr 1fr;
   gap: 20px;
-  padding: 24px;
+  max-width: 1600px;
 }
 
 .panel {
@@ -52,7 +52,6 @@
 .empty-list,
 .warning-box {
   padding: 18px;
-  border-radius: 8px;
   background-color: #fff7e6;
   color: #7a4d00;
   border: 1px solid #ffe7ba;
@@ -111,8 +110,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.03);
 }
 
 .confirm-button {

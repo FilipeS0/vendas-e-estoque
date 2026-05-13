@@ -4,11 +4,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { BrasilApiService } from '../../../../core/services/brasil-api.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormInputComponent } from '../../../../shared';
 
 @Component({
   selector: 'app-cliente-create-dialog',
@@ -18,9 +18,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    FormInputComponent,
   ],
   templateUrl: './cliente-create-dialog.component.html',
   styleUrls: ['./cliente-create-dialog.component.css'],

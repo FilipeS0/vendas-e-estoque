@@ -1,0 +1,42 @@
+<mat-form-field appearance="outline" [class.full-width]="fullWidth">
+  <mat-label>{{ label }}</mat-label>
+
+  @if (rows) {
+    <textarea
+      matInput
+      [ngModel]="value"
+      (ngModelChange)="updateValue($event)"
+      [placeholder]="placeholder"
+      [autocomplete]="autocomplete"
+      [rows]="rows"
+      [disabled]="disabled"
+      (input)="handleInput($event)"
+      (blur)="handleBlur($event)"
+    ></textarea>
+  } @else {
+    <input
+      matInput
+      [ngModel]="value"
+      (ngModelChange)="updateValue($event)"
+      [type]="type"
+      [placeholder]="placeholder"
+      [autocomplete]="autocomplete"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.maxlength]="maxlength"
+      [disabled]="disabled"
+      (input)="handleInput($event)"
+      (blur)="handleBlur($event)"
+    />
+  }
+
+  <ng-content select="[matSuffix]"></ng-content>
+
+  @if (hint && !showError) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+
+  @if (showError) {
+    <mat-error>{{ error }}</mat-error>
+  }
+</mat-form-field>

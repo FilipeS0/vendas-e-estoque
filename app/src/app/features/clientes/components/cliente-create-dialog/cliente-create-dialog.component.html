@@ -1,35 +1,32 @@
 <h2 mat-dialog-title>Novo cliente</h2>
 <mat-dialog-content class="dialog-content">
   <form [formGroup]="form" class="dialog-form">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Nome</mat-label>
-      <input matInput formControlName="nome" autocomplete="name" />
-      @if (form.controls.nome.invalid && form.controls.nome.touched) {
-        <mat-error>O nome é obrigatório.</mat-error>
-      }
-    </mat-form-field>
+    <app-form-input
+      label="Nome"
+      formControlName="nome"
+      autocomplete="name"
+      error="O nome é obrigatório."
+    />
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>CPF</mat-label>
-      <input
-        matInput
-        formControlName="cpf"
-        maxlength="14"
-        autocomplete="off"
-        (input)="formatCpf($event)"
-        placeholder="000.000.000-00"
-      />
-    </mat-form-field>
+    <app-form-input
+      label="CPF"
+      formControlName="cpf"
+      maxlength="14"
+      autocomplete="off"
+      placeholder="000.000.000-00"
+      (fieldInput)="formatCpf($event)"
+    />
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Telefone</mat-label>
-      <input matInput formControlName="telefone" autocomplete="tel" />
-    </mat-form-field>
+    <app-form-input label="Telefone" formControlName="telefone" autocomplete="tel" />
 
     <div class="form-row-cep">
-      <mat-form-field appearance="outline">
-        <mat-label>CEP</mat-label>
-        <input matInput formControlName="cep" maxlength="9" placeholder="00000-000" (blur)="consultarCep()" />
+      <app-form-input
+        label="CEP"
+        formControlName="cep"
+        maxlength="9"
+        placeholder="00000-000"
+        (fieldBlur)="consultarCep()"
+      >
         @if (isLoadingCep()) {
           <mat-spinner matSuffix [diameter]="18"></mat-spinner>
         } @else {
@@ -37,43 +34,28 @@
             <mat-icon>search</mat-icon>
           </button>
         }
-      </mat-form-field>
+      </app-form-input>
     </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Logradouro</mat-label>
-      <input matInput formControlName="logradouro" />
-    </mat-form-field>
+    <app-form-input label="Logradouro" formControlName="logradouro" />
 
     <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>Número</mat-label>
-        <input matInput formControlName="numero" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Bairro</mat-label>
-        <input matInput formControlName="bairro" />
-      </mat-form-field>
+      <app-form-input label="Número" formControlName="numero" />
+      <app-form-input label="Bairro" formControlName="bairro" />
     </div>
 
     <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>Cidade</mat-label>
-        <input matInput formControlName="cidade" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" style="width: 80px">
-        <mat-label>UF</mat-label>
-        <input matInput formControlName="uf" maxlength="2" />
-      </mat-form-field>
+      <app-form-input label="Cidade" formControlName="cidade" />
+      <app-form-input label="UF" formControlName="uf" maxlength="2" class="uf-field" />
     </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Limite de crédito</mat-label>
-      <input matInput type="number" formControlName="limiteCredito" min="0" />
-      @if (form.controls.limiteCredito.invalid && form.controls.limiteCredito.touched) {
-        <mat-error>O limite deve ser maior ou igual a 0.</mat-error>
-      }
-    </mat-form-field>
+    <app-form-input
+      label="Limite de crédito"
+      type="number"
+      formControlName="limiteCredito"
+      min="0"
+      error="O limite deve ser maior ou igual a 0."
+    />
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
