@@ -61,6 +61,17 @@ public class ProdutoService {
         return produtoMapper.toDetalheResponse(produto, buscarQuantidadeEstoque(produto.getId()));
     }
 
+    public String proximoCodigoInterno() {
+        int maiorCodigo = produtoRepository.findAll().stream()
+                .map(Produto::getCodigoInterno)
+                .filter(codigo -> codigo != null && codigo.matches("\\d+"))
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(0);
+
+        return String.valueOf(maiorCodigo + 1);
+    }
+
     public ProdutoDetalheResponse buscarPorCodigoBarras(String codigoBarras) {
         Produto produto = produtoRepository.findByCodigoBarrasAndAtivoTrue(codigoBarras)
                 .orElseThrow(() -> new BusinessException("Produto nao encontrado para o codigo de barras informado."));

@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import '@angular/cdk/overlay-prebuilt.css';
 
 :root {
   --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
@@ -77,6 +78,10 @@ select {
   font: inherit;
 }
 
+.mat-mdc-input-element:not(:placeholder-shown)::placeholder {
+  color: transparent;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -111,10 +116,12 @@ body {
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-card) !important;
   box-shadow: var(--shadow-card) !important;
+  padding: var(--spacing-md) !important;
 }
 
 .mat-mdc-card-content {
   color: var(--text);
+  padding: 0 !important;
 }
 
 .page-container,

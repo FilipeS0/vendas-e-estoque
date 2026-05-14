@@ -11,10 +11,6 @@
   gap: 16px;
 }
 
-.panel mat-card {
-  padding: 16px;
-}
-
 .panel-header {
   display: flex;
   align-items: center;

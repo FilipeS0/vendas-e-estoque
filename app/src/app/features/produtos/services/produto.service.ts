@@ -19,6 +19,8 @@ export interface ProdutoRequest {
   aliquotaIcms?: number;
   aliquotaPis?: number;
   aliquotaCofins?: number;
+  origem?: string;
+  quantidadeInicial?: number;
 }
 
 export interface ProdutoResponse {
@@ -84,6 +86,7 @@ export interface ProdutoDetalheResponse {
 export interface Categoria {
   id: string;
   nome: string;
+  descricao?: string;
 }
 
 export interface Fornecedor {
@@ -131,6 +134,10 @@ export class ProdutoService {
     return this.http.get<ProdutoDetalheResponse>(`${this.apiUrl}/produtos/${id}`);
   }
 
+  getProximoCodigoInterno(): Observable<{ codigoInterno: string }> {
+    return this.http.get<{ codigoInterno: string }>(`${this.apiUrl}/produtos/proximo-codigo`);
+  }
+
   create(produto: ProdutoRequest): Observable<ProdutoResponse> {
     return this.http.post<ProdutoResponse>(`${this.apiUrl}/produtos`, produto);
   }
@@ -145,6 +152,10 @@ export class ProdutoService {
 
   getCategorias(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(`${this.apiUrl}/categorias`);
+  }
+
+  createCategoria(categoria: Pick<Categoria, 'nome' | 'descricao'>): Observable<Categoria> {
+    return this.http.post<Categoria>(`${this.apiUrl}/categorias`, categoria);
   }
 
   getFornecedores(): Observable<Fornecedor[]> {

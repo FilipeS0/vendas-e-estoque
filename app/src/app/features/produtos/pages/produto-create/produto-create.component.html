@@ -61,15 +61,17 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Unidade de Medida</mat-label>
-            <mat-select formControlName="unidadeMedida">
-              <mat-option value="UN">Unidade (UN)</mat-option>
-              <mat-option value="KG">Quilograma (KG)</mat-option>
-              <mat-option value="LT">Litro (LT)</mat-option>
-              <mat-option value="CX">Caixa (CX)</mat-option>
-              <mat-option value="FD">Fardo (FD)</mat-option>
-              <mat-option value="PC">Peça (PC)</mat-option>
-              <mat-option value="MT">Metro (MT)</mat-option>
-            </mat-select>
+            <select matNativeControl formControlName="unidadeMedida">
+              <option value="UN">Unidade (UN)</option>
+              <option value="KG">Quilograma (KG)</option>
+              <option value="LT">Litro (LT)</option>
+              <option value="CX">Caixa (CX)</option>
+              <option value="FD">Fardo (FD)</option>
+              <option value="PC">Peça (PC)</option>
+              <option value="MT">Metro (MT)</option>
+              <option value="M2">Metro quadrado (M²)</option>
+              <option value="M3">Metro cúbico (M³)</option>
+            </select>
           </mat-form-field>
         </div>
 
@@ -81,20 +83,51 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Categoria</mat-label>
-            <mat-select formControlName="categoriaId">
+            <select matNativeControl formControlName="categoriaId">
+              <option value="" disabled>
+                @if (isLoadingCategorias()) {
+                  Carregando categorias...
+                } @else if (categoriaLoadError()) {
+                  {{ categoriaLoadError() }}
+                } @else if (categorias().length === 0) {
+                  Nenhuma categoria cadastrada
+                } @else {
+                  Selecione uma categoria
+                }
+              </option>
               @for (cat of categorias(); track cat.id) {
-                <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
+                <option [value]="cat.id">{{ cat.nome }}</option>
               }
-            </mat-select>
+            </select>
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Nova categoria"
+              (click)="openCategoriaDialog(categoriaDialog); $event.stopPropagation()"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Fornecedor</mat-label>
-            <mat-select formControlName="fornecedorId">
+            <select matNativeControl formControlName="fornecedorId">
+              <option value="" disabled>
+                @if (isLoadingFornecedores()) {
+                  Carregando fornecedores...
+                } @else if (fornecedorLoadError()) {
+                  {{ fornecedorLoadError() }}
+                } @else if (fornecedores().length === 0) {
+                  Nenhum fornecedor cadastrado
+                } @else {
+                  Selecione um fornecedor
+                }
+              </option>
               @for (forn of fornecedores(); track forn.id) {
-                <mat-option [value]="forn.id">{{ forn.nome }}</mat-option>
+                <option [value]="forn.id">{{ forn.nome }}</option>
               }
-            </mat-select>
+            </select>
           </mat-form-field>
         </div>
 
@@ -117,19 +150,31 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>NCM</mat-label>
-            <input matInput formControlName="ncm" maxlength="8" [matAutocomplete]="autoNcm">
-            <mat-autocomplete #autoNcm="matAutocomplete" (optionSelected)="onNcmSelected($event)" [displayWith]="displayNcm">
-              @for (ncm of ncms(); track ncm.codigo) {
-                <mat-option [value]="ncm">
-                  <span class="ncm-code">{{ ncm.codigo }}</span> - 
-                  <small class="ncm-desc">{{ ncm.descricao }}</small>
-                </mat-option>
-              }
-            </mat-autocomplete>
+            <input
+              matInput
+              formControlName="ncm"
+              maxlength="8"
+              placeholder="Digite código ou descrição"
+            >
             @if (produtoForm.get('ncm')?.hasError('required')) {
               <mat-error>Obrigatório</mat-error>
             }
           </mat-form-field>
+
+          @if (isSearchingNcm()) {
+            <div class="ncm-suggestions muted">Buscando NCM...</div>
+          } @else if (ncmQuery().length >= 3 && ncms().length === 0) {
+            <div class="ncm-suggestions muted">Nenhum NCM encontrado.</div>
+          } @else if (ncms().length > 0) {
+            <div class="ncm-suggestions">
+              @for (ncm of ncms(); track ncm.codigo) {
+                <button type="button" class="ncm-option" (click)="selectNcm(ncm)">
+                  <span class="ncm-code">{{ ncm.codigo }}</span>
+                  <span class="ncm-desc">{{ ncm.descricao }}</span>
+                </button>
+              }
+            </div>
+          }
 
           <mat-form-field appearance="outline">
             <mat-label>CFOP</mat-label>
@@ -181,4 +226,30 @@
       </form>
     </mat-card-content>
   </mat-card>
+
+  <ng-template #categoriaDialog>
+    <h2 mat-dialog-title>Nova categoria</h2>
+    <mat-dialog-content>
+      <form [formGroup]="categoriaForm" class="category-dialog-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="nome">
+          @if (categoriaForm.get('nome')?.invalid && categoriaForm.get('nome')?.touched) {
+            <mat-error>O nome é obrigatório.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput formControlName="descricao" rows="3"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button type="button" mat-dialog-close>Cancelar</button>
+      <button mat-flat-button color="primary" type="button" (click)="salvarCategoria()">
+        Criar categoria
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
 </div>

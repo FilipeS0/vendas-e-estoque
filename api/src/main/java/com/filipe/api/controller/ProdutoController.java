@@ -1,5 +1,6 @@
 package com.filipe.api.controller;
 
+import com.filipe.api.dto.produto.CodigoInternoResponse;
 import com.filipe.api.dto.produto.ProdutoDetalheResponse;
 import com.filipe.api.dto.produto.ProdutoPdvResponse;
 import com.filipe.api.dto.produto.ProdutoRequest;
@@ -53,6 +54,12 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<ProdutoDetalheResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(produtoService.buscarPorId(id));
+    }
+
+    @GetMapping("/proximo-codigo")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<CodigoInternoResponse> proximoCodigoInterno() {
+        return ResponseEntity.ok(new CodigoInternoResponse(produtoService.proximoCodigoInterno()));
     }
 
     @GetMapping("/codigo-barras/{codigoBarras}")

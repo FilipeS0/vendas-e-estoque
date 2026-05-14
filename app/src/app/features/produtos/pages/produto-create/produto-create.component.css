@@ -13,10 +13,6 @@
   color: var(--text);
 }
 
-.form-card {
-  padding: 16px;
-}
-
 h3 {
   color: var(--text);
   margin-top: 16px;
@@ -33,6 +29,10 @@ h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.form-row:has(.ncm-suggestions) {
+  align-items: start;
 }
 
 @media (max-width: 600px) {
@@ -58,6 +58,12 @@ mat-divider {
 .form-actions button {
   padding: 8px 32px;
   font-size: 16px;
+}
+
+.category-dialog-form {
+  display: grid;
+  gap: 16px;
+  padding-top: 8px;
 }
 
 .image-upload-section {
@@ -112,6 +118,41 @@ mat-divider {
 .ncm-desc {
   color: var(--text-secondary);
   font-style: italic;
+}
+
+.ncm-suggestions {
+  display: grid;
+  gap: 4px;
+  grid-column: 1 / -1;
+  margin-top: -12px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.ncm-suggestions.muted {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.ncm-option {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ncm-option:hover {
+  background: var(--surface-strong);
 }
 
 .placeholder mat-icon {
