@@ -83,22 +83,19 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Categoria</mat-label>
-            <select matNativeControl formControlName="categoriaId">
-              <option value="" disabled>
-                @if (isLoadingCategorias()) {
-                  Carregando categorias...
-                } @else if (categoriaLoadError()) {
-                  {{ categoriaLoadError() }}
-                } @else if (categorias().length === 0) {
-                  Nenhuma categoria cadastrada
-                } @else {
-                  Selecione uma categoria
-                }
-              </option>
-              @for (cat of categorias(); track cat.id) {
-                <option [value]="cat.id">{{ cat.nome }}</option>
+            <mat-select formControlName="categoriaId">
+              @if (isLoadingCategorias()) {
+                <mat-option disabled>Carregando categorias...</mat-option>
+              } @else if (categoriaLoadError()) {
+                <mat-option disabled>{{ categoriaLoadError() }}</mat-option>
+              } @else if (categorias().length === 0) {
+                <mat-option disabled>Nenhuma categoria cadastrada</mat-option>
               }
-            </select>
+              
+              @for (cat of categorias(); track cat.id) {
+                <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
+              }
+            </mat-select>
             <button
               mat-icon-button
               matSuffix
@@ -112,22 +109,19 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Fornecedor</mat-label>
-            <select matNativeControl formControlName="fornecedorId">
-              <option value="" disabled>
-                @if (isLoadingFornecedores()) {
-                  Carregando fornecedores...
-                } @else if (fornecedorLoadError()) {
-                  {{ fornecedorLoadError() }}
-                } @else if (fornecedores().length === 0) {
-                  Nenhum fornecedor cadastrado
-                } @else {
-                  Selecione um fornecedor
-                }
-              </option>
-              @for (forn of fornecedores(); track forn.id) {
-                <option [value]="forn.id">{{ forn.nome }}</option>
+            <mat-select formControlName="fornecedorId">
+              @if (isLoadingFornecedores()) {
+                <mat-option disabled>Carregando fornecedores...</mat-option>
+              } @else if (fornecedorLoadError()) {
+                <mat-option disabled>{{ fornecedorLoadError() }}</mat-option>
+              } @else if (fornecedores().length === 0) {
+                <mat-option disabled>Nenhum fornecedor cadastrado</mat-option>
               }
-            </select>
+
+              @for (forn of fornecedores(); track forn.id) {
+                <mat-option [value]="forn.id">{{ forn.nome }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
         </div>
 
@@ -153,28 +147,27 @@
             <input
               matInput
               formControlName="ncm"
-              maxlength="8"
+              [matAutocomplete]="autoNcm"
               placeholder="Digite código ou descrição"
             >
+            <mat-autocomplete #autoNcm="matAutocomplete" (optionSelected)="onNcmSelected($event)" [displayWith]="displayNcm">
+              @if (isSearchingNcm()) {
+                <mat-option disabled>Buscando NCM...</mat-option>
+              }
+              @for (ncm of ncms(); track ncm.codigo) {
+                <mat-option [value]="ncm">
+                  <span class="ncm-code">{{ ncm.codigo }}</span> - 
+                  <span class="ncm-desc">{{ ncm.descricao }}</span>
+                </mat-option>
+              }
+              @if (ncmQuery().length >= 3 && ncms().length === 0 && !isSearchingNcm()) {
+                <mat-option disabled>Nenhum NCM encontrado.</mat-option>
+              }
+            </mat-autocomplete>
             @if (produtoForm.get('ncm')?.hasError('required')) {
               <mat-error>Obrigatório</mat-error>
             }
           </mat-form-field>
-
-          @if (isSearchingNcm()) {
-            <div class="ncm-suggestions muted">Buscando NCM...</div>
-          } @else if (ncmQuery().length >= 3 && ncms().length === 0) {
-            <div class="ncm-suggestions muted">Nenhum NCM encontrado.</div>
-          } @else if (ncms().length > 0) {
-            <div class="ncm-suggestions">
-              @for (ncm of ncms(); track ncm.codigo) {
-                <button type="button" class="ncm-option" (click)="selectNcm(ncm)">
-                  <span class="ncm-code">{{ ncm.codigo }}</span>
-                  <span class="ncm-desc">{{ ncm.descricao }}</span>
-                </button>
-              }
-            </div>
-          }
 
           <mat-form-field appearance="outline">
             <mat-label>CFOP</mat-label>
