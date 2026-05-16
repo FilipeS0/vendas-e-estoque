@@ -307,10 +307,4 @@ export class ProdutoCreateComponent {
   displayNcm(ncm: any): string {
     return ncm?.codigo || ncm || '';
   }
-
-  selectNcm(ncm: Ncm) {
-    this.produtoForm.get('ncm')?.setValue(ncm.codigo, { emitEvent: false });
-    this.ncmQuery.set(ncm.codigo);
-    this.ncms.set([]);
-  }
 }
