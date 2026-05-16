@@ -16,6 +16,7 @@ public class NcmController {
     private final NcmRepository ncmRepository;
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<List<Ncm>> search(@RequestParam String query) {
         if (query.matches("\\d+")) {
             return ResponseEntity.ok(ncmRepository.findByCodigoContaining(query));
