@@ -17,6 +17,7 @@ public record ProdutoRequest(
         String descricao,
         @NotNull UnidadeMedida unidadeMedida,
         @NotNull UUID categoriaId,
+        @NotNull UUID marcaId,
         @NotNull UUID fornecedorId,
         @NotNull @PositiveOrZero BigDecimal precoCusto,
         @NotNull @Positive BigDecimal precoVenda,

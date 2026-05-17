@@ -9,6 +9,7 @@ export interface ProdutoRequest {
   descricao?: string;
   unidadeMedida: string;
   categoriaId: string;
+  marcaId: string;
   fornecedorId: string;
   precoCusto: number;
   precoVenda: number;
@@ -29,6 +30,7 @@ export interface ProdutoResponse {
   codigoBarras: string;
   nome: string;
   categoriaNome: string;
+  marcaNome?: string;
   fornecedorNome: string;
   precoVenda: number;
   unidadeMedida?: string;
@@ -49,6 +51,7 @@ export interface ProdutoUpdateRequest {
   descricao?: string;
   unidadeMedida: string;
   categoriaId: string;
+  marcaId: string;
   fornecedorId: string;
   precoCusto: number;
   precoVenda: number;
@@ -69,6 +72,7 @@ export interface ProdutoDetalheResponse {
   descricao?: string;
   unidadeMedida: string;
   categoriaId: string;
+  marcaId: string;
   fornecedorId: string;
   precoCusto: number;
   precoVenda: number;
@@ -87,6 +91,12 @@ export interface Categoria {
   id: string;
   nome: string;
   descricao?: string;
+}
+
+export interface Marca {
+  id: string;
+  nome: string;
+  ativo: boolean;
 }
 
 export interface Fornecedor {
@@ -156,6 +166,14 @@ export class ProdutoService {
 
   createCategoria(categoria: Pick<Categoria, 'nome' | 'descricao'>): Observable<Categoria> {
     return this.http.post<Categoria>(`${this.apiUrl}/categorias`, categoria);
+  }
+
+  getMarcas(): Observable<Marca[]> {
+    return this.http.get<Marca[]>(`${this.apiUrl}/marcas`);
+  }
+
+  createMarca(marca: Pick<Marca, 'nome'>): Observable<Marca> {
+    return this.http.post<Marca>(`${this.apiUrl}/marcas`, marca);
   }
 
   getFornecedores(): Observable<Fornecedor[]> {
