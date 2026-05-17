@@ -9,6 +9,7 @@ public record ProdutoResponse(
         String codigoBarras,
         String nome,
         String categoriaNome,
+        String marcaNome,
         String fornecedorNome,
         BigDecimal precoVenda,
         BigDecimal quantidadeEstoque,

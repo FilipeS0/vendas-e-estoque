@@ -45,6 +45,7 @@ public class ProdutoService {
     private final EstoqueAtualRepository estoqueAtualRepository;
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final CategoriaRepository categoriaRepository;
+    private final MarcaRepository marcaRepository;
     private final FornecedorRepository fornecedorRepository;
     private final HistoricoPrecoRepository historicoPrecoRepository;
     private final ProdutoMapper produtoMapper;
@@ -138,10 +139,13 @@ public class ProdutoService {
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
                 .orElseThrow(() -> new BusinessException("Categoria nao encontrada."));
 
+        Marca marca = marcaRepository.findById(request.marcaId())
+                .orElseThrow(() -> new BusinessException("Marca nao encontrada."));
+
         Fornecedor fornecedor = fornecedorRepository.findById(request.fornecedorId())
                 .orElseThrow(() -> new BusinessException("Fornecedor nao encontrado."));
 
-        Produto produto = produtoMapper.toEntity(request, categoria, fornecedor);
+        Produto produto = produtoMapper.toEntity(request, categoria, marca, fornecedor);
         Produto savedProduto = produtoRepository.save(produto);
 
         BigDecimal quantidadeInicial = request.quantidadeInicial() != null
@@ -185,13 +189,16 @@ public class ProdutoService {
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
                 .orElseThrow(() -> new BusinessException("Categoria nao encontrada."));
 
+        Marca marca = marcaRepository.findById(request.marcaId())
+                .orElseThrow(() -> new BusinessException("Marca nao encontrada."));
+
         Fornecedor fornecedor = fornecedorRepository.findById(request.fornecedorId())
                 .orElseThrow(() -> new BusinessException("Fornecedor nao encontrado."));
 
         BigDecimal precoVendaAntigo = produto.getPrecoVenda();
         BigDecimal precoCustoAntigo = produto.getPrecoCusto();
 
-        produtoMapper.updateEntity(produto, request, categoria, fornecedor);
+        produtoMapper.updateEntity(produto, request, categoria, marca, fornecedor);
         Produto savedProduto = produtoRepository.save(produto);
 
         if (precoVendaAntigo.compareTo(savedProduto.getPrecoVenda()) != 0 ||

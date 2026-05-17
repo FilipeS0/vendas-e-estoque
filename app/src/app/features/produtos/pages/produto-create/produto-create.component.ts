@@ -9,7 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Categoria, Fornecedor, HistoricoPreco, Ncm, ProdutoService } from '../../services/produto.service';
+import { Categoria, Fornecedor, Marca, HistoricoPreco, Ncm, ProdutoService } from '../../services/produto.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { catchError, debounceTime, distinctUntilChanged, filter, finalize, of, switchMap, tap } from 'rxjs';
@@ -49,9 +49,11 @@ export class ProdutoCreateComponent {
     descricao: [''],
     unidadeMedida: ['UN', Validators.required],
     categoriaId: ['', Validators.required],
+    marcaId: ['', Validators.required],
     fornecedorId: ['', Validators.required],
     precoCusto: [0, [Validators.required, Validators.min(0)]],
     precoVenda: [0, [Validators.required, Validators.min(0.01)]],
+    margemLucro: [0],
     ncm: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
     cest: [''],
     cfop: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]],
@@ -68,7 +70,12 @@ export class ProdutoCreateComponent {
     descricao: [''],
   });
 
+  marcaForm = this.fb.group({
+    nome: ['', Validators.required],
+  });
+
   categorias = signal<Categoria[]>([]);
+  marcas = signal<Marca[]>([]);
   fornecedores = signal<Fornecedor[]>([]);
   isLoading = signal<boolean>(false);
   editMode = signal<boolean>(false);
@@ -81,6 +88,8 @@ export class ProdutoCreateComponent {
   isSearchingNcm = signal(false);
   isLoadingCategorias = signal(false);
   categoriaLoadError = signal('');
+  isLoadingMarcas = signal(false);
+  marcaLoadError = signal('');
   isLoadingFornecedores = signal(false);
   fornecedorLoadError = signal('');
 
@@ -109,10 +118,45 @@ export class ProdutoCreateComponent {
         )
       )
       .subscribe((results) => this.ncms.set(results));
+
+    // Pricing calculator listeners
+    const custoControl = this.produtoForm.get('precoCusto');
+    const vendaControl = this.produtoForm.get('precoVenda');
+    const margemControl = this.produtoForm.get('margemLucro');
+
+    custoControl?.valueChanges.pipe(takeUntilDestroyed()).subscribe((custo) => {
+      const m = Number(margemControl?.value || 0);
+      const c = Number(custo || 0);
+      if (c >= 0) {
+        const venda = c * (1 + m / 100);
+        vendaControl?.setValue(Number(venda.toFixed(2)), { emitEvent: false });
+      }
+    });
+
+    margemControl?.valueChanges.pipe(takeUntilDestroyed()).subscribe((margem) => {
+      const c = Number(custoControl?.value || 0);
+      const m = Number(margem || 0);
+      if (c >= 0) {
+        const venda = c * (1 + m / 100);
+        vendaControl?.setValue(Number(venda.toFixed(2)), { emitEvent: false });
+      }
+    });
+
+    vendaControl?.valueChanges.pipe(takeUntilDestroyed()).subscribe((venda) => {
+      const c = Number(custoControl?.value || 0);
+      const v = Number(venda || 0);
+      if (c > 0) {
+        const margem = ((v - c) / c) * 100;
+        margemControl?.setValue(Number(margem.toFixed(2)), { emitEvent: false });
+      } else {
+        margemControl?.setValue(0, { emitEvent: false });
+      }
+    });
   }
 
   ngOnInit() {
     this.loadCategorias();
+    this.loadMarcas();
     this.loadFornecedores();
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -168,6 +212,28 @@ export class ProdutoCreateComponent {
     });
   }
 
+  private loadMarcas(selectedId?: string) {
+    this.isLoadingMarcas.set(true);
+    this.marcaLoadError.set('');
+
+    this.produtoService.getMarcas().subscribe({
+      next: (res) => {
+        this.marcas.set(res);
+        this.isLoadingMarcas.set(false);
+
+        if (selectedId) {
+          this.produtoForm.get('marcaId')?.setValue(selectedId);
+        }
+      },
+      error: () => {
+        this.marcas.set([]);
+        this.isLoadingMarcas.set(false);
+        this.marcaLoadError.set('Erro ao carregar marcas');
+        this.snackBar.open('Erro ao carregar marcas.', 'OK', { duration: 4000 });
+      },
+    });
+  }
+
   private loadProximoCodigoInterno() {
     this.produtoService.getProximoCodigoInterno().subscribe({
       next: ({ codigoInterno }) => {
@@ -213,11 +279,53 @@ export class ProdutoCreateComponent {
       });
   }
 
+  openMarcaDialog(template: TemplateRef<unknown>) {
+    this.marcaForm.reset({ nome: '' });
+    this.dialog.open(template, { width: '420px' });
+  }
+
+  salvarMarca() {
+    if (this.marcaForm.invalid) {
+      this.marcaForm.markAllAsTouched();
+      return;
+    }
+
+    const { nome } = this.marcaForm.getRawValue();
+
+    this.produtoService
+      .createMarca({
+        nome: nome ?? '',
+      })
+      .subscribe({
+        next: (marca) => {
+          this.dialog.closeAll();
+          this.snackBar.open('Marca criada!', 'OK', { duration: 3000 });
+          this.loadMarcas(marca.id);
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.message || 'Erro ao criar marca.', 'OK', {
+            duration: 4000,
+          });
+        },
+      });
+  }
+
   loadProduto(id: string) {
     this.isLoading.set(true);
     this.produtoService.getProdutoById(id).subscribe({
       next: (produto) => {
         this.produtoForm.patchValue(produto);
+        
+        // Calculate and set margemLucro dynamically
+        const custo = Number(produto.precoCusto || 0);
+        const venda = Number(produto.precoVenda || 0);
+        if (custo > 0) {
+          const margem = ((venda - custo) / custo) * 100;
+          this.produtoForm.get('margemLucro')?.setValue(Number(margem.toFixed(2)), { emitEvent: false });
+        } else {
+          this.produtoForm.get('margemLucro')?.setValue(0, { emitEvent: false });
+        }
+
         if (produto.imagemUrl) {
           // Point to our backend serve endpoint
           this.imagePreview.set(`${this.produtoService.baseUrl}${produto.imagemUrl}`);
@@ -240,7 +348,8 @@ export class ProdutoCreateComponent {
     if (this.produtoForm.valid) {
       this.isLoading.set(true);
 
-      const formValue = this.produtoForm.getRawValue();
+      const formValue = { ...this.produtoForm.getRawValue() };
+      delete formValue.margemLucro;
 
       const request$ = this.editMode()
         ? this.produtoService.update(this.produtoId()!, formValue)

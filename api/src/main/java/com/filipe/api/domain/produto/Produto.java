@@ -42,6 +42,10 @@ public class Produto {
     private Categoria categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "marca_id")
+    private Marca marca;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fornecedor_id")
     private Fornecedor fornecedor;
 
