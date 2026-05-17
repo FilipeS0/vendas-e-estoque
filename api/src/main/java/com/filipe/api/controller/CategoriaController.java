@@ -22,11 +22,13 @@ public class CategoriaController {
     private final CategoriaRepository repository;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<List<Categoria>> listar() {
         return ResponseEntity.ok(repository.findAll());
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<Categoria> criar(@Valid @RequestBody CategoriaRequest request) {
         Categoria categoria = Categoria.builder()
                 .nome(request.nome().trim())

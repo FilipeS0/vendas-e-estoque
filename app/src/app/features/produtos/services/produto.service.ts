@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface ProdutoRequest {
   codigoInterno: string;
@@ -159,7 +159,9 @@ export class ProdutoService {
   }
 
   getFornecedores(): Observable<Fornecedor[]> {
-    return this.http.get<Fornecedor[]>(`${this.apiUrl}/fornecedores`);
+    return this.http
+      .get<PageResponse<Fornecedor>>(`${this.apiUrl}/fornecedores`)
+      .pipe(map((res) => res.content));
   }
 
   uploadImagem(id: string, file: File): Observable<void> {

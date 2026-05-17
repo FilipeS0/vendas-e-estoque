@@ -24,7 +24,7 @@ public class FornecedorController {
     private final FornecedorService service;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'OPERADOR')")
     public ResponseEntity<Page<FornecedorResponse>> listar(@PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(service.listar(pageable));
     }
