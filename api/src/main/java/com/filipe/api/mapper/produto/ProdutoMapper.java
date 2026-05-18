@@ -1,5 +1,6 @@
 package com.filipe.api.mapper.produto;
 
+import com.filipe.api.domain.produto.Marca;
 import com.filipe.api.domain.produto.Categoria;
 import com.filipe.api.domain.produto.Fornecedor;
 import com.filipe.api.domain.produto.Produto;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 @Component
 public class ProdutoMapper {
 
-    public Produto toEntity(ProdutoRequest request, Categoria categoria, Fornecedor fornecedor) {
+    public Produto toEntity(ProdutoRequest request, Categoria categoria, Marca marca, Fornecedor fornecedor) {
         return Produto.builder()
                 .codigoInterno(request.codigoInterno())
                 .codigoBarras(request.codigoBarras())
@@ -22,6 +23,7 @@ public class ProdutoMapper {
                 .descricao(request.descricao())
                 .unidadeMedida(request.unidadeMedida())
                 .categoria(categoria)
+                .marca(marca)
                 .fornecedor(fornecedor)
                 .precoCusto(request.precoCusto())
                 .precoVenda(request.precoVenda())
@@ -39,11 +41,12 @@ public class ProdutoMapper {
                 .build();
     }
 
-    public void updateEntity(Produto produto, ProdutoUpdateRequest request, Categoria categoria, Fornecedor fornecedor) {
+    public void updateEntity(Produto produto, ProdutoUpdateRequest request, Categoria categoria, Marca marca, Fornecedor fornecedor) {
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
         produto.setUnidadeMedida(request.unidadeMedida());
         produto.setCategoria(categoria);
+        produto.setMarca(marca);
         produto.setFornecedor(fornecedor);
         produto.setPrecoCusto(request.precoCusto());
         produto.setPrecoVenda(request.precoVenda());
@@ -66,6 +69,7 @@ public class ProdutoMapper {
                 produto.getCodigoBarras(),
                 produto.getNome(),
                 produto.getCategoria() != null ? produto.getCategoria().getNome() : null,
+                produto.getMarca() != null ? produto.getMarca().getNome() : null,
                 produto.getFornecedor() != null ? produto.getFornecedor().getNome() : null,
                 produto.getPrecoVenda(),
                 quantidadeEstoque,
@@ -83,6 +87,7 @@ public class ProdutoMapper {
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getCategoria().getId(),
+                produto.getMarca() != null ? produto.getMarca().getId() : null,
                 produto.getFornecedor().getId(),
                 produto.getPrecoCusto(),
                 produto.getPrecoVenda(),

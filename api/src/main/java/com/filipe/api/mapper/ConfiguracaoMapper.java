@@ -10,6 +10,9 @@ public interface ConfiguracaoMapper {
     @org.mapstruct.Mapping(target = "id", ignore = true)
     @org.mapstruct.Mapping(target = "createdAt", ignore = true)
     @org.mapstruct.Mapping(target = "updatedAt", ignore = true)
+    @org.mapstruct.Mapping(target = "certificadoPath", ignore = true)
+    @org.mapstruct.Mapping(target = "certificadoValidade", ignore = true)
+    @org.mapstruct.Mapping(target = "certificadoSenha", ignore = true)
     Configuracao toEntity(ConfiguracaoRequest request);
     ConfiguracaoResponse toResponse(Configuracao configuracao);
 }

@@ -11,6 +11,9 @@ export interface UserProfile {
   id: string;
   nome: string;
   email: string;
+  perfilNome: string;
+  perfilId: string;
+  ativo: boolean;
   authorities: { authority: string }[];
 }
 

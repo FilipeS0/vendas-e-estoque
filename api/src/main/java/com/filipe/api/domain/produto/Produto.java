@@ -32,6 +32,7 @@ public class Produto {
 
     private String descricao;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "unidade_medida", nullable = false, length = 2)
     private UnidadeMedida unidadeMedida = UnidadeMedida.UN;
@@ -39,6 +40,10 @@ public class Produto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "marca_id")
+    private Marca marca;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fornecedor_id")

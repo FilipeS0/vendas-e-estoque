@@ -1,36 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import '@angular/cdk/overlay-prebuilt.css';
 
 :root {
   --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   --font-heading: 'Inter', 'Segoe UI', Arial, sans-serif;
   --font-mono: 'Courier New', monospace;
 
-  --primary-color: #3f51b5;
-  --primary-variant: #2f3b9b;
-  --secondary-color: #00bfa6;
+  --primary-color: #F59E0B;
+  --primary-variant: #D97706;
+  --primary-light: #FEF3C7;
+  --secondary-color: #374151;
   --success-color: #4caf50;
   --warning-color: #ffb300;
   --error-color: #e53935;
 
-  --background: #f4f7fb;
-  --surface: #ffffff;
+  --background: #F9FAFB;
+  --surface: #FFFFFF;
   --surface-strong: #f7f9fd;
   --surface-soft: #f0f4fb;
-  --border: #dfe3eb;
-  --text: #1f2937;
-  --text-secondary: #6b7280;
+  --border: #E5E7EB;
+  --text: #111827;
+  --text-secondary: #6B7280;
   --text-inverse: #ffffff;
-  --on-primary: #ffffff;
+  --on-primary: #78350F;
 
   --radius-sm: 10px;
   --radius-md: 18px;
   --radius-lg: 28px;
   --radius-xl: 36px;
+  --radius-control: 8px;
+  --radius-card: 8px;
+  --radius-pill: 999px;
 
   --shadow-sm: 0 8px 18px rgba(17, 24, 39, 0.06);
   --shadow-md: 0 20px 48px rgba(17, 24, 39, 0.12);
   --shadow-lg: 0 30px 80px rgba(17, 24, 39, 0.16);
+  --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.04);
 
   --spacing-xs: 6px;
   --spacing-sm: 12px;
@@ -72,6 +78,10 @@ select {
   font: inherit;
 }
 
+.mat-mdc-input-element:not(:placeholder-shown)::placeholder {
+  color: transparent;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -90,9 +100,182 @@ mat-toolbar.mat-toolbar {
   color: var(--on-primary);
 }
 
+body {
+  --mdc-outlined-text-field-container-shape: var(--radius-control);
+  --mdc-filled-text-field-container-shape: var(--radius-control);
+}
+
 .mat-card,
+.mat-mdc-card,
 .mat-form-field,
 .mat-list-item {
+  background: var(--surface) !important;
+}
+
+.mat-mdc-card {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: var(--spacing-md) !important;
+}
+
+.mat-mdc-card-content {
+  color: var(--text);
+  padding: 0 !important;
+}
+
+.page-container,
+.dashboard-container,
+.cliente-list-page,
+.relatorios-page,
+.pos-screen,
+.page-wrap,
+.caixa-page,
+.estoque-page,
+.cliente-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.page-container,
+.dashboard-container,
+.cliente-list-page,
+.relatorios-page,
+.page-wrap,
+.cliente-container {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.page-header,
+.header,
+.header-row,
+.panel-header,
+.table-header,
+mat-card-header.mat-mdc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.page-header h1,
+.header h2,
+.header-row h2,
+.panel-header h2,
+.panel-header h3,
+.title,
+mat-card-title.mat-mdc-card-title {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.page-header p,
+mat-card-subtitle.mat-mdc-card-subtitle {
+  color: var(--text-secondary);
+}
+
+.toolbar-row,
+.filter-row,
+.filters-row,
+.search-row,
+.actions-row,
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.table-container,
+.table-wrapper,
+.table-wrap,
+.cart-table-wrapper,
+.table-section {
+  overflow-x: auto;
+}
+
+table,
+.mat-mdc-table,
+.full-width-table,
+.full-table,
+.full-width,
+.product-table,
+.inventory-table,
+.lancamentos-table,
+.cart-table {
+  width: 100%;
+}
+
+.mat-mdc-header-row {
+  background: var(--surface-strong);
+}
+
+.mat-mdc-header-cell {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.mat-mdc-row:hover {
+  background: var(--surface-strong);
+}
+
+.status-badge,
+.role-badge,
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  background: var(--surface-soft);
+  color: var(--secondary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.empty-state,
+.no-data,
+.empty-list,
+.warning-box,
+.close-message,
+.status-container,
+.product-item,
+.payment-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-strong);
+}
+
+.empty-state,
+.no-data {
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.search-field,
+.filter-field {
+  width: 100%;
+  max-width: 420px;
+}
+
+.form-card,
+.table-card,
+.tabs-card,
+.chart-card,
+.top-products-card,
+.page-card,
+.glass-card,
+.info-card,
+.senha-card {
+  border-radius: var(--radius-card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
   background: var(--surface) !important;
 }
 
@@ -114,4 +297,18 @@ button[mat-icon-button]:hover {
 
 :root {
   color-scheme: light;
+}
+
+@media (max-width: 720px) {
+  .page-container,
+  .dashboard-container,
+  .cliente-list-page,
+  .relatorios-page,
+  .pos-screen,
+  .page-wrap,
+  .caixa-page,
+  .estoque-page,
+  .cliente-container {
+    padding: var(--spacing-md);
+  }
 }

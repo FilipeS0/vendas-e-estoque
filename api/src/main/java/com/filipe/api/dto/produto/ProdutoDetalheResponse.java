@@ -14,6 +14,7 @@ public record ProdutoDetalheResponse(
         String nome,
         String descricao,
         UUID categoriaId,
+        UUID marcaId,
         UUID fornecedorId,
         BigDecimal precoCusto,
         BigDecimal precoVenda,

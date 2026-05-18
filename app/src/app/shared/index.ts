@@ -3,6 +3,8 @@
  * Names match backend API (Portuguese field names)
  */
 
+export { FormInputComponent } from './components/form-input/form-input.component';
+
 export interface Cliente {
   id: string;
   nome: string;

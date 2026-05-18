@@ -52,7 +52,7 @@ public class ProdutoControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void deveListarProdutosComSucesso() throws Exception {
         ProdutoResponse response = new ProdutoResponse(
-                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null,
+                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null, null,
                 new BigDecimal("10.00"), null, null, null, true
         );
 
@@ -70,7 +70,7 @@ public class ProdutoControllerTest {
     @WithMockUser(roles = "GERENTE")
     public void devePermitirListagemParaGerente() throws Exception {
         ProdutoResponse response = new ProdutoResponse(
-                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null,
+                UUID.randomUUID(), "001", null, "Cerveja Teste", null, null, null,
                 new BigDecimal("10.00"), null, null, null, true
         );
 
@@ -109,14 +109,14 @@ public class ProdutoControllerTest {
     public void deveCriarProdutoComSucesso() throws Exception {
         ProdutoRequest request = new ProdutoRequest(
                 "P001", "7891234567890", "Produto Teste", "Desc",
-                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(),
+                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
                 new BigDecimal("10.00"), new BigDecimal("20.00"),
                 "12345678", null, "5102", OrigemProduto.NACIONAL,
                 null, null, null, null, null, null, BigDecimal.ZERO
         );
 
         ProdutoResponse response = new ProdutoResponse(
-                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null,
+                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null, null,
                 new BigDecimal("20.00"), null, UnidadeMedida.UN.name(), null, true
         );
 
@@ -135,7 +135,7 @@ public class ProdutoControllerTest {
     public void deveRetornarBadRequestAoCriarProdutoInvalido() throws Exception {
         ProdutoRequest request = new ProdutoRequest(
                 "", "", "", null,
-                null, null, null,
+                null, null, null, null,
                 null, null,
                 "", null, "", null,
                 null, null, null, null, null, null, null
@@ -153,14 +153,14 @@ public class ProdutoControllerTest {
     public void devePermitirCriacaoParaGerente() throws Exception {
         ProdutoRequest request = new ProdutoRequest(
                 "P001", "7891234567890", "Produto Teste", "Desc",
-                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(),
+                UnidadeMedida.UN, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
                 new BigDecimal("10.00"), new BigDecimal("20.00"),
                 "12345678", null, "5102", OrigemProduto.NACIONAL,
                 null, null, null, null, null, null, BigDecimal.ZERO
         );
 
         ProdutoResponse response = new ProdutoResponse(
-                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null,
+                UUID.randomUUID(), "P001", "7891234567890", "Produto Teste", null, null, null,
                 new BigDecimal("20.00"), null, UnidadeMedida.UN.name(), null, true
         );
 
